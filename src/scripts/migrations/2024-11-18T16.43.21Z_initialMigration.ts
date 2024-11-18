@@ -20,10 +20,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 
     await db.schema
     .createTable("session")
-    // Base columns
     .addColumn("id", "text", (col) => col.notNull().primaryKey())
-    .addColumn("createdAt", "integer", (col) => col.notNull())
-    //
     .addColumn("expiresAt", "integer", (col) => col.notNull())
     .addColumn("userId", "text", (col) => col.notNull().references("user.id"))
     .execute()
