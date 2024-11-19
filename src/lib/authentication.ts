@@ -1,9 +1,12 @@
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
+import { sha1 } from "@oslojs/crypto/sha1";
 import { database } from "lib/database";
 import { NewSession, SelectUser, Session } from "types/database"
 import { Err, Ok } from "utils/result";
+import { hash, verify } from "@node-rs/argon2";
 
+/* Sessions */
 export function generateSessionToken(): string {
     const bytes = new Uint8Array(20);
 	crypto.getRandomValues(bytes);
@@ -19,9 +22,9 @@ export async function createSession(token: string, userId: string): Promise<Resu
 		userId,
 		expiresAt: now + 1000 * 60 * 60 * 24 * 30
 	};
-	const res = await database.insertInto("session").values(session).returningAll().executeTakeFirst();
-	if (res) {
-        return Ok(res as Session);
+	const row = await database.insertInto("session").values(session).returningAll().executeTakeFirst();
+	if (row) {
+        return Ok(row as Session);
     }
     return Err("Failed to create session.");
 }
@@ -63,4 +66,49 @@ export async function validateSessionToken(token: string): Promise<ValidationRes
 
 export async function invalidateSession(sessionId: string): Promise<void> {
 	database.deleteFrom("session").where("id", "=", sessionId).execute();
+}
+
+/* Passwords */
+export async function hashPassword(password: string): Promise<string> {
+	return await hash(password, {
+		memoryCost: 19456,
+		timeCost: 2,
+		outputLen: 32,
+		parallelism: 1
+	});
+}
+
+export async function verifyPasswordHash(hash: string, password: string): Promise<boolean> {
+	return await verify(hash, password);
+}
+
+export async function verifyPasswordStrength(password: string): Promise<boolean> {
+	if (password.length < 8 || password.length > 255) {
+		return false;
+	}
+	const hash = encodeHexLowerCase(sha1(new TextEncoder().encode(password)));
+	const hashPrefix = hash.slice(0, 5);
+	const response = await fetch(`https://api.pwnedpasswords.com/range/${hashPrefix}`);
+	const data = await response.text();
+	const items = data.split("\n");
+	for (const item of items) {
+		const hashSuffix = item.slice(0, 35).toLowerCase();
+		if (hash === hashPrefix + hashSuffix) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/* Email */
+export function verifyEmailInput(email: string): boolean {
+	return /^.+@.+\..+$/.test(email) && email.length < 256;
+}
+
+export async function checkEmailAvailability(email: string): Promise<Result<boolean>> {
+	const row = await database.selectFrom("user").where("email", "=", email).select(database.fn.countAll().as("count")).executeTakeFirst();
+	if (!row) {
+		return Err("Failed to get email count from database.");
+	}
+	return Ok(row.count === 0);
 }

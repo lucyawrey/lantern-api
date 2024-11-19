@@ -5,7 +5,11 @@ import { createSession, generateSessionToken } from "lib/authentication";
 const app = new Elysia()
   .use(swagger({path: "/docs", version: "0.0.1"}))
   .get("/", ({cookie: { sessionToken }}) => {
-    return "Hello Elysia, session token is: " + sessionToken + ".";
+    const text = sessionToken != undefined ? ` Current session token is: ${sessionToken}.` : "";
+    return "Welcome to Lantern's API service. Go to '/docs' for interactive API documentation." + text;
+  })
+  .post("/signup", async ({cookie: { sessionToken }}) => {
+
   })
   .post("/login", async ({cookie: { sessionToken }}) => {
     const token = generateSessionToken();
@@ -21,5 +25,5 @@ const app = new Elysia()
   .listen(3000);
 
 console.log(
-  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`
+  `🏮 Lantern API service started on: http://${app.server?.hostname}:${app.server?.port}`
 );

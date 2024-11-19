@@ -11,11 +11,18 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("groups", "text", (col) =>
       col.defaultTo("[]").notNull(),
     )
-    .addColumn("username", "text", (col) => col.notNull())
-    .addColumn("email", "text", (col) => col.notNull())
+    .addColumn("username", "text", (col) => col.notNull().unique())
+    .addColumn("email", "text", (col) => col.notNull().unique())
     .addColumn("isOrganization", "integer", (col) => col.notNull().defaultTo(0))
     .addColumn("displayName", "text")
     .addColumn("iconUrl", "text")
+    .execute()
+
+    await db.schema
+    .createTable("credential")
+    .addColumn("id", "text", (col) => col.notNull().primaryKey())
+    .addColumn("userId", "text", (col) => col.notNull().references("user.id"))
+    .addColumn("passwordHash", "text", (col) => col.notNull())
     .execute()
 
     await db.schema
@@ -41,6 +48,7 @@ export async function up(db: Kysely<any>): Promise<void> {
 }
 
 export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("user").execute()
-  await db.schema.dropTable("session").execute()
+  await db.schema.dropTable("user").execute();
+  await db.schema.dropTable("credential").execute();
+  await db.schema.dropTable("session").execute();
 }
