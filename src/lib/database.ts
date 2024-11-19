@@ -1,9 +1,10 @@
 import { CamelCasePlugin, Kysely } from "kysely";
 import { BunWorkerDialect } from "kysely-bun-worker";
 import { DB } from "types/database";
+import { databaseUrl } from "utils/env";
 
 const bunSqliteDialect = new BunWorkerDialect({
-  url: process.env.DATABASE_URL || ":memory:",
+  url: databaseUrl,
 })
 
 export const db = new Kysely<DB>({

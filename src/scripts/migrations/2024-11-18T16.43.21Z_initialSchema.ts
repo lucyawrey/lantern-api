@@ -2,15 +2,13 @@ import { Kysely, sql } from "kysely";
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
-    .createTable("user")
+    .createTable("user").modifyEnd(sql`STRICT`)
     // Base columns
     .addColumn("id", "text", (col) => col.notNull().primaryKey())
     .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
     .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
     //
-    .addColumn("groups", "text", (col) =>
-      col.defaultTo("[]").notNull(),
-    )
+    .addColumn("groups", "text", (col) => col.defaultTo(JSON.stringify([])).notNull())
     .addColumn("username", "text", (col) => col.notNull().unique())
     .addColumn("email", "text", (col) => col.notNull().unique())
     .addColumn("isOrganization", "integer", (col) => col.notNull().defaultTo(0))
@@ -19,29 +17,18 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute()
 
     await db.schema
-    .createTable("credential")
+    .createTable("credential").modifyEnd(sql`STRICT`)
     .addColumn("id", "text", (col) => col.notNull().primaryKey())
     .addColumn("userId", "text", (col) => col.notNull().references("user.id"))
     .addColumn("passwordHash", "text", (col) => col.notNull())
     .execute()
 
     await db.schema
-    .createTable("session")
+    .createTable("session").modifyEnd(sql`STRICT`)
     .addColumn("id", "text", (col) => col.notNull().primaryKey())
     .addColumn("expiresAt", "integer", (col) => col.notNull())
     .addColumn("userId", "text", (col) => col.notNull().references("user.id"))
     .execute()
-
-    //Insert example data
-    const user = {
-      // Randomly generated v4UUID
-      id: "9a3d6ecd-4d7a-4489-a03e-f1c1326c70c3",
-      username: "lanterndev",
-      email: "dev@lanterntt.com",
-      displayName: "Lantern Developer",
-      iconUrl: "https://lanterntt.com/images/cute-anime-girl-pfp.png",
-    };
-    await db.insertInto("user").values(user).execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {

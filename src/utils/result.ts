@@ -19,5 +19,5 @@ export function Ok<T>(data?: T): Result<T, never> {
  * @returns An unsuccessful result object containing the error
  */
 export function Err<E = Error>(error: E): Result<never, E> {
-return { ok: false, error, unwrap: () => undefined };
+  return { ok: false, error, unwrap: () => undefined };
 }
