@@ -3,12 +3,16 @@
   "version": "1.0.50",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run migrate && bun run generate && bun run --watch src/index.ts",
-    "migrate": "bun run src/scripts/runMigrations.ts --latest",
-    "migrate:up": "bun run src/scripts/runMigrations.ts --up",
-    "migrate:down": "bun run src/scripts/runMigrations.ts --down",
-    "migrate:new": "bun run src/scripts/newMigration.ts",
-    "generate": "kysely-codegen --out-file ./gen/database-types.ts --camel-case"
+    "build": "bun run migrate:prod && bun run generate:prod && bun build src/index.ts --target bun --outdir ./build",
+    "start": "NODE_ENV=production bun --env-file .env.prod build/index.js",
+    "dev": "bun run migrate && bun run generate && bun run --env-file .env.dev --watch src/index.ts",
+    "migrate:prod": "bun run --env-file .env.prod src/scripts/runMigrations.ts --latest",
+    "migrate": "bun run --env-file .env.dev src/scripts/runMigrations.ts --latest",
+    "migrate:up": "bun run --env-file .env.dev src/scripts/runMigrations.ts --up",
+    "migrate:down": "bun run --env-file .env.dev src/scripts/runMigrations.ts --down",
+    "migrate:new": "bun run --env-file .env.dev src/scripts/newMigration.ts",
+    "generate:prod": "kysely-codegen --env-file .env.prod --out-file ./gen/database-types.ts --camel-case",
+    "generate": "kysely-codegen --env-file .env.dev --out-file ./gen/database-types.ts --camel-case"
   },
   "dependencies": {
     "@elysiajs/swagger": "^1.1.6",
