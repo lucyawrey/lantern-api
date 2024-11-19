@@ -1,7 +1,12 @@
 import swagger from "@elysiajs/swagger";
-import { Elysia, error } from "elysia";
+import { Elysia } from "elysia";
 import { createSession, generateSessionToken } from "lib/authentication";
 import { databaseUrl } from "utils/env";
+
+if (databaseUrl == undefined) {
+  console.error("  No SQLite database URL provided, stopping server.");
+  process.exit(0);
+}
 
 const app = new Elysia()
   .use(swagger({path: "/docs", version: "0.0.1"}))
@@ -25,7 +30,4 @@ const app = new Elysia()
   })
   .listen(3000);
 
-if (databaseUrl == ":memory:") {
-  console.log("   No SQLite Database URL provided, falling back on in memory database.");
-}
 console.log(`🏮 Lantern API service started on: http://${app.server?.hostname}:${app.server?.port}`);
