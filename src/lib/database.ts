@@ -6,7 +6,7 @@ const bunSqliteDialect = new BunWorkerDialect({
   url: process.env.DATABASE_URL || ":memory:",
 })
 
-export const database = new Kysely<DB>({
+export const db = new Kysely<DB>({
     dialect: bunSqliteDialect,
     plugins: [new CamelCasePlugin()],
 });

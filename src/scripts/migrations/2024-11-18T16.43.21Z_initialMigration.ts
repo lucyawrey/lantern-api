@@ -5,8 +5,8 @@ export async function up(db: Kysely<any>): Promise<void> {
     .createTable("user")
     // Base columns
     .addColumn("id", "text", (col) => col.notNull().primaryKey())
-    .addColumn("createdAt", "integer", (col) => col.notNull())
-    .addColumn("updatedAt", "integer", (col) => col.notNull())
+    .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
+    .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
     //
     .addColumn("groups", "text", (col) =>
       col.defaultTo("[]").notNull(),
@@ -33,12 +33,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     .execute()
 
     //Insert example data
-    const now = Date.now()
     const user = {
       // Randomly generated v4UUID
       id: "9a3d6ecd-4d7a-4489-a03e-f1c1326c70c3",
-      createdAt: now,
-      updatedAt: now,
       username: "lanterndev",
       email: "dev@lanterntt.com",
       displayName: "Lantern Developer",

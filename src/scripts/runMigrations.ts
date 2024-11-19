@@ -1,7 +1,7 @@
 import * as path from "path";
 import { promises as fs } from "fs";
 import { Migrator, FileMigrationProvider } from "kysely";
-import { database } from "lib/database";
+import { db } from "lib/database";
 
 const run = process.env.RUN_MIGRATIONS === "true";
 const url = process.env.DATABASE_URL || undefined;
@@ -22,7 +22,7 @@ async function runMigrations(migrationArg: string) {
   }
 
   const migrator = new Migrator({
-    db: database,
+    db,
     provider: new FileMigrationProvider({
       fs,
       path,
@@ -62,7 +62,7 @@ async function runMigrations(migrationArg: string) {
     process.exit(1);
   }
 
-  await database.destroy();
+  await db.destroy();
 
   if (results?.length === 0) {
     console.log("No migrations ran because the database is already up to date.");

@@ -1,7 +1,7 @@
 import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
 import { sha1 } from "@oslojs/crypto/sha1";
-import { database } from "lib/database";
+import { db } from "lib/database";
 import { NewSession, SelectUser, Session } from "types/database"
 import { Err, Ok } from "utils/result";
 import { hash, verify } from "@node-rs/argon2";
@@ -16,13 +16,12 @@ export function generateSessionToken(): string {
 
 export async function createSession(token: string, userId: string): Promise<Result<Session>> {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-    const now = Date.now()
 	const session: NewSession = {
 		id: sessionId,
 		userId,
-		expiresAt: now + 1000 * 60 * 60 * 24 * 30
+		expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30
 	};
-	const row = await database.insertInto("session").values(session).returningAll().executeTakeFirst();
+	const row = await db.insertInto("session").values(session).returningAll().executeTakeFirst();
 	if (row) {
         return Ok(row as Session);
     }
@@ -33,7 +32,7 @@ type ValidationResult = Result<{ session: Session, user: SelectUser }>;
 
 export async function validateSessionToken(token: string): Promise<ValidationResult> {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const row = await database.selectFrom("session").where("id", "=", sessionId).innerJoin("user", "user.id", "session.userId").selectAll().executeTakeFirst();
+	const row = await db.selectFrom("session").where("id", "=", sessionId).innerJoin("user", "user.id", "session.userId").selectAll().executeTakeFirst();
 	if (!row) {
 		return Err("Not authenticated. Invalid session token.");
 	}
@@ -59,13 +58,13 @@ export async function validateSessionToken(token: string): Promise<ValidationRes
 	}
 	if (Date.now() >= session.expiresAt - 1000 * 60 * 60 * 24 * 15) {
 		session.expiresAt = Date.now() + 1000 * 60 * 60 * 24 * 30;
-        database.updateTable("session").where("id", "=", session.id).set(session).execute()
+        db.updateTable("session").where("id", "=", session.id).set(session).execute()
 	}
 	return Ok({session, user});
 }
 
 export async function invalidateSession(sessionId: string): Promise<void> {
-	database.deleteFrom("session").where("id", "=", sessionId).execute();
+	db.deleteFrom("session").where("id", "=", sessionId).execute();
 }
 
 /* Passwords */
@@ -106,7 +105,7 @@ export function verifyEmailInput(email: string): boolean {
 }
 
 export async function checkEmailAvailability(email: string): Promise<Result<boolean>> {
-	const row = await database.selectFrom("user").where("email", "=", email).select(database.fn.countAll().as("count")).executeTakeFirst();
+	const row = await db.selectFrom("user").where("email", "=", email).select(db.fn.countAll().as("count")).executeTakeFirst();
 	if (!row) {
 		return Err("Failed to get email count from database.");
 	}
