@@ -11,6 +11,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("groups", "text", (col) => col.defaultTo(JSON.stringify([])).notNull())
     .addColumn("username", "text", (col) => col.notNull().unique())
     .addColumn("email", "text", (col) => col.notNull().unique())
+    .addColumn("emailVerified", "integer", (col) => col.notNull().defaultTo(0))
     .addColumn("isOrganization", "integer", (col) => col.notNull().defaultTo(0))
     .addColumn("displayName", "text")
     .addColumn("iconUrl", "text")

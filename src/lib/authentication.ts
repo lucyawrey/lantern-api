@@ -1,4 +1,4 @@
-import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from "@oslojs/encoding";
+import { encodeBase32LowerCaseNoPadding, encodeBase32UpperCaseNoPadding, encodeHexLowerCase } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
 import { sha1 } from "@oslojs/crypto/sha1";
 import { db } from "lib/database";
@@ -81,9 +81,9 @@ export async function verifyPasswordHash(hash: string, password: string): Promis
 	return await verify(hash, password);
 }
 
-export async function verifyPasswordStrength(password: string): Promise<boolean> {
+export async function verifyPasswordStrength(password: string): Promise<Result> {
 	if (password.length < 8 || password.length > 255) {
-		return false;
+		return Err("Password is not between 8 and 256 characters.");
 	}
 	const hash = encodeHexLowerCase(sha1(new TextEncoder().encode(password)));
 	const hashPrefix = hash.slice(0, 5);
@@ -93,21 +93,16 @@ export async function verifyPasswordStrength(password: string): Promise<boolean>
 	for (const item of items) {
 		const hashSuffix = item.slice(0, 35).toLowerCase();
 		if (hash === hashPrefix + hashSuffix) {
-			return false;
+			return Err("This password has potentially been exposed in a security breech.");
 		}
 	}
-	return true;
+	return Ok();
 }
 
-/* Email */
-export function verifyEmailInput(email: string): boolean {
-	return /^.+@.+\..+$/.test(email) && email.length < 256;
-}
-
-export async function checkEmailAvailability(email: string): Promise<Result<boolean>> {
-	const row = await db.selectFrom("user").where("email", "=", email).select(db.fn.countAll().as("count")).executeTakeFirst();
-	if (!row) {
-		return Err("Failed to get email count from database.");
-	}
-	return Ok(row.count === 0);
+/* One Time Password */
+export function generateRandomOTP(): string {
+	const bytes = new Uint8Array(5);
+	crypto.getRandomValues(bytes);
+	const code = encodeBase32UpperCaseNoPadding(bytes);
+	return code;
 }

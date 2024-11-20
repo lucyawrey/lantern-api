@@ -1,5 +1,5 @@
 import type { Insertable, Selectable, Updateable } from "kysely";
-import type { Session, User } from "gen/database-types";
+import type { Session, User, Credential } from "gen/database-types";
 
 /**
  * Dynamic data type used to represent JSON data in the database with unknown keys and values.
@@ -11,6 +11,10 @@ export type Data = { [key: string]: string };
 export type SelectUser = Selectable<User>;
 export type NewUser = Insertable<User>;
 export type UserUpdate = Updateable<User>;
+
+export type SelectCredential = Selectable<Credential>;
+export type NewCredential = Insertable<Credential>;
+export type CredentialUpdate = Updateable<Credential>;
 
 export type SelectSession = Selectable<Session>;
 export type NewSession = Insertable<Session>;
