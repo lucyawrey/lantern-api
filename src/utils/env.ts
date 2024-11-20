@@ -9,5 +9,3 @@ export const databaseUrl = process.env.DATABASE_URL as string;
  * the fact that the server will not start without `ENCRYPTION_KEY` defined.
  */
 export const encryptionKey = process.env.ENCRYPTION_KEY as string;
-
-export const defaultUserId = process.env.DEFAULT_USER_ID;
