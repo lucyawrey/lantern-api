@@ -1,7 +1,6 @@
 import { Elysia, t } from "elysia";
 import { UserService } from "services/user";
 import { SessionService } from "services/session";
-import { db } from "lib/database";
 import { setSessionCookie } from "lib/authentication";
 
 export const user = new Elysia()
