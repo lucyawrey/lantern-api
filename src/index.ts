@@ -1,6 +1,6 @@
 import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
-import { databaseUrl, encryptionKey } from "utils/env";
+import { databaseUrl, encryptionKey } from "lib/env";
 import { user } from "controllers/user";
 
 if (databaseUrl == undefined || encryptionKey == undefined) {

@@ -1,7 +1,7 @@
 import { CamelCasePlugin, Kysely } from "kysely";
 import { BunWorkerDialect } from "kysely-bun-worker";
 import { DB } from "types/database";
-import { databaseUrl } from "utils/env";
+import { databaseUrl } from "lib/env";
 
 const bunSqliteDialect = new BunWorkerDialect({
   url: databaseUrl,

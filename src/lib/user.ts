@@ -1,5 +1,5 @@
 import { hashPassword, verifyPasswordStrength } from "lib/authentication";
-import { Err, Ok } from "utils/result";
+import { Err, Ok } from "lib/result";
 import { db } from "lib/database";
 import { NewUser, NewCredential, SelectUser } from "types/database";
 

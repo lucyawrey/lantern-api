@@ -3,7 +3,7 @@ import { sha256 } from "@oslojs/crypto/sha2";
 import { sha1 } from "@oslojs/crypto/sha1";
 import { db } from "lib/database";
 import { NewSession, SelectUser, Session } from "types/database"
-import { Err, Ok } from "utils/result";
+import { Err, Ok } from "lib/result";
 import { hash, verify } from "@node-rs/argon2";
 
 /* Sessions */
