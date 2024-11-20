@@ -1,10 +1,8 @@
 import { encodeBase32LowerCaseNoPadding, encodeBase32UpperCaseNoPadding, encodeHexLowerCase } from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
 import { sha1 } from "@oslojs/crypto/sha1";
-import { db } from "lib/database";
-import { NewSession, SelectUser, Session } from "types/database"
 import { Err, Ok } from "lib/result";
 import { hash, verify } from "@node-rs/argon2";
+import { Cookie } from "elysia";
 
 /* Sessions */
 export function generateSessionToken(): string {
@@ -14,57 +12,9 @@ export function generateSessionToken(): string {
 	return token;
 }
 
-export async function createSession(token: string, userId: string): Promise<Result<Session>> {
-	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const session: NewSession = {
-		id: sessionId,
-		userId,
-		expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30
-	};
-	const row = await db.insertInto("session").values(session).returningAll().executeTakeFirst();
-	if (row) {
-        return Ok(row as Session);
-    }
-    return Err("Failed to create session.");
-}
-
-type ValidationResult = Result<{ session: Session, user: SelectUser }>;
-
-export async function validateSessionToken(token: string): Promise<ValidationResult> {
-	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const row = await db.selectFrom("session").where("id", "=", sessionId).innerJoin("user", "user.id", "session.userId").selectAll().executeTakeFirst();
-	if (!row) {
-		return Err("Not authenticated. Invalid session token.");
-	}
-	const session: Session = {
-		id: row.id,
-		userId: row.userId,
-		expiresAt: row.expiresAt
-	};
-	const user: SelectUser = {
-        id: row.userId,
-        createdAt: row.createdAt,
-        displayName: row.displayName,
-        email: row.email,
-        groups: row.groups,
-        iconUrl: row.iconUrl,
-        isOrganization: row.isOrganization,
-        updatedAt: row.updatedAt,
-        username: row.username,
-    };
-	if (Date.now() >= session.expiresAt) {
-		invalidateSession(session.id);
-		return Err("Not authenticated. Session expired.");
-	}
-	if (Date.now() >= session.expiresAt - 1000 * 60 * 60 * 24 * 15) {
-		session.expiresAt = Date.now() + 1000 * 60 * 60 * 24 * 30;
-        db.updateTable("session").where("id", "=", session.id).set(session).execute()
-	}
-	return Ok({session, user});
-}
-
-export async function invalidateSession(sessionId: string): Promise<void> {
-	db.deleteFrom("session").where("id", "=", sessionId).execute();
+/* Session Cookie */
+export function setSessionCookie(sessionTokenCookie: Cookie<string | undefined>, token: string, expires: Date) {
+	sessionTokenCookie.set({value: token, httpOnly: true, sameSite: "lax", path: "/", expires});
 }
 
 /* Passwords */
@@ -83,7 +33,7 @@ export async function verifyPasswordHash(hash: string, password: string): Promis
 
 export async function verifyPasswordStrength(password: string): Promise<Result> {
 	if (password.length < 8 || password.length > 255) {
-		return Err("Password is not between 8 and 256 characters.");
+		return Err("Invalid password. Password is not between 8 and 256 characters.");
 	}
 	const hash = encodeHexLowerCase(sha1(new TextEncoder().encode(password)));
 	const hashPrefix = hash.slice(0, 5);
@@ -93,7 +43,7 @@ export async function verifyPasswordStrength(password: string): Promise<Result> 
 	for (const item of items) {
 		const hashSuffix = item.slice(0, 35).toLowerCase();
 		if (hash === hashPrefix + hashSuffix) {
-			return Err("This password has potentially been exposed in a security breech.");
+			return Err("Invalid password. Password has potentially been exposed in a security breech.");
 		}
 	}
 	return Ok();
@@ -105,4 +55,13 @@ export function generateRandomOTP(): string {
 	crypto.getRandomValues(bytes);
 	const code = encodeBase32UpperCaseNoPadding(bytes);
 	return code;
+}
+
+/* Input Verification */
+export function verifyUsernameInput(username: string): boolean {
+	return username.length > 2 && username.length < 32 && /^[a-zA-Z0-9_]+$/.test(username);
+}
+
+export function verifyEmailInput(email: string): boolean {
+	return email.length < 256 && /^.+@.+\..+$/.test(email);
 }

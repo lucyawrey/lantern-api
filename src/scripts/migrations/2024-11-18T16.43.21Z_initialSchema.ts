@@ -9,22 +9,23 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
     //
     .addColumn("groups", "text", (col) => col.defaultTo(JSON.stringify([])).notNull())
-    .addColumn("username", "text", (col) => col.notNull().unique())
-    .addColumn("email", "text", (col) => col.notNull().unique())
+    .addColumn("username", "text", (col) => col.notNull().unique().modifyEnd(sql`COLLATE NOCASE`))
+    .addColumn("email", "text", (col) => col.notNull().unique().modifyEnd(sql`COLLATE NOCASE`))
     .addColumn("emailVerified", "integer", (col) => col.notNull().defaultTo(0))
     .addColumn("isOrganization", "integer", (col) => col.notNull().defaultTo(0))
     .addColumn("displayName", "text")
     .addColumn("iconUrl", "text")
     .execute()
 
-    await db.schema
+  await db.schema
     .createTable("credential").modifyEnd(sql`STRICT`)
     .addColumn("id", "text", (col) => col.notNull().primaryKey())
     .addColumn("userId", "text", (col) => col.notNull().references("user.id"))
     .addColumn("passwordHash", "text", (col) => col.notNull())
     .execute()
+  await db.schema.createIndex("credentialUserIdIndex").on("credential").column("userId").execute();
 
-    await db.schema
+  await db.schema
     .createTable("session").modifyEnd(sql`STRICT`)
     .addColumn("id", "text", (col) => col.notNull().primaryKey())
     .addColumn("expiresAt", "integer", (col) => col.notNull())

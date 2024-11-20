@@ -1,25 +1,47 @@
 import { Elysia, t } from "elysia";
-import { createSession, generateSessionToken } from "lib/authentication";
-import { createUser } from "lib/user";
+import { UserService } from "services/user";
+import { SessionService } from "services/session";
+import { db } from "lib/database";
+import { setSessionCookie } from "lib/authentication";
 
 export const user = new Elysia()
-  .post("/signup", async ({error, body, cookie: { sessionToken }}) => {
-    const newUser = await createUser(body.username, body.email, body.password, body.isOrganization, body.groups, body.displayName, body.iconUrl);
-    if (newUser.ok) {
-      return { user: newUser.data };
+  .post("/user/signup", async ({error, body, cookie: { sessionToken }}) => {
+    const newUser = await UserService.createUser(body.username, body.email, body.password, false, [], body.displayName, body.iconUrl);
+    if (!newUser.ok) {
+      return error(400, newUser.error);
     }
-    return error(400, newUser.error);
+    const user = newUser.data;
+
+    const sessionResult = await SessionService.createSession(user.id);
+    if (!sessionResult.ok) {
+      return error(500, sessionResult.error);
+    }
+    const [token, session] = sessionResult.data;
+    if (body.setCookie) {
+      setSessionCookie(sessionToken, token, new Date(session.expiresAt));
+    }
+    
+    return { token, session, user };
   }, {
-    body: t.Object({username: t.String(), email: t.String(), password: t.String(), isOrganization: t.Optional(t.Boolean()), groups: t.Optional(t.Array(t.String())), displayName: t.Optional(t.String()), iconUrl: t.Optional(t.String())}),
+    body: t.Object({username: t.String(), email: t.String(), password: t.String(), displayName: t.Optional(t.String()), iconUrl: t.Optional(t.String()), setCookie: t.Optional(t.Boolean())}),
   })
-  .post("/login", async ({error, cookie: { sessionToken }}) => {
-    const token = generateSessionToken();
-    const session = await createSession(token, "9a3d6ecd-4d7a-4489-a03e-f1c1326c70c3");
-    if (session.ok) {
-      const expires = new Date(session.data.expiresAt);
-      sessionToken.set({value: token, httpOnly: true, sameSite: "lax", path: "/", expires})
-      return token;
-    } else {
-      return error(500, session.error);
+  .post("/user/login", async ({error, body, cookie: { sessionToken }}) => {
+    const authenticationResult = await UserService.authenticateUser(body.usernameOrEmail, body.password);
+    if (!authenticationResult.ok) {
+      return error(401, authenticationResult.error);
     }
+    const user = authenticationResult.data;
+
+    const sessionResult = await SessionService.createSession(user.id);
+    if (!sessionResult.ok) {
+      return error(500, sessionResult.error);
+    }
+    const [token, session] = sessionResult.data;
+    if (body.setCookie) {
+      setSessionCookie(sessionToken, token, new Date(session.expiresAt));
+    }
+    
+    return { token, session, user };
+  }, {
+    body: t.Object({usernameOrEmail: t.String(), password: t.String(), setCookie: t.Optional(t.Boolean())}),
   });
