@@ -6,6 +6,7 @@
     "build": "bun run migrate:prod && bun run generate:prod && bun build src/index.ts --target bun --outdir ./build",
     "start": "NODE_ENV=production bun --env-file .env.prod build/index.js",
     "dev": "bun run migrate && bun run generate && bun run --env-file .env.dev --watch src/index.ts",
+    "fmt": "prettier --write .",
     "migrate:prod": "bun run --env-file .env.prod src/scripts/runMigrations.ts --latest",
     "migrate": "bun run --env-file .env.dev src/scripts/runMigrations.ts --latest",
     "migrate:up": "bun run --env-file .env.dev src/scripts/runMigrations.ts --up",
@@ -26,7 +27,8 @@
   "devDependencies": {
     "kysely-codegen": "^0.17.0",
     "better-sqlite3": "^11.5.0",
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "prettier": "^3.3.3"
   },
   "module": "src/index.js"
 }
