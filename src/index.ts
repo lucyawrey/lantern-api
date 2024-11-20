@@ -9,10 +9,12 @@ if (databaseUrl == undefined || encryptionKey == undefined) {
 }
 
 const app = new Elysia()
-  .use(swagger({path: "/docs", version: "0.0.1"}))
-  .get("/", ({set, cookie: { sessionToken }}) => {
+  .use(swagger({ path: "/docs", version: "0.0.1" }))
+  .get("/", ({ set, cookie: { sessionToken } }) => {
     set.headers["content-type"] = "text/html; charset=utf8";
-    const text = (sessionToken.value) ? `<p>Current session token is: ${sessionToken.value}.</p>` : "";
+    const text = sessionToken.value
+      ? `<p>Current session token is: ${sessionToken.value}.</p>`
+      : "";
     return `
     <!DOCTYPE html>
     <html>
@@ -27,4 +29,6 @@ const app = new Elysia()
   .use(user)
   .listen(3000);
 
-console.log(`🏮 Lantern API service started on: http://${app.server?.hostname}:${app.server?.port}`);
+console.log(
+  `🏮 Lantern API service started on: http://${app.server?.hostname}:${app.server?.port}`
+);

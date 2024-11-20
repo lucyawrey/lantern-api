@@ -4,15 +4,15 @@
  * @returns A successful result object containing the data
  */
 export function Ok<T>(data?: T): Result<T, never> {
-    return {
-      ok: true,
-      data: data as T,
-      unwrap: function () {
-        return this.data;
-      },
-    };
-  }
-  
+  return {
+    ok: true,
+    data: data as T,
+    unwrap: function () {
+      return this.data;
+    },
+  };
+}
+
 /**
  * Packages an error inside an unsuccessful result object
  * @param error - The error to return within the result

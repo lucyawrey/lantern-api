@@ -6,56 +6,61 @@ import { sha256 } from "@oslojs/crypto/sha2";
 import { generateSessionToken } from "lib/authentication";
 
 export abstract class SessionService {
-    static async createSession(userId: string): Promise<Result<[string, Session]>> {
-        const token = generateSessionToken();
-        const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-        const session: NewSession = {
-            id: sessionId,
-            userId,
-            expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30
-        };
-        const row = await db.insertInto("session").values(session).returningAll().executeTakeFirst();
-        if (row) {
-            return Ok([token, row as Session]);
-        }
-        return Err("Failed to create session.");
+  static async createSession(userId: string): Promise<Result<[string, Session]>> {
+    const token = generateSessionToken();
+    const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+    const session: NewSession = {
+      id: sessionId,
+      userId,
+      expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30,
+    };
+    const row = await db.insertInto("session").values(session).returningAll().executeTakeFirst();
+    if (row) {
+      return Ok([token, row as Session]);
     }
-    
-    static async validateSessionToken(token: string): Promise<Result<[Session, SelectUser]>> {
-        const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-        const row = await db.selectFrom("session").where("id", "=", sessionId).innerJoin("user", "user.id", "session.userId").selectAll().executeTakeFirst();
-        if (!row) {
-            return Err("Not authenticated. Invalid session token.");
-        }
-        const session: Session = {
-            id: row.id,
-            userId: row.userId,
-            expiresAt: row.expiresAt
-        };
-        const user: SelectUser = {
-            id: row.userId,
-            createdAt: row.createdAt,
-            displayName: row.displayName,
-            email: row.email,
-            groups: row.groups,
-            iconUrl: row.iconUrl,
-            isOrganization: row.isOrganization,
-            updatedAt: row.updatedAt,
-            username: row.username,
-            emailVerified: row.emailVerified,
-        };
-        if (Date.now() >= session.expiresAt) {
-            SessionService.invalidateSession(session.id);
-            return Err("Not authenticated. Session expired.");
-        }
-        if (Date.now() >= session.expiresAt - 1000 * 60 * 60 * 24 * 15) {
-            session.expiresAt = Date.now() + 1000 * 60 * 60 * 24 * 30;
-            db.updateTable("session").where("id", "=", session.id).set(session).execute()
-        }
-        return Ok([session, user]);
+    return Err("Failed to create session.");
+  }
+
+  static async validateSessionToken(token: string): Promise<Result<[Session, SelectUser]>> {
+    const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+    const row = await db
+      .selectFrom("session")
+      .where("id", "=", sessionId)
+      .innerJoin("user", "user.id", "session.userId")
+      .selectAll()
+      .executeTakeFirst();
+    if (!row) {
+      return Err("Not authenticated. Invalid session token.");
     }
-    
-    static async invalidateSession(sessionId: string): Promise<void> {
-        db.deleteFrom("session").where("id", "=", sessionId).execute();
+    const session: Session = {
+      id: row.id,
+      userId: row.userId,
+      expiresAt: row.expiresAt,
+    };
+    const user: SelectUser = {
+      id: row.userId,
+      createdAt: row.createdAt,
+      displayName: row.displayName,
+      email: row.email,
+      groups: row.groups,
+      iconUrl: row.iconUrl,
+      isOrganization: row.isOrganization,
+      updatedAt: row.updatedAt,
+      username: row.username,
+      emailVerified: row.emailVerified,
+    };
+    if (Date.now() >= session.expiresAt) {
+      SessionService.invalidateSession(session.id);
+      return Err("Not authenticated. Session expired.");
     }
+    if (Date.now() >= session.expiresAt - 1000 * 60 * 60 * 24 * 15) {
+      session.expiresAt = Date.now() + 1000 * 60 * 60 * 24 * 30;
+      db.updateTable("session").where("id", "=", session.id).set(session).execute();
+    }
+    return Ok([session, user]);
+  }
+
+  static async invalidateSession(sessionId: string): Promise<void> {
+    db.deleteFrom("session").where("id", "=", sessionId).execute();
+  }
 }

@@ -2,35 +2,48 @@ import { Kysely, sql } from "kysely";
 
 export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
-    .createTable("user").modifyEnd(sql`STRICT`)
+    .createTable("user")
+    .modifyEnd(sql`STRICT`)
     // Base columns
     .addColumn("id", "text", (col) => col.notNull().primaryKey())
     .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
     .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
     //
     .addColumn("groups", "text", (col) => col.defaultTo(JSON.stringify([])).notNull())
-    .addColumn("username", "text", (col) => col.notNull().unique().modifyEnd(sql`COLLATE NOCASE`))
-    .addColumn("email", "text", (col) => col.notNull().unique().modifyEnd(sql`COLLATE NOCASE`))
+    .addColumn("username", "text", (col) =>
+      col
+        .notNull()
+        .unique()
+        .modifyEnd(sql`COLLATE NOCASE`)
+    )
+    .addColumn("email", "text", (col) =>
+      col
+        .notNull()
+        .unique()
+        .modifyEnd(sql`COLLATE NOCASE`)
+    )
     .addColumn("emailVerified", "integer", (col) => col.notNull().defaultTo(0))
     .addColumn("isOrganization", "integer", (col) => col.notNull().defaultTo(0))
     .addColumn("displayName", "text")
     .addColumn("iconUrl", "text")
-    .execute()
+    .execute();
 
   await db.schema
-    .createTable("credential").modifyEnd(sql`STRICT`)
+    .createTable("credential")
+    .modifyEnd(sql`STRICT`)
     .addColumn("id", "text", (col) => col.notNull().primaryKey())
     .addColumn("userId", "text", (col) => col.notNull().references("user.id"))
     .addColumn("passwordHash", "text", (col) => col.notNull())
-    .execute()
+    .execute();
   await db.schema.createIndex("credentialUserIdIndex").on("credential").column("userId").execute();
 
   await db.schema
-    .createTable("session").modifyEnd(sql`STRICT`)
+    .createTable("session")
+    .modifyEnd(sql`STRICT`)
     .addColumn("id", "text", (col) => col.notNull().primaryKey())
     .addColumn("expiresAt", "integer", (col) => col.notNull())
     .addColumn("userId", "text", (col) => col.notNull().references("user.id"))
-    .execute()
+    .execute();
 }
 
 export async function down(db: Kysely<any>): Promise<void> {

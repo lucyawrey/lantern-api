@@ -5,9 +5,9 @@ import { databaseUrl } from "lib/env";
 
 const bunSqliteDialect = new BunWorkerDialect({
   url: databaseUrl,
-})
+});
 
 export const db = new Kysely<DB>({
-    dialect: bunSqliteDialect,
-    plugins: [new CamelCasePlugin()],
+  dialect: bunSqliteDialect,
+  plugins: [new CamelCasePlugin()],
 });
