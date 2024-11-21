@@ -9,3 +9,4 @@
   - [ ] Password reset
   - [ ] Email verification
   - [ ] Role based access control
+  - [ ] Cross-Site Request Forgery (CSRF) prevention!!

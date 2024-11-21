@@ -21,7 +21,9 @@ export abstract class SessionService {
     return Err("Failed to create session.");
   }
 
-  static async validateSessionToken(token: string): Promise<Result<[Session, SelectUser]>> {
+  static async validateSessionToken(
+    token: string
+  ): Promise<Result<{ session: Session; user: SelectUser }>> {
     const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
     const row = await db
       .selectFrom("session")
@@ -57,7 +59,7 @@ export abstract class SessionService {
       session.expiresAt = Date.now() + 1000 * 60 * 60 * 24 * 30;
       db.updateTable("session").where("id", "=", session.id).set(session).execute();
     }
-    return Ok([session, user]);
+    return Ok({ session, user });
   }
 
   static async invalidateSession(sessionId: string): Promise<void> {

@@ -1,9 +1,11 @@
-import { Elysia, t } from "elysia";
+import { Elysia, error, t } from "elysia";
 import { UserService } from "services/user";
 import { SessionService } from "services/session";
 import { setSessionCookie } from "lib/authentication";
+import { AuthService } from "services/auth";
 
 export const user = new Elysia()
+  .use(AuthService)
   .put(
     "/user/signup",
     async ({ error, body, cookie: { sessionToken } }) => {
@@ -12,7 +14,7 @@ export const user = new Elysia()
         body.email,
         body.password,
         false,
-        [],
+        ["user"],
         body.displayName,
         body.iconUrl
       );
@@ -76,20 +78,11 @@ export const user = new Elysia()
   )
   .delete(
     "/user/logout",
-    async ({ error, body, cookie: { sessionToken } }) => {
-      if (!sessionToken.value) {
-        return error(401);
-      }
-      const validationResult = await SessionService.validateSessionToken(sessionToken.value);
-      if (!validationResult.ok) {
-        return error(401, validationResult.error);
-      }
-      const [session, user] = validationResult.data;
-
+    async ({ error, auth, body, cookie: { sessionToken } }) => {
       if (body?.logoutAllSessions) {
-        await SessionService.invalidateAllUserSession(user.id);
+        await SessionService.invalidateAllUserSession(auth?.user?.id || "");
       } else {
-        await SessionService.invalidateSession(session.id);
+        await SessionService.invalidateSession(auth?.session?.id || "");
       }
       if (body?.deleteCookie) {
         sessionToken.remove();
@@ -97,6 +90,8 @@ export const user = new Elysia()
       return { loggedOut: true };
     },
     {
+      authenticate: true,
+      authorize: true,
       body: t.Optional(
         t.Object({
           deleteCookie: t.Optional(t.Boolean()),
