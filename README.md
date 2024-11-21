@@ -1,19 +1,35 @@
-# Elysia with Bun runtime
+# Lantern Tabletop API
+
+An experimental standalone API backend for the [Lantern](https://github.com/owl-factory/lantern) VTT built on [ElysiaJs](https://elysiajs.com) and [Bun](https://bun.sh).
+
+## Requirements
+
+This only requirement to run this project is a [Bun](https://nodejs.org/en) v1.1.34+ environment.
 
 ## Getting Started
 
-To get started with this template, simply paste this command into your terminal:
+Getting started with running the project in development mode is very straightforward.
 
-```bash
-bun create elysia ./elysia-example
-```
+First, clone the project from the remote. Next, in a terminal at the root of the project run `bun install` to install all dependencies.
 
-## Development
+Lastly, running the command `bun run dev` should run database migrations to create the initial SQLite database and start the dev server.
 
-To start the development server run:
+## Building
 
-```bash
-bun run dev
-```
+The project can be built with `bun run build` (as long as all dependencies are installed). Run the built with `bun run start`. You will need a `.env.prod` file with all of the correct enviornment fields to run a production build. The `.env.dev` file can be used as a referance.
 
-Open http://localhost:3000/ with your browser to see the result.
+## Testing
+
+Testing not yet implemented.
+
+## Built With
+
+- TypeScript
+- Bun
+- ElysiaJS
+- SQLite
+- Kysely
+
+# Author
+
+- **Lucy Awrey** - [lucyawrey](https://github.com/lucyawrey)

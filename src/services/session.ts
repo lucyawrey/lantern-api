@@ -25,7 +25,7 @@ export abstract class SessionService {
     const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
     const row = await db
       .selectFrom("session")
-      .where("id", "=", sessionId)
+      .where("session.id", "=", sessionId)
       .innerJoin("user", "user.id", "session.userId")
       .selectAll()
       .executeTakeFirst();
@@ -33,7 +33,7 @@ export abstract class SessionService {
       return Err("Not authenticated. Invalid session token.");
     }
     const session: Session = {
-      id: row.id,
+      id: sessionId,
       userId: row.userId,
       expiresAt: row.expiresAt,
     };
@@ -62,5 +62,9 @@ export abstract class SessionService {
 
   static async invalidateSession(sessionId: string): Promise<void> {
     db.deleteFrom("session").where("id", "=", sessionId).execute();
+  }
+
+  static async invalidateAllUserSession(userId: string): Promise<void> {
+    db.deleteFrom("session").where("userId", "=", userId).execute();
   }
 }

@@ -4,7 +4,7 @@ import { SessionService } from "services/session";
 import { setSessionCookie } from "lib/authentication";
 
 export const user = new Elysia()
-  .post(
+  .put(
     "/user/signup",
     async ({ error, body, cookie: { sessionToken } }) => {
       const newUser = await UserService.createUser(
@@ -72,5 +72,36 @@ export const user = new Elysia()
         password: t.String(),
         setCookie: t.Optional(t.Boolean()),
       }),
+    }
+  )
+  .delete(
+    "/user/logout",
+    async ({ error, body, cookie: { sessionToken } }) => {
+      if (!sessionToken.value) {
+        return error(401);
+      }
+      const validationResult = await SessionService.validateSessionToken(sessionToken.value);
+      if (!validationResult.ok) {
+        return error(401, validationResult.error);
+      }
+      const [session, user] = validationResult.data;
+
+      if (body?.logoutAllSessions) {
+        await SessionService.invalidateAllUserSession(user.id);
+      } else {
+        await SessionService.invalidateSession(session.id);
+      }
+      if (body?.deleteCookie) {
+        sessionToken.remove();
+      }
+      return { loggedOut: true };
+    },
+    {
+      body: t.Optional(
+        t.Object({
+          deleteCookie: t.Optional(t.Boolean()),
+          logoutAllSessions: t.Optional(t.Boolean()),
+        })
+      ),
     }
   );
