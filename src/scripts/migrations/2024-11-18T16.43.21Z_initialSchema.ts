@@ -8,11 +8,11 @@ export async function up(db: Kysely<any>): Promise<void> {
     .createTable("user")
     .modifyEnd(sql`STRICT`)
     // Base columns
-    .addColumn("id", "text", (col) => col.notNull().primaryKey())
-    .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
-    .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
+    .addColumn("id", "text", (col) => col.notNull().primaryKey()) // uuid
+    .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`)) // unix timestamp
+    .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`)) // unix timestamp
     //
-    .addColumn("groups", "text", (col) => col.defaultTo(JSON.stringify(["user"])).notNull())
+    .addColumn("groups", "text", (col) => col.defaultTo(JSON.stringify(["user"])).notNull()) // json (enum Group[])
     .addColumn("username", "text", (col) =>
       col
         .notNull()
@@ -25,8 +25,8 @@ export async function up(db: Kysely<any>): Promise<void> {
         .unique()
         .modifyEnd(sql`COLLATE NOCASE`)
     )
-    .addColumn("emailIsVerified", "integer", (col) => col.notNull().defaultTo(0))
-    .addColumn("isOrganization", "integer", (col) => col.notNull().defaultTo(0))
+    .addColumn("emailIsVerified", "integer", (col) => col.notNull().defaultTo(0)) // boolean
+    .addColumn("isOrganization", "integer", (col) => col.notNull().defaultTo(0)) // boolean
     .addColumn("displayName", "text")
     .addColumn("iconUrl", "text")
     .execute();
@@ -34,8 +34,8 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable("credential")
     .modifyEnd(sql`STRICT`)
-    .addColumn("id", "text", (col) => col.notNull().primaryKey())
-    .addColumn("userId", "text", (col) => col.notNull().references("user.id"))
+    .addColumn("id", "text", (col) => col.notNull().primaryKey()) // uuid
+    .addColumn("userId", "text", (col) => col.notNull().references("user.id")) // uuid
     .addColumn("passwordHash", "text", (col) => col.notNull())
     .execute();
   await db.schema.createIndex("credentialUserIdIndex").on("credential").column("userId").execute();
@@ -43,9 +43,9 @@ export async function up(db: Kysely<any>): Promise<void> {
   await db.schema
     .createTable("session")
     .modifyEnd(sql`STRICT`)
-    .addColumn("id", "text", (col) => col.notNull().primaryKey())
-    .addColumn("expiresAt", "integer", (col) => col.notNull())
-    .addColumn("userId", "text", (col) => col.notNull().references("user.id"))
+    .addColumn("id", "text", (col) => col.notNull().primaryKey()) // uuid
+    .addColumn("expiresAt", "integer", (col) => col.notNull()) // unix timestamp
+    .addColumn("userId", "text", (col) => col.notNull().references("user.id")) // uuid
     .execute();
 
   /* Content Tables */
@@ -53,60 +53,61 @@ export async function up(db: Kysely<any>): Promise<void> {
     .createTable("ruleset")
     .modifyEnd(sql`STRICT`)
     // Base columns
-    .addColumn("id", "text", (col) => col.notNull().primaryKey())
-    .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
-    .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
+    .addColumn("id", "text", (col) => col.notNull().primaryKey()) // uuid
+    .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`)) // unix timestamp
+    .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`)) // unix timestamp
     //
     .addColumn("name", "text", (col) => col.notNull())
-    .addColumn("ownerUserId", "text", (col) => col.notNull().references("user.id"))
-    .addColumn("visibility", "text", (col) => col.notNull().defaultTo("private"))
+    .addColumn("ownerUserId", "text", (col) => col.notNull().references("user.id")) // uuid
+    .addColumn("visibility", "text", (col) => col.notNull().defaultTo("private")) // (enum Visibility)
     .execute();
 
   await db.schema
-    .createTable("displaySheet")
+    .createTable("contentSheet")
     .modifyEnd(sql`STRICT`)
     // Base columns
-    .addColumn("id", "text", (col) => col.notNull().primaryKey())
-    .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
-    .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
+    .addColumn("id", "text", (col) => col.notNull().primaryKey()) // uuid
+    .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`)) // unix timestamp
+    .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`)) // unix timestamp
     //
     .addColumn("name", "text", (col) => col.notNull())
-    .addColumn("ownerUserId", "text", (col) => col.notNull().references("user.id"))
-    .addColumn("visibility", "text", (col) => col.notNull().defaultTo("private"))
-    .addColumn("contentTypeId", "text", (col) => col.references("contentType.id"))
-    .addColumn("xml", "text")
+    .addColumn("ownerUserId", "text", (col) => col.notNull().references("user.id")) // uuid
+    .addColumn("visibility", "text", (col) => col.notNull().defaultTo("private")) // (enum Visibility)
+    .addColumn("contentTypeId", "text", (col) => col.references("contentType.id")) // uuid
+    .addColumn("html", "text")
+    .addColumn("css", "text")
     .execute();
 
   await db.schema
     .createTable("contentType")
     .modifyEnd(sql`STRICT`)
     // Base columns
-    .addColumn("id", "text", (col) => col.notNull().primaryKey())
-    .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
-    .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
+    .addColumn("id", "text", (col) => col.notNull().primaryKey()) // uuid
+    .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`)) // unix timestamp
+    .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`)) // unix timestamp
     //
     .addColumn("name", "text", (col) => col.notNull())
-    .addColumn("ownerUserId", "text", (col) => col.notNull().references("user.id"))
-    .addColumn("visibility", "text", (col) => col.notNull().defaultTo("private"))
-    .addColumn("defaultDisplaySheetId", "text", (col) => col.references("displaySheet.id"))
-    .addColumn("rulesetId", "text", (col) => col.references("ruleset.id"))
+    .addColumn("ownerUserId", "text", (col) => col.notNull().references("user.id")) // uuid
+    .addColumn("visibility", "text", (col) => col.notNull().defaultTo("private")) // (enum Visibility)
+    .addColumn("defaultDisplaySheetId", "text", (col) => col.references("displaySheet.id")) // uuid
+    .addColumn("rulesetId", "text", (col) => col.references("ruleset.id")) // uuid
     .execute();
 
   let contentTb = db.schema
     .createTable("content")
     .modifyEnd(sql`STRICT`)
     // Base columns
-    .addColumn("id", "text", (col) => col.notNull().primaryKey())
-    .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
-    .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`))
+    .addColumn("id", "text", (col) => col.notNull().primaryKey()) // uuid
+    .addColumn("createdAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`)) // unix timestamp
+    .addColumn("updatedAt", "integer", (col) => col.notNull().defaultTo(sql`(unixepoch())`)) // unix timestamp
     //
     .addColumn("name", "text", (col) => col.notNull())
-    .addColumn("ownerUserId", "text", (col) => col.notNull().references("user.id"))
-    .addColumn("visibility", "text", (col) => col.notNull().defaultTo("private"))
-    .addColumn("isDynamic", "integer", (col) => col.notNull().defaultTo(1))
-    .addColumn("displaySheetId", "text", (col) => col.references("displaySheet.id"))
-    .addColumn("contentTypeId", "text", (col) => col.references("contentType.id"))
-    .addColumn("rulesetId", "text", (col) => col.references("ruleset.id"))
+    .addColumn("ownerUserId", "text", (col) => col.notNull().references("user.id")) // uuid
+    .addColumn("visibility", "text", (col) => col.notNull().defaultTo("private")) // (enum Visibility)
+    .addColumn("isDynamic", "integer", (col) => col.notNull().defaultTo(1)) // boolean
+    .addColumn("displaySheetId", "text", (col) => col.references("displaySheet.id")) // uuid
+    .addColumn("contentTypeId", "text", (col) => col.references("contentType.id")) // uuid
+    .addColumn("rulesetId", "text", (col) => col.references("ruleset.id")) // uuid
     .addColumn("data", "text");
   for (let i = 1; i <= contentIndexCount; i++) {
     contentTb = contentTb.addColumn(`dataIndex${i}`, "text");
