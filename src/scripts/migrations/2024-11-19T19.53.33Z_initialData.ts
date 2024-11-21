@@ -11,7 +11,7 @@ export async function up(db: Kysely<any>): Promise<void> {
       username: "lantern",
       email: "dev@lanterntt.com",
       isOrganization: 1,
-      groups: JSON.stringify(["admin"]),
+      groups: JSON.stringify(["user", "admin"]),
       displayName: "Lantern Tabletop",
       iconUrl: "https://lanterntt.com/images/cute-anime-girl-pfp.png",
     };

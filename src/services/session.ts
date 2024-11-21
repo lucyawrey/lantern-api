@@ -47,7 +47,7 @@ export abstract class SessionService {
       isOrganization: row.isOrganization,
       updatedAt: row.updatedAt,
       username: row.username,
-      emailVerified: row.emailVerified,
+      emailIsVerified: row.emailIsVerified,
     };
     if (Date.now() >= session.expiresAt) {
       SessionService.invalidateSession(session.id);

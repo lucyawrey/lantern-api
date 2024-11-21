@@ -6,6 +6,8 @@ import type { Session, User, Credential } from "gen/database-types";
  * This definition is equivalent to Record\<string, string\> but with a named key.
  * Some JSON data in the database will have a known structure that may include one or more of these dynamic data fields.
  */
+export type Group = "user" | "admin";
+export type Visibility = "public" | "friends" | "limited" | "private";
 export type Data = { [key: string]: string };
 
 export type SelectUser = Selectable<User>;
