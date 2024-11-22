@@ -2,7 +2,7 @@ import { Elysia, error } from "elysia";
 import { SessionService } from "services/session";
 import { Session, SelectUser, Group } from "types/database";
 
-export const AuthService = new Elysia({ name: "Service.Auth" })
+export const AuthService = new Elysia({ name: "AuthService" })
   .derive(
     { as: "scoped" },
     (): {

@@ -4,10 +4,10 @@ import { SessionService } from "services/session";
 import { setSessionCookie } from "lib/authentication";
 import { AuthService } from "services/auth";
 
-export const user = new Elysia()
+export const userController = new Elysia({ prefix: "/user" })
   .use(AuthService)
   .put(
-    "/user/signup",
+    "/signup",
     async ({ error, body, cookie: { sessionToken } }) => {
       const newUser = await UserService.createUser(
         body.username,
@@ -46,7 +46,7 @@ export const user = new Elysia()
     }
   )
   .post(
-    "/user/login",
+    "/login",
     async ({ error, body, cookie: { sessionToken } }) => {
       const authenticationResult = await UserService.authenticateUser(
         body.usernameOrEmail,
@@ -77,7 +77,7 @@ export const user = new Elysia()
     }
   )
   .delete(
-    "/user/logout",
+    "/logout",
     async ({ error, auth, body, cookie: { sessionToken } }) => {
       if (!auth.isAuthenticated) {
         return error(401);

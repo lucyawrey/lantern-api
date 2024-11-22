@@ -1,7 +1,7 @@
 import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { databaseUrl, encryptionKey } from "lib/env";
-import { user } from "controllers/user";
+import { userController } from "controllers/user";
 import { AuthService } from "services/auth";
 
 if (databaseUrl == undefined || encryptionKey == undefined) {
@@ -39,7 +39,7 @@ const app = new Elysia()
     },
     { authenticate: { requireGroup: ["admin"] } }
   )
-  .use(user)
+  .use(userController)
   .listen(3000);
 
 console.log(
