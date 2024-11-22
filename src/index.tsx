@@ -1,9 +1,11 @@
 import swagger from "@elysiajs/swagger";
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { databaseUrl, encryptionKey } from "lib/env";
 import { userController } from "controllers/user";
 import { AuthService } from "services/auth";
 import render from "preact-render-to-string";
+import { ContentService } from "services/content";
+import { Visibility } from "types/database";
 
 if (databaseUrl == undefined || encryptionKey == undefined) {
   console.error("  Missing required enviornment variables, stopping server.");
@@ -31,12 +33,34 @@ const app = new Elysia()
     },
     { authenticate: {} }
   )
-  .get(
-    "/admin-route",
-    () => {
-      return "Secret stuff.";
+  // TODO move this to own controller
+  .put(
+    "/content",
+    async ({ auth, error, body, cookie: { sessionToken } }) => {
+      if (!auth.isAuthenticated) {
+        return error(401);
+      }
+      const contentRow = await ContentService.createContent(
+        auth.user,
+        body.name,
+        body.data,
+        body.visibility as Visibility
+      );
+      if (!contentRow.ok) {
+        return error(400, contentRow.error);
+      }
+      const content = contentRow.data;
+      return { content };
     },
-    { authenticate: { requireGroup: ["admin"] } }
+    {
+      authenticate: { requireLogin: true },
+      body: t.Object({
+        name: t.String(),
+        data: t.Unknown(),
+        // TODO proper string union enum
+        visibility: t.String(),
+      }),
+    }
   )
   .use(userController)
   .listen(3000);
