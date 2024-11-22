@@ -16,7 +16,6 @@ const app = new Elysia()
   .get(
     "/",
     ({ set, auth }) => {
-      set.headers["content-type"] = "text/html; charset=utf8";
       const html = render(
         <body style="background:black; color:white;">
           <h1>Lantern Tabletop</h1>
@@ -27,6 +26,7 @@ const app = new Elysia()
           {auth.isAuthenticated ? <p>Current logged in user is: {auth.user.displayName}!</p> : ""}
         </body>
       );
+      set.headers["content-type"] = "text/html; charset=utf8";
       return `<!DOCTYPE html><html>${html}</html>`;
     },
     { authenticate: {} }
