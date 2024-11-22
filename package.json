@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "bun run migrate:prod && bun run generate:prod && bun build src/index.ts --target bun --outdir ./build",
+    "build": "bun run migrate:prod && bun run generate:prod && bun build src/index.tsx --target bun --outdir ./build",
     "start": "NODE_ENV=production bun --env-file .env.prod build/index.js",
-    "dev": "bun run migrate && bun run generate && bun run --env-file .env.dev --watch src/index.ts",
+    "dev": "bun run migrate && bun run generate && bun run --env-file .env.dev --watch src/index.tsx",
     "fmt": "prettier --write .",
     "migrate:prod": "bun run --env-file .env.prod src/scripts/runMigrations.ts --latest",
     "migrate": "bun run --env-file .env.dev src/scripts/runMigrations.ts --latest",
@@ -22,7 +22,9 @@
     "@oslojs/encoding": "^1.1.0",
     "elysia": "latest",
     "kysely": "^0.27.4",
-    "kysely-bun-worker": "^0.7.0"
+    "kysely-bun-worker": "^0.7.0",
+    "preact": "^10.25.0",
+    "preact-render-to-string": "^6.5.11"
   },
   "devDependencies": {
     "kysely-codegen": "^0.17.0",
