@@ -1,6 +1,6 @@
-import { Elysia } from "elysia";
+import { Elysia, error } from "elysia";
 import { SessionService } from "services/session";
-import { Session, SelectUser } from "types/database";
+import { Session, SelectUser, Group } from "types/database";
 
 export const AuthService = new Elysia({ name: "Service.Auth" })
   .derive(
@@ -29,34 +29,40 @@ export const AuthService = new Elysia({ name: "Service.Auth" })
   )
   .macro(({ onBeforeHandle }) => ({
     // This is declaring a service method
-    authenticate(enabled: boolean) {
-      if (!enabled) return;
+    authenticate({
+      requireLogin,
+      requireGroup,
+    }: {
+      requireLogin?: boolean;
+      requireGroup?: Group[];
+    }) {
       onBeforeHandle(async ({ auth, headers, cookie: { sessionToken } }) => {
+        requireLogin ||= Boolean(requireGroup);
         if (!auth) {
-          return;
+          return requireLogin ? error(401) : undefined;
         }
         const bearer = headers["Authorization"]?.startsWith("Bearer ")
           ? headers["Authorization"].slice(7)
           : undefined;
         const token = sessionToken.value || bearer;
         if (!token) {
-          return;
+          return requireLogin ? error(401) : undefined;
         }
         const validationResult = await SessionService.validateSessionToken(token);
         if (!validationResult.ok) {
-          return;
+          return requireLogin ? error(401, validationResult.error) : undefined;
+        }
+        if (requireGroup) {
+          const userIsInGroup = requireGroup.some((group) =>
+            validationResult.data.user.groups.includes(group)
+          );
+          if (!userIsInGroup) {
+            return error(401, "Unauthorized. User is not in required group.");
+          }
         }
         auth.isAuthenticated = true;
         auth.session = validationResult.data.session;
         auth.user = validationResult.data.user;
-      });
-    },
-    authorize(enabled: boolean) {
-      if (!enabled) return;
-      onBeforeHandle(async ({ error, auth }) => {
-        if (!auth || !auth.isAuthenticated) {
-          return error(401);
-        }
       });
     },
   }));

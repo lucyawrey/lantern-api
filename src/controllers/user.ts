@@ -79,10 +79,13 @@ export const user = new Elysia()
   .delete(
     "/user/logout",
     async ({ error, auth, body, cookie: { sessionToken } }) => {
+      if (!auth.isAuthenticated) {
+        return error(401);
+      }
       if (body?.logoutAllSessions) {
-        await SessionService.invalidateAllUserSession(auth?.user?.id || "");
+        await SessionService.invalidateAllUserSession(auth.user.id);
       } else {
-        await SessionService.invalidateSession(auth?.session?.id || "");
+        await SessionService.invalidateSession(auth.session.id);
       }
       if (body?.deleteCookie) {
         sessionToken.remove();
@@ -90,8 +93,7 @@ export const user = new Elysia()
       return { loggedOut: true };
     },
     {
-      authenticate: true,
-      authorize: true,
+      authenticate: { requireLogin: true },
       body: t.Optional(
         t.Object({
           deleteCookie: t.Optional(t.Boolean()),

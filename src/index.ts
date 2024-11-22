@@ -2,6 +2,7 @@ import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { databaseUrl, encryptionKey } from "lib/env";
 import { user } from "controllers/user";
+import { AuthService } from "services/auth";
 
 if (databaseUrl == undefined || encryptionKey == undefined) {
   console.error("  Missing required enviornment variables, stopping server.");
@@ -9,13 +10,16 @@ if (databaseUrl == undefined || encryptionKey == undefined) {
 }
 
 const app = new Elysia()
+  .use(AuthService)
   .use(swagger({ path: "/docs", version: "0.0.1" }))
-  .get("/", ({ set, cookie: { sessionToken } }) => {
-    set.headers["content-type"] = "text/html; charset=utf8";
-    const text = sessionToken.value
-      ? `<p>Current session token is: ${sessionToken.value}.</p>`
-      : "";
-    return `
+  .get(
+    "/",
+    ({ set, auth }) => {
+      set.headers["content-type"] = "text/html; charset=utf8";
+      const text = auth.isAuthenticated
+        ? `<p>Current logged in user is: ${auth.user.displayName}!</p>`
+        : "";
+      return `
     <!DOCTYPE html>
     <html>
       <body style="background:black; color:white;">
@@ -25,7 +29,16 @@ const app = new Elysia()
       </body>
     </html>
     `;
-  })
+    },
+    { authenticate: {} }
+  )
+  .get(
+    "/admin-route",
+    () => {
+      return "Secret stuff.";
+    },
+    { authenticate: { requireGroup: ["admin"] } }
+  )
   .use(user)
   .listen(3000);
 

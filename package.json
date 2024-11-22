@@ -1,6 +1,6 @@
 {
   "name": "lantern-api",
-  "version": "1.0.50",
+  "version": "0.0.1",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "bun run migrate:prod && bun run generate:prod && bun build src/index.ts --target bun --outdir ./build",
