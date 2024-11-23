@@ -10,11 +10,11 @@ export const arrayRegex = /\[([0-9]+)\]/;
  * @returns a flattened JavaScript object with keys that may be paths. Example:
  * `{name: "Character", "stats.abilityScores.strength": "12"}`.
  */
-export function flatten(object: string | unknown): Result<Data, string> {
+export function flatten(object: string | unknown, first: boolean = true): Result<Data, string> {
   if (object === undefined || object === null) {
     return Err("Failed to convert object to flat data format. Object is null or undefined.");
   }
-  if (typeof object === "string") {
+  if (first && typeof object === "string") {
     try {
       object = JSON.parse(object);
     } catch (_e) {
@@ -30,7 +30,7 @@ export function flatten(object: string | unknown): Result<Data, string> {
   for (const key in object) {
     const value = object[key as keyof typeof object];
     // We call this function recursively to check if value is an object, and process it if so.
-    const temp = flatten(value);
+    const temp = flatten(value, false);
     if (temp.ok) {
       for (const key2 in temp.data) {
         // Store temp data in result
