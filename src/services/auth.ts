@@ -63,6 +63,7 @@ export const AuthService = new Elysia({ name: "AuthService" })
         auth.isAuthenticated = true;
         auth.session = validationResult.data.session;
         auth.user = validationResult.data.user;
+        return;
       });
     },
   }));

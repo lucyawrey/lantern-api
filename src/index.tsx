@@ -3,9 +3,8 @@ import { Elysia, t } from "elysia";
 import { databaseUrl, encryptionKey } from "lib/env";
 import { userController } from "controllers/user";
 import { AuthService } from "services/auth";
-import render from "preact-render-to-string";
 import { ContentService } from "services/content";
-import { Visibility } from "types/database";
+import { JsxService } from "services/jsx";
 
 if (databaseUrl == undefined || encryptionKey == undefined) {
   console.error("  Missing required enviornment variables, stopping server.");
@@ -13,12 +12,13 @@ if (databaseUrl == undefined || encryptionKey == undefined) {
 }
 
 const app = new Elysia()
+  .use(JsxService)
   .use(AuthService)
   .use(swagger({ path: "/docs", version: "0.0.1" }))
   .get(
     "/",
-    ({ set, auth }) => {
-      const html = render(
+    ({ auth }) => (
+      <html lang="en">
         <body style="background:black; color:white;">
           <h1>Lantern Tabletop</h1>
           <p>
@@ -27,10 +27,8 @@ const app = new Elysia()
           </p>
           {auth.isAuthenticated ? <p>Current logged in user is: {auth.user.displayName}!</p> : ""}
         </body>
-      );
-      set.headers["content-type"] = "text/html; charset=utf8";
-      return `<!DOCTYPE html><html>${html}</html>`;
-    },
+      </html>
+    ),
     { authenticate: {} }
   )
   // TODO move this to own controller
@@ -44,7 +42,8 @@ const app = new Elysia()
         auth.user,
         body.name,
         body.data,
-        body.visibility as Visibility
+        body.visibility,
+        body.indexes
       );
       if (!contentRow.ok) {
         return error(400, contentRow.error);
@@ -56,9 +55,17 @@ const app = new Elysia()
       authenticate: { requireLogin: true },
       body: t.Object({
         name: t.String(),
-        data: t.Unknown(),
+        data: t.Optional(t.Unknown()),
         // TODO proper string union enum
-        visibility: t.String(),
+        visibility: t.Optional(
+          t.Union([
+            t.Literal("public"),
+            t.Literal("private"),
+            t.Literal("limited"),
+            t.Literal("friends"),
+          ])
+        ),
+        indexes: t.Optional(t.Array(t.String())),
       }),
     }
   )
