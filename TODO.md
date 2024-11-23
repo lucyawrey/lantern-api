@@ -12,3 +12,4 @@
   - [ ] Cross-Site Request Forgery (CSRF) prevention!!
 - [ ] Data
   - [ ] DB Indexes for common lookups (name fields, reference id fields)
+  - [ ] Fix nested array flattening with data flatten function
