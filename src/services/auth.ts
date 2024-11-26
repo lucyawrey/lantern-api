@@ -5,17 +5,22 @@ import { Session, SelectUser, Group } from "types/database";
 export const AuthService = new Elysia({ name: "AuthService" })
   .derive(
     { as: "scoped" },
-    (): {
+    ({
+      headers,
+      cookie: { sessionToken },
+    }): {
       auth:
         | {
             isAuthenticated: false;
             user: undefined;
             session: undefined;
+            token: string | undefined;
           }
         | {
             isAuthenticated: true;
             user: SelectUser;
             session: Session;
+            token: string;
           };
     } => {
       return {
@@ -23,6 +28,11 @@ export const AuthService = new Elysia({ name: "AuthService" })
           isAuthenticated: false,
           user: undefined,
           session: undefined,
+          token:
+            sessionToken.value ||
+            (headers["Authorization"]?.startsWith("Bearer ")
+              ? headers["Authorization"].slice(7)
+              : undefined),
         },
       };
     }
@@ -36,19 +46,16 @@ export const AuthService = new Elysia({ name: "AuthService" })
       requireLogin?: boolean;
       requireGroup?: Group[];
     }) {
-      onBeforeHandle(async ({ auth, headers, cookie: { sessionToken } }) => {
+      onBeforeHandle(async ({ auth }) => {
+        console.log(auth?.token);
         requireLogin ||= Boolean(requireGroup);
         if (!auth) {
           return requireLogin ? error(401) : undefined;
         }
-        const bearer = headers["Authorization"]?.startsWith("Bearer ")
-          ? headers["Authorization"].slice(7)
-          : undefined;
-        const token = sessionToken.value || bearer;
-        if (!token) {
+        if (!auth.token) {
           return requireLogin ? error(401) : undefined;
         }
-        const validationResult = await SessionService.validateSessionToken(token);
+        const validationResult = await SessionService.validateSessionToken(auth.token);
         if (!validationResult.ok) {
           return requireLogin ? error(401, validationResult.error) : undefined;
         }

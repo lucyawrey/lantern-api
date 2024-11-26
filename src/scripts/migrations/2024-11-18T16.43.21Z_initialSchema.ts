@@ -61,6 +61,11 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("visibility", "text", (col) => col.notNull().defaultTo("private")) // (enum Visibility)
     .execute();
   await db.schema.createIndex("rulesetNameIndex").on("ruleset").column("name").execute();
+  await db.schema
+    .createIndex("rulesetVisibilityIndex")
+    .on("ruleset")
+    .column("visibility")
+    .execute();
 
   await db.schema
     .createTable("contentSheet")
@@ -78,6 +83,11 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("css", "text")
     .execute();
   await db.schema.createIndex("contentSheetNameIndex").on("contentSheet").column("name").execute();
+  await db.schema
+    .createIndex("contentSheetVisibilityIndex")
+    .on("contentSheet")
+    .column("visibility")
+    .execute();
 
   await db.schema
     .createTable("contentType")
@@ -94,6 +104,11 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn("rulesetId", "text", (col) => col.references("ruleset.id")) // uuid
     .execute();
   await db.schema.createIndex("contentTypeNameIndex").on("contentType").column("name").execute();
+  await db.schema
+    .createIndex("contentTypeVisibilityIndex")
+    .on("contentType")
+    .column("visibility")
+    .execute();
 
   let contentTb = db.schema
     .createTable("content")
@@ -117,6 +132,11 @@ export async function up(db: Kysely<any>): Promise<void> {
   }
   contentTb.execute();
   await db.schema.createIndex("contentNameIndex").on("content").column("name").execute();
+  await db.schema
+    .createIndex("contentVisibilityIndex")
+    .on("content")
+    .column("visibility")
+    .execute();
   for (let i = 1; i <= contentIndexCount; i++) {
     await db.schema
       .createIndex(`contentDataIndex${i}Index`)

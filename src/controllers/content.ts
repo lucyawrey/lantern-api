@@ -1,4 +1,5 @@
 import { Elysia, t } from "elysia";
+import { ContentFields } from "gen/constants";
 import { AuthService } from "services/auth";
 import { ContentService } from "services/content";
 
@@ -36,11 +37,7 @@ export const contentController = new Elysia({ prefix: "/content" })
   .get(
     ":id",
     async ({ auth, error, params, query }) => {
-      if (!auth.isAuthenticated) {
-        return error(401);
-      }
-      const select = query.select.includes("all") ? "all" : query.select.split(",");
-      const contentRow = await ContentService.readOne(params.id, select, query.flat, auth.user);
+      const contentRow = await ContentService.readOne(params.id, query.s, query.flat, auth.user);
       if (!contentRow.ok) {
         return error(400, contentRow.error);
       }
@@ -48,12 +45,12 @@ export const contentController = new Elysia({ prefix: "/content" })
       return { content };
     },
     {
-      authenticate: { requireLogin: true },
+      authenticate: {},
       params: t.Object({
         id: t.String(),
       }),
       query: t.Object({
-        select: t.Union([t.String(), t.Literal("all")]),
+        s: t.Array(ContentFields),
         flat: t.Boolean({ default: false }),
       }),
     }

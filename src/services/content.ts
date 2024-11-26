@@ -2,7 +2,7 @@ import { arrayToDotSyntax, expand, flatten } from "lib/data";
 import { db } from "lib/database";
 import { contentIndexCount } from "lib/env";
 import { Err, Ok } from "lib/result";
-import { Data, SelectContent, SelectUser, Visibility } from "types/database";
+import { Content, Data, SelectContent, SelectUser, Visibility } from "types/database";
 
 export abstract class ContentService {
   static async create(
@@ -62,20 +62,30 @@ export abstract class ContentService {
 
   static async readOne(
     id: string,
-    select: string[] | "all",
+    select: (keyof Content | "all")[],
     flat: boolean = false,
     user?: SelectUser
   ): Promise<Result<any>> {
     let query = db.selectFrom("content").where("id", "=", id);
-    if (select === "all") {
+    if (select.includes("all")) {
       query = query.selectAll();
     } else {
-      // TODO properly type incoming selects
-      query = query.select(select as any);
+      query = query.select(select as (keyof Content)[]);
+    }
+    if (user && user.id) {
+      if (!user.groups.includes("admin")) {
+        query.where((eb) =>
+          eb.or([eb("visibility", "=", "public"), eb("ownerUserId", "=", user.id)])
+        );
+      }
+    } else {
+      query = query.where("visibility", "=", "public");
     }
     const contentRow = (await query.executeTakeFirst()) as any;
     if (!contentRow) {
-      return Err("Database error.");
+      return Err(
+        "Database returned no results. Content either does not exist or you do not have permission to access it."
+      );
     }
     if (contentRow.data) {
       const data = JSON.parse(contentRow.data);
