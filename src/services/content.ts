@@ -1,8 +1,8 @@
-import { flatten } from "lib/data";
+import { arrayToDotSyntax, flatten } from "lib/data";
 import { db } from "lib/database";
 import { contentIndexCount } from "lib/env";
 import { Err, Ok } from "lib/result";
-import { Data, NewContent, SelectContent, SelectUser, Visibility } from "types/database";
+import { Data, SelectContent, SelectUser, Visibility } from "types/database";
 
 export abstract class ContentService {
   static async createContent(
@@ -12,12 +12,18 @@ export abstract class ContentService {
     visibility?: Visibility,
     indexes?: string[]
   ): Promise<Result<SelectContent>> {
-    const flatenResult = flatten(data);
-    if (!flatenResult.ok) {
-      return flatenResult;
+    if (name === "") {
+      return Err("`name` can't be an empty string.");
     }
-    const flatData = flatenResult.data;
-    const flatDataJson = JSON.stringify(flatData);
+    let flatData: Data | undefined, flatDataJson: string | undefined;
+    if (data) {
+      const flatenResult = flatten(data);
+      if (!flatenResult.ok) {
+        return flatenResult;
+      }
+      flatData = flatenResult.data;
+      flatDataJson = JSON.stringify(flatData);
+    }
     const newContent: any /*NewContent*/ = {
       id: crypto.randomUUID(),
       ownerUserId: user.id,
@@ -26,12 +32,13 @@ export abstract class ContentService {
       visibility,
     };
 
-    if (indexes) {
+    if (flatData && indexes) {
       if (indexes.length > contentIndexCount) {
         return Err("Input error, provided too many data indexes.");
       }
       let i = 1;
-      for (const index of indexes) {
+      for (let index of indexes) {
+        index = arrayToDotSyntax(index);
         const value = flatData[index];
         if (value) {
           // Forced to use `any` for newContent to insert these, need to find better way.
