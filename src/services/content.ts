@@ -62,20 +62,21 @@ export abstract class ContentService {
 
   static async readOne(
     id: string,
-    select: [keyof SelectContent] | "all",
-    user?: SelectUser,
-    flat: boolean = false
-  ): Promise<Result<any>> {
+    select: string[] | "all",
+    flat: boolean = false,
+    user?: SelectUser
+  ): Promise<Result<SelectContent>> {
     let query = db.selectFrom("content").where("id", "=", id);
     if (select === "all") {
       query = query.selectAll();
     } else {
-      query.select(select);
+      // TODO properly type incoming selects
+      query = query.select(select as any);
     }
     const contentRow = await query.executeTakeFirst();
     if (!contentRow) {
       return Err("Database error.");
     }
-    return Ok(contentRow);
+    return Ok(contentRow as SelectContent);
   }
 }
