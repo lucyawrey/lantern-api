@@ -38,7 +38,7 @@ const app = new Elysia()
       if (!auth.isAuthenticated) {
         return error(401);
       }
-      const contentRow = await ContentService.createContent(
+      const contentRow = await ContentService.create(
         auth.user,
         body.name,
         body.data,

@@ -5,7 +5,7 @@ import { Err, Ok } from "lib/result";
 import { Data, SelectContent, SelectUser, Visibility } from "types/database";
 
 export abstract class ContentService {
-  static async createContent(
+  static async create(
     user: SelectUser,
     name: string,
     data?: string | unknown,
@@ -54,6 +54,25 @@ export abstract class ContentService {
       .values(newContent)
       .returningAll()
       .executeTakeFirst();
+    if (!contentRow) {
+      return Err("Database error.");
+    }
+    return Ok(contentRow);
+  }
+
+  static async readOne(
+    id: string,
+    select: [keyof SelectContent] | "all",
+    user?: SelectUser,
+    flat: boolean = false
+  ): Promise<Result<any>> {
+    let query = db.selectFrom("content").where("id", "=", id);
+    if (select === "all") {
+      query = query.selectAll();
+    } else {
+      query.select(select);
+    }
+    const contentRow = await query.executeTakeFirst();
     if (!contentRow) {
       return Err("Database error.");
     }
