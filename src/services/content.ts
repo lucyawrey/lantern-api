@@ -1,4 +1,4 @@
-import { arrayToDotSyntax, flatten } from "lib/data";
+import { arrayToDotSyntax, expand, flatten } from "lib/data";
 import { db } from "lib/database";
 import { contentIndexCount } from "lib/env";
 import { Err, Ok } from "lib/result";
@@ -65,7 +65,7 @@ export abstract class ContentService {
     select: string[] | "all",
     flat: boolean = false,
     user?: SelectUser
-  ): Promise<Result<SelectContent>> {
+  ): Promise<Result<any>> {
     let query = db.selectFrom("content").where("id", "=", id);
     if (select === "all") {
       query = query.selectAll();
@@ -73,10 +73,14 @@ export abstract class ContentService {
       // TODO properly type incoming selects
       query = query.select(select as any);
     }
-    const contentRow = await query.executeTakeFirst();
+    const contentRow = (await query.executeTakeFirst()) as any;
     if (!contentRow) {
       return Err("Database error.");
     }
-    return Ok(contentRow as SelectContent);
+    if (contentRow.data) {
+      const data = JSON.parse(contentRow.data);
+      contentRow.data = flat ? data : expand(data);
+    }
+    return Ok(contentRow);
   }
 }
