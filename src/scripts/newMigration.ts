@@ -32,5 +32,4 @@ function newMigration(migrationName: string) {
 }
 
 const [, , migrationName] = process.argv;
-
 newMigration(migrationName);

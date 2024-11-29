@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { ContentFields } from "gen/constants";
+import { ContentKey } from "gen/enums";
 import { AuthService } from "services/auth";
 import { ContentService } from "services/content";
 
@@ -50,7 +50,7 @@ export const contentController = new Elysia({ prefix: "/content" })
         id: t.String(),
       }),
       query: t.Object({
-        s: t.Array(ContentFields),
+        s: t.Array(ContentKey),
         flat: t.Boolean({ default: false }),
       }),
     }
