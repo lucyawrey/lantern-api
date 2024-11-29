@@ -22,7 +22,7 @@ const app = new Elysia()
         <body style="background:black; color:white;">
           <h1>Lantern Tabletop</h1>
           <p>
-            Welcome to Lantern's API service. Go to
+            Welcome to Lantern's API service. Go to{" "}
             <a href="/docs">interactive API documentation</a>.
           </p>
           {auth.isAuthenticated ? <p>Current logged in user is: {auth.user.displayName}!</p> : ""}

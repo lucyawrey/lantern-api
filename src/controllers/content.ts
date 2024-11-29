@@ -52,7 +52,7 @@ export const contentController = new Elysia({ prefix: "/content" })
       }),
       query: t.Object({
         s: t.Array(ContentKey),
-        flat: t.Boolean({ default: false }),
+        flat: t.Optional(t.Boolean({ default: false })),
       }),
     }
   );

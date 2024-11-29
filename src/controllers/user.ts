@@ -41,7 +41,7 @@ export const userController = new Elysia({ prefix: "/user" })
         password: t.String(),
         displayName: t.Optional(t.String()),
         iconUrl: t.Optional(t.String()),
-        setCookie: t.Boolean({ default: true }),
+        setCookie: t.Optional(t.Boolean({ default: true })),
       }),
     }
   )
@@ -72,7 +72,7 @@ export const userController = new Elysia({ prefix: "/user" })
       body: t.Object({
         usernameOrEmail: t.String(),
         password: t.String(),
-        setCookie: t.Boolean({ default: true }),
+        setCookie: t.Optional(t.Boolean({ default: true })),
       }),
     }
   )
@@ -96,8 +96,8 @@ export const userController = new Elysia({ prefix: "/user" })
       authenticate: { requireLogin: true },
       body: t.Optional(
         t.Object({
-          deleteCookie: t.Boolean({ default: true }),
-          logoutAllSessions: t.Boolean({ default: false }),
+          deleteCookie: t.Optional(t.Boolean({ default: true })),
+          logoutAllSessions: t.Optional(t.Boolean({ default: false })),
         })
       ),
     }

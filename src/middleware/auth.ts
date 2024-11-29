@@ -48,7 +48,6 @@ export const authMiddleware = new Elysia({ name: "authMiddleware" })
       requireGroup?: Group[];
     }) {
       onBeforeHandle(async ({ auth }) => {
-        console.log(auth?.token);
         requireLogin ||= Boolean(requireGroup);
         if (!auth) {
           return requireLogin ? error(401) : undefined;

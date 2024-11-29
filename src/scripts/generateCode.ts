@@ -48,14 +48,20 @@ function generateCode() {
 
   const interfaces = sourceFile.statements
     .filter(isInterfaceDeclaration)
-    .map((interfaceDeclaration) => ({
-      name: interfaceDeclaration.name.escapedText,
-      keys: interfaceDeclaration.members
-        .filter(isPropertySignature)
-        .map((propertySignature) =>
-          "escapedText" in propertySignature.name ? propertySignature.name.escapedText : "ERROR"
-        ),
-    }));
+    .map((interfaceDeclaration) => {
+      const int = {
+        name: interfaceDeclaration.name.escapedText,
+        keys: interfaceDeclaration.members
+          .filter(isPropertySignature)
+          .map((propertySignature) =>
+            "escapedText" in propertySignature.name
+              ? propertySignature.name.escapedText.toString()
+              : "ERROR"
+          ),
+      };
+      int.keys.push("all");
+      return int;
+    });
 
   const tEnumNodes = interfaces.map((int) =>
     factory.createVariableStatement(
@@ -71,7 +77,7 @@ function generateCode() {
               /* typeArguments */ undefined,
               [
                 factory.createArrayLiteralExpression(
-                  int.keys.map((key) => factory.createStringLiteral(key.toString()))
+                  int.keys.map((key) => factory.createStringLiteral(key))
                 ),
               ]
             )
