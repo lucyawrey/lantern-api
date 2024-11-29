@@ -1,7 +1,8 @@
 import { Elysia, t } from "elysia";
-import { ContentKey } from "gen/enums";
+import { ContentKey } from "types/enums";
 import { AuthService } from "services/auth";
 import { ContentService } from "services/content";
+import { Visibility } from "types/enums";
 
 export const contentController = new Elysia({ prefix: "/content" })
   .use(AuthService)
@@ -29,7 +30,7 @@ export const contentController = new Elysia({ prefix: "/content" })
       body: t.Object({
         name: t.String(),
         data: t.Optional(t.Unknown()),
-        visibility: t.Optional(t.UnionEnum(["public", "private", "limited", "friends"])),
+        visibility: t.Optional(Visibility),
         indexes: t.Optional(t.Array(t.String())),
       }),
     }

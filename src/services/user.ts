@@ -7,7 +7,7 @@ import {
 } from "lib/authentication";
 import { db } from "lib/database";
 import { Err, Ok } from "lib/result";
-import { NewCredential, NewUser, SelectUser } from "types/database";
+import type { NewCredential, NewUser, SelectUser } from "types/database";
 
 export abstract class UserService {
   static async checkEmailAvailability(email: string): Promise<Result> {

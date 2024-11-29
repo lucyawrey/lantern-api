@@ -1,5 +1,4 @@
 import fs from "fs";
-
 import {
   factory,
   SyntaxKind,
@@ -10,43 +9,10 @@ import {
   ScriptKind,
   ListFormat,
   NodeFlags,
+  createProgram,
+  isInterfaceDeclaration,
+  isPropertySignature,
 } from "typescript";
-
-const name = "ContentKey";
-const keys = [
-  "all",
-  "contentTypeId",
-  "createdAt",
-  "data",
-  "dataIndex1",
-  "dataIndex10",
-  "dataIndex2",
-  "dataIndex3",
-  "dataIndex4",
-  "dataIndex5",
-  "dataIndex6",
-  "dataIndex7",
-  "dataIndex8",
-  "dataIndex9",
-  "dataIndexKey1",
-  "dataIndexKey10",
-  "dataIndexKey2",
-  "dataIndexKey3",
-  "dataIndexKey4",
-  "dataIndexKey5",
-  "dataIndexKey6",
-  "dataIndexKey7",
-  "dataIndexKey8",
-  "dataIndexKey9",
-  "displaySheetId",
-  "id",
-  "isDynamic",
-  "name",
-  "ownerUserId",
-  "rulesetId",
-  "updatedAt",
-  "visibility",
-];
 
 const importNode = factory.createImportDeclaration(
   /* modifiers */ undefined,
@@ -64,29 +30,6 @@ const importNode = factory.createImportDeclaration(
   factory.createStringLiteral("elysia")
 );
 
-const constNode = factory.createVariableStatement(
-  [factory.createModifier(SyntaxKind.ExportKeyword)],
-  factory.createVariableDeclarationList(
-    [
-      factory.createVariableDeclaration(
-        factory.createIdentifier(name),
-        /* exclamationToken */ undefined,
-        /* type */ undefined,
-        factory.createCallExpression(
-          factory.createIdentifier("t.UnionEnum"),
-          /* typeArguments */ undefined,
-          [
-            factory.createArrayLiteralExpression(
-              keys.map((key) => factory.createStringLiteral(key))
-            ),
-          ]
-        )
-      ),
-    ],
-    NodeFlags.Const
-  )
-);
-
 function printToString(nodes: any, filename: string): string {
   const printer = createPrinter({ newLine: NewLineKind.LineFeed });
   const resultFile = createSourceFile(filename, "", ScriptTarget.Latest, true, ScriptKind.TS);
@@ -94,9 +37,53 @@ function printToString(nodes: any, filename: string): string {
 }
 
 function generateCode() {
-  const fileName = "./gen/enums.ts";
-  const generatedCode = printToString([importNode, constNode], fileName);
-  fs.writeFileSync(fileName, generatedCode);
+  const outFilename = "./gen/enums.ts";
+  const sourceFilename = "./gen/database.ts";
+
+  const program = createProgram([sourceFilename], {});
+  const sourceFile = program.getSourceFile(sourceFilename);
+  if (!sourceFile) {
+    process.exit(0);
+  }
+
+  const interfaces = sourceFile.statements
+    .filter(isInterfaceDeclaration)
+    .map((interfaceDeclaration) => ({
+      name: interfaceDeclaration.name.escapedText,
+      keys: interfaceDeclaration.members
+        .filter(isPropertySignature)
+        .map((propertySignature) =>
+          "escapedText" in propertySignature.name ? propertySignature.name.escapedText : "ERROR"
+        ),
+    }));
+
+  const tEnumNodes = interfaces.map((int) =>
+    factory.createVariableStatement(
+      [factory.createModifier(SyntaxKind.ExportKeyword)],
+      factory.createVariableDeclarationList(
+        [
+          factory.createVariableDeclaration(
+            factory.createIdentifier(`${int.name}Key`),
+            /* exclamationToken */ undefined,
+            /* type */ undefined,
+            factory.createCallExpression(
+              factory.createIdentifier("t.UnionEnum"),
+              /* typeArguments */ undefined,
+              [
+                factory.createArrayLiteralExpression(
+                  int.keys.map((key) => factory.createStringLiteral(key.toString()))
+                ),
+              ]
+            )
+          ),
+        ],
+        NodeFlags.Const
+      )
+    )
+  );
+
+  const generatedCode = printToString([importNode, ...tEnumNodes], outFilename);
+  fs.writeFileSync(outFilename, generatedCode);
 }
 
 generateCode();

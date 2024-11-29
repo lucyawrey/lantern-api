@@ -1,7 +1,7 @@
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { db } from "lib/database";
 import { Err, Ok } from "lib/result";
-import { Session, NewSession, SelectUser } from "types/database";
+import type { Session, NewSession, SelectUser } from "types/database";
 import { sha256 } from "@oslojs/crypto/sha2";
 import { generateSessionToken } from "lib/authentication";
 

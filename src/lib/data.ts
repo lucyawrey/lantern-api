@@ -1,4 +1,4 @@
-import { Data } from "types/database";
+import type { Data } from "types/database";
 import { Err, Ok } from "lib/result";
 
 /**

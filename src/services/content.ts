@@ -2,7 +2,8 @@ import { arrayToDotSyntax, expand, flatten } from "lib/data";
 import { db } from "lib/database";
 import { contentIndexCount } from "lib/env";
 import { Err, Ok } from "lib/result";
-import { Content, Data, SelectContent, SelectUser, Visibility } from "types/database";
+import type { Content, Data, SelectContent, SelectUser } from "types/database";
+import type { Visibility } from "types/enums";
 
 export abstract class ContentService {
   static async create(

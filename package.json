@@ -12,8 +12,8 @@
     "migrate:up": "bun run --env-file .env.dev src/scripts/runMigrations.ts --up",
     "migrate:down": "bun run --env-file .env.dev src/scripts/runMigrations.ts --down",
     "migrate:new": "bun run --env-file .env.dev src/scripts/newMigration.ts",
-    "generate:prod": "kysely-codegen --env-file .env.prod --out-file ./gen/database-types.ts --camel-case && bun run generate:post",
-    "generate": "kysely-codegen --env-file .env.dev --out-file ./gen/database-types.ts --camel-case && bun run generate:post",
+    "generate:prod": "kysely-codegen --env-file .env.prod --out-file ./gen/database.ts --camel-case && bun run generate:post",
+    "generate": "kysely-codegen --env-file .env.dev --out-file ./gen/database.ts --camel-case && bun run generate:post",
     "generate:post": "bun run ./src/scripts/generateCode.ts"
   },
   "dependencies": {

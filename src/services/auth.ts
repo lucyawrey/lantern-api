@@ -1,6 +1,7 @@
 import { Elysia, error } from "elysia";
 import { SessionService } from "services/session";
-import { Session, SelectUser, Group } from "types/database";
+import type { Session, SelectUser } from "types/database";
+import type { Group } from "types/enums";
 
 export const AuthService = new Elysia({ name: "AuthService" })
   .derive(
