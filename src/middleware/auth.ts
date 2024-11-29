@@ -3,7 +3,7 @@ import { SessionService } from "services/session";
 import type { Session, SelectUser } from "types/database";
 import type { Group } from "types/enums";
 
-export const AuthService = new Elysia({ name: "AuthService" })
+export const authMiddleware = new Elysia({ name: "authMiddleware" })
   .derive(
     { as: "scoped" },
     ({

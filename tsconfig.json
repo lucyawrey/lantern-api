@@ -33,6 +33,7 @@
       "controllers/*": ["./src/controllers/*"],
       "lib/*": ["./src/lib/*"],
       "scripts/*": ["./src/scripts/*"],
+      "middleware/*": ["./src/middleware/*"],
       "services/*": ["./src/services/*"],
       "types/*": ["./src/types/*"],
       "gen/*": ["./gen/*"]

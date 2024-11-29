@@ -1,11 +1,11 @@
 import { Elysia, t } from "elysia";
 import { ContentKey } from "types/enums";
-import { AuthService } from "services/auth";
+import { authMiddleware } from "middleware/auth";
 import { ContentService } from "services/content";
 import { Visibility } from "types/enums";
 
 export const contentController = new Elysia({ prefix: "/content" })
-  .use(AuthService)
+  .use(authMiddleware)
   .put(
     "",
     async ({ auth, error, body }) => {

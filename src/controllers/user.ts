@@ -2,10 +2,10 @@ import { Elysia, error, t } from "elysia";
 import { UserService } from "services/user";
 import { SessionService } from "services/session";
 import { setSessionCookie } from "lib/authentication";
-import { AuthService } from "services/auth";
+import { authMiddleware } from "middleware/auth";
 
 export const userController = new Elysia({ prefix: "/user" })
-  .use(AuthService)
+  .use(authMiddleware)
   .put(
     "/signup",
     async ({ error, body, cookie: { sessionToken } }) => {

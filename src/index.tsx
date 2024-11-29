@@ -2,8 +2,8 @@ import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 import { databaseUrl, encryptionKey } from "lib/env";
 import { userController } from "controllers/user";
-import { AuthService } from "services/auth";
-import { JsxService } from "services/jsx";
+import { authMiddleware } from "middleware/auth";
+import { jsxMiddleware } from "middleware/jsx";
 import { contentController } from "controllers/content";
 
 if (databaseUrl == undefined || encryptionKey == undefined) {
@@ -12,8 +12,8 @@ if (databaseUrl == undefined || encryptionKey == undefined) {
 }
 
 const app = new Elysia()
-  .use(JsxService)
-  .use(AuthService)
+  .use(jsxMiddleware)
+  .use(authMiddleware)
   .use(swagger({ path: "/docs", version: "0.0.1" }))
   .get(
     "/",
