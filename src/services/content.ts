@@ -46,6 +46,8 @@ export abstract class ContentService {
           newContent[`dataIndexKey${i}`] = index;
           newContent[`dataIndex${i}`] = String(value);
           i++;
+        } else {
+          return Err("Input error, gave an invalid index key.");
         }
       }
     }
@@ -75,7 +77,7 @@ export abstract class ContentService {
     }
     if (user && user.id) {
       if (!user.groups.includes("admin")) {
-        query.where((eb) =>
+        query = query.where((eb) =>
           eb.or([eb("visibility", "=", "public"), eb("ownerUserId", "=", user.id)])
         );
       }
@@ -93,5 +95,19 @@ export abstract class ContentService {
       contentRow.data = flat ? data : expand(data);
     }
     return Ok(contentRow);
+  }
+
+  static async deleteOne(id: string, user: SelectUser): Promise<Result> {
+    let query = db.deleteFrom("content").where("id", "=", id);
+    if (!user.groups.includes("admin")) {
+      query = query.where("ownerUserId", "=", user.id);
+    }
+    const result = await query.returning("id").executeTakeFirst();
+    if (result?.id) {
+      return Ok();
+    }
+    return Err(
+      "Nothing was deleted. Content either does not exist or you do not have permission to delete it."
+    );
   }
 }

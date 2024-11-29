@@ -55,4 +55,23 @@ export const contentController = new Elysia({ prefix: "/content" })
         flat: t.Optional(t.Boolean({ default: false })),
       }),
     }
+  )
+  .delete(
+    ":id",
+    async ({ auth, error, params }) => {
+      if (!auth.isAuthenticated) {
+        return error(401);
+      }
+      const result = await ContentService.deleteOne(params.id, auth.user);
+      if (!result.ok) {
+        return error(400, result.error);
+      }
+      return { deleted: true };
+    },
+    {
+      authenticate: { requireLogin: true },
+      params: t.Object({
+        id: t.String(),
+      }),
+    }
   );
