@@ -1,6 +1,7 @@
 import { Elysia, error } from "elysia";
+import { Selectable } from "kysely";
 import { SessionService } from "services/session";
-import type { Session, SelectUser } from "types/database";
+import type { Session, User } from "types/database";
 import type { Group } from "types/enums";
 
 export const authMiddleware = new Elysia({ name: "authMiddleware" })
@@ -19,7 +20,7 @@ export const authMiddleware = new Elysia({ name: "authMiddleware" })
           }
         | {
             isAuthenticated: true;
-            user: SelectUser;
+            user: Selectable<User>;
             session: Session;
             token: string;
           };

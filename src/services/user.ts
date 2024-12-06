@@ -1,3 +1,4 @@
+import type { Insertable, Selectable } from "kysely";
 import {
   hashPassword,
   verifyEmailInput,
@@ -7,7 +8,7 @@ import {
 } from "lib/authentication";
 import { db } from "lib/database";
 import { Err, Ok } from "lib/result";
-import type { NewCredential, NewUser, SelectUser } from "types/database";
+import type { Credential, User } from "types/database";
 
 export abstract class UserService {
   static async checkEmailAvailability(email: string): Promise<Result> {
@@ -33,7 +34,7 @@ export abstract class UserService {
     groups?: string[],
     displayName?: string,
     iconUrl?: string
-  ): Promise<Result<SelectUser>> {
+  ): Promise<Result<Selectable<User>>> {
     if (!verifyEmailInput(email)) {
       return Err("Invalid email.");
     }
@@ -50,7 +51,7 @@ export abstract class UserService {
     }
 
     const passwordHash = await hashPassword(password);
-    const user: NewUser = {
+    const user: Insertable<User> = {
       id: crypto.randomUUID(),
       username,
       email,
@@ -59,7 +60,7 @@ export abstract class UserService {
       displayName: displayName,
       iconUrl: iconUrl,
     };
-    const credential: NewCredential = {
+    const credential: Insertable<Credential> = {
       id: crypto.randomUUID(),
       userId: user.id,
       passwordHash,
@@ -88,9 +89,9 @@ export abstract class UserService {
   static async authenticateUser(
     usernameOrEmail: string,
     password: string
-  ): Promise<Result<SelectUser>> {
+  ): Promise<Result<Selectable<User>>> {
     usernameOrEmail = usernameOrEmail.trim();
-    let user: SelectUser | undefined;
+    let user: Selectable<User> | undefined;
     if (verifyUsernameInput(usernameOrEmail)) {
       user = await db
         .selectFrom("user")

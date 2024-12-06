@@ -18,3 +18,7 @@
   - [ ] Allow users to access content from friends or that is specifically shared (req new relational tables)
   - [ ] Allow users to access content from a Table (to be implemented)
   - [ ] Potentially removing most access control checks from queries
+- [ ] Code maintainability
+  - [ ] Set up proper linting,
+  - [ ] Remove reliance on `any` in database queries.
+  - [ ] Remove `better-sqlite3` dev dependency that is only needed to appease `kysely-codegen` which cant recognize the our bun specific driver.

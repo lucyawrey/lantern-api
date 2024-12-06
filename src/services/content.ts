@@ -1,18 +1,20 @@
+import type { Selectable } from "kysely";
 import { arrayToDotSyntax, expand, flatten } from "lib/data";
 import { db } from "lib/database";
 import { contentIndexCount } from "lib/env";
 import { Err, Ok } from "lib/result";
-import type { Content, Data, SelectContent, SelectUser } from "types/database";
+import type { Content, User } from "types/database";
 import type { Visibility } from "types/enums";
+import { Data } from "types/models";
 
 export abstract class ContentService {
   static async create(
-    user: SelectUser,
+    user: Selectable<User>,
     name: string,
     data?: string | unknown,
     visibility?: Visibility,
     indexes?: string[]
-  ): Promise<Result<SelectContent>> {
+  ): Promise<Result<Selectable<Content>>> {
     if (name === "") {
       return Err("`name` can't be an empty string.");
     }
@@ -25,7 +27,7 @@ export abstract class ContentService {
       flatData = flatenResult.data;
       flatDataJson = JSON.stringify(flatData);
     }
-    const newContent: any /*NewContent*/ = {
+    const newContent: any /* Insertable<Content> */ = {
       id: crypto.randomUUID(),
       ownerUserId: user.id,
       name,
@@ -67,7 +69,7 @@ export abstract class ContentService {
     id: string,
     select: (keyof Content | "all")[],
     flat: boolean = false,
-    user?: SelectUser
+    user?: Selectable<User>
   ): Promise<Result<any>> {
     let query = db.selectFrom("content").where("id", "=", id);
     if (select.includes("all")) {
@@ -97,7 +99,7 @@ export abstract class ContentService {
     return Ok(contentRow);
   }
 
-  static async deleteOne(id: string, user: SelectUser): Promise<Result> {
+  static async deleteOne(id: string, user: Selectable<User>): Promise<Result> {
     let query = db.deleteFrom("content").where("id", "=", id);
     if (!user.groups.includes("admin")) {
       query = query.where("ownerUserId", "=", user.id);

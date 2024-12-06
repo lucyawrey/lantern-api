@@ -1,15 +1,16 @@
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { db } from "lib/database";
 import { Err, Ok } from "lib/result";
-import type { Session, NewSession, SelectUser } from "types/database";
+import type { Session, User } from "types/database";
 import { sha256 } from "@oslojs/crypto/sha2";
 import { generateSessionToken } from "lib/authentication";
+import type { Insertable, Selectable } from "kysely";
 
 export abstract class SessionService {
   static async createSession(userId: string): Promise<Result<[string, Session]>> {
     const token = generateSessionToken();
     const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-    const session: NewSession = {
+    const session: Insertable<Session> = {
       id: sessionId,
       userId,
       expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30,
@@ -23,7 +24,7 @@ export abstract class SessionService {
 
   static async validateSessionToken(
     token: string
-  ): Promise<Result<{ session: Session; user: SelectUser }>> {
+  ): Promise<Result<{ session: Session; user: Selectable<User> }>> {
     const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
     const row = await db
       .selectFrom("session")
@@ -39,7 +40,7 @@ export abstract class SessionService {
       userId: row.userId,
       expiresAt: row.expiresAt,
     };
-    const user: SelectUser = {
+    const user: Selectable<User> = {
       id: row.userId,
       createdAt: row.createdAt,
       displayName: row.displayName,
