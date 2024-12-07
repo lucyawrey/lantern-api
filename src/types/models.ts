@@ -1,4 +1,5 @@
 import { Static, t } from "elysia";
+import { Group } from "types/enums";
 
 /**
  * Dynamic data type used to represent JSON data in the database with unknown keys and values.
@@ -7,3 +8,17 @@ import { Static, t } from "elysia";
  */
 export const Data = t.Record(t.String(), t.String(), {});
 export type Data = Static<typeof Data>;
+
+export const User = t.Object({
+  id: t.String(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+  username: t.String(),
+  email: t.String(),
+  groups: t.Array(Group),
+  emailIsVerified: t.Boolean(),
+  isOrganization: t.Boolean(),
+  displayName: t.Optional(t.String()),
+  iconUrl: t.Optional(t.String()),
+});
+export type User = Static<typeof User>;
