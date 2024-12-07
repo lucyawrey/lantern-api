@@ -1,8 +1,8 @@
 import { Elysia, error } from "elysia";
-import { Selectable } from "kysely";
 import { SessionService } from "services/session";
-import type { Session, User } from "types/database";
+import type { Session } from "types/database";
 import type { Group } from "types/enums";
+import { User } from "types/models";
 
 export const authMiddleware = new Elysia({ name: "authMiddleware" })
   .derive(
@@ -20,7 +20,7 @@ export const authMiddleware = new Elysia({ name: "authMiddleware" })
           }
         | {
             isAuthenticated: true;
-            user: Selectable<User>;
+            user: User;
             session: Session;
             token: string;
           };
@@ -51,10 +51,10 @@ export const authMiddleware = new Elysia({ name: "authMiddleware" })
       onBeforeHandle(async ({ auth }) => {
         requireLogin ||= Boolean(requireGroup);
         if (!auth) {
-          return requireLogin ? error(401) : undefined;
+          return requireLogin ? error(401, "Unauthorized.") : undefined;
         }
         if (!auth.token) {
-          return requireLogin ? error(401) : undefined;
+          return requireLogin ? error(401, "Unauthorized.") : undefined;
         }
         const validationResult = await SessionService.validateSessionToken(auth.token);
         if (!validationResult.ok) {

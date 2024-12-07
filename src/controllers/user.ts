@@ -3,6 +3,8 @@ import { UserService } from "services/user";
 import { SessionService } from "services/session";
 import { setSessionCookie } from "lib/authentication";
 import { authMiddleware } from "middleware/auth";
+import { toDate, User } from "types/models";
+import { responseSchema } from "lib/util";
 
 export const userController = new Elysia({ prefix: "/user" })
   .use(authMiddleware)
@@ -27,12 +29,12 @@ export const userController = new Elysia({ prefix: "/user" })
       if (!sessionResult.ok) {
         return error(500, sessionResult.error);
       }
-      const [token, session] = sessionResult.data;
+      const { token, session } = sessionResult.data;
       if (body.setCookie) {
-        setSessionCookie(sessionToken, token, new Date(session.expiresAt));
+        setSessionCookie(sessionToken, token, toDate(session.expiresAt));
       }
 
-      return { token, session, user };
+      return { token, user };
     },
     {
       body: t.Object({
@@ -43,6 +45,7 @@ export const userController = new Elysia({ prefix: "/user" })
         iconUrl: t.Optional(t.String()),
         setCookie: t.Optional(t.Boolean({ default: true })),
       }),
+      response: responseSchema({ token: t.String(), user: User }),
     }
   )
   .post(
@@ -56,17 +59,16 @@ export const userController = new Elysia({ prefix: "/user" })
         return error(401, authenticationResult.error);
       }
       const user = authenticationResult.data;
-
       const sessionResult = await SessionService.createSession(user.id);
       if (!sessionResult.ok) {
         return error(500, sessionResult.error);
       }
-      const [token, session] = sessionResult.data;
+      const { token, session } = sessionResult.data;
       if (body.setCookie) {
-        setSessionCookie(sessionToken, token, new Date(session.expiresAt));
+        setSessionCookie(sessionToken, token, toDate(session.expiresAt));
       }
 
-      return { token, session, user };
+      return { token, user };
     },
     {
       body: t.Object({
@@ -74,23 +76,29 @@ export const userController = new Elysia({ prefix: "/user" })
         password: t.String(),
         setCookie: t.Optional(t.Boolean({ default: true })),
       }),
+      response: responseSchema({ token: t.String(), user: User }),
     }
   )
   .delete(
     "/logout",
     async ({ error, auth, body, cookie: { sessionToken } }) => {
       if (!auth.isAuthenticated) {
-        return error(401);
-      }
-      if (body?.logoutAllSessions) {
-        await SessionService.invalidateAllUserSession(auth.user.id);
-      } else {
-        await SessionService.invalidateSession(auth.session.id);
+        return error(401, "Not authorized.");
       }
       if (body?.deleteCookie) {
         sessionToken.remove();
       }
-      return { loggedOut: true };
+
+      let id: Result<string>;
+      if (body?.logoutAllSessions) {
+        id = await SessionService.invalidateAllUserSession(auth.user.id);
+      } else {
+        id = await SessionService.invalidateSession(auth.session.id);
+      }
+      if (id.ok) {
+        return { id: id.data };
+      }
+      return error(500, id.error);
     },
     {
       authenticate: { requireLogin: true },
@@ -100,5 +108,6 @@ export const userController = new Elysia({ prefix: "/user" })
           logoutAllSessions: t.Optional(t.Boolean({ default: false })),
         })
       ),
+      response: responseSchema({ id: t.String() }),
     }
   );

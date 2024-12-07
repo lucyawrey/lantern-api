@@ -3,13 +3,13 @@ import { arrayToDotSyntax, expand, flatten } from "lib/data";
 import { db } from "lib/database";
 import { contentIndexCount } from "lib/env";
 import { Err, Ok } from "lib/result";
-import type { Content, User } from "types/database";
+import type { Content } from "types/database";
 import type { Visibility } from "types/enums";
-import { Data } from "types/models";
+import { Data, User } from "types/models";
 
 export abstract class ContentService {
   static async create(
-    user: Selectable<User>,
+    user: User,
     name: string,
     data?: string | unknown,
     visibility?: Visibility,
@@ -69,7 +69,7 @@ export abstract class ContentService {
     id: string,
     select: (keyof Content | "all")[],
     flat: boolean = false,
-    user?: Selectable<User>
+    user?: User
   ): Promise<Result<any>> {
     let query = db.selectFrom("content").where("id", "=", id);
     if (select.includes("all")) {
@@ -99,7 +99,7 @@ export abstract class ContentService {
     return Ok(contentRow);
   }
 
-  static async deleteOne(id: string, user: Selectable<User>): Promise<Result> {
+  static async deleteOne(id: string, user: User): Promise<Result> {
     let query = db.deleteFrom("content").where("id", "=", id);
     if (!user.groups.includes("admin")) {
       query = query.where("ownerUserId", "=", user.id);

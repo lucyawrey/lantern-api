@@ -8,7 +8,8 @@ import {
 } from "lib/authentication";
 import { db } from "lib/database";
 import { Err, Ok } from "lib/result";
-import type { Credential, User } from "types/database";
+import type { Credential, User as DbUser } from "types/database";
+import { toUser, User } from "types/models";
 
 export abstract class UserService {
   static async checkEmailAvailability(email: string): Promise<Result> {
@@ -34,7 +35,7 @@ export abstract class UserService {
     groups?: string[],
     displayName?: string,
     iconUrl?: string
-  ): Promise<Result<Selectable<User>>> {
+  ): Promise<Result<User>> {
     if (!verifyEmailInput(email)) {
       return Err("Invalid email.");
     }
@@ -51,7 +52,7 @@ export abstract class UserService {
     }
 
     const passwordHash = await hashPassword(password);
-    const user: Insertable<User> = {
+    const user: Insertable<DbUser> = {
       id: crypto.randomUUID(),
       username,
       email,
@@ -80,26 +81,23 @@ export abstract class UserService {
       return Err("Database error. Could not create user credential.");
     }
 
-    return Ok(userRow);
+    return Ok(toUser(userRow));
   }
 
   /**
    * This is critical authentication logic and should only be changed with care.
    */
-  static async authenticateUser(
-    usernameOrEmail: string,
-    password: string
-  ): Promise<Result<Selectable<User>>> {
+  static async authenticateUser(usernameOrEmail: string, password: string): Promise<Result<User>> {
     usernameOrEmail = usernameOrEmail.trim();
-    let user: Selectable<User> | undefined;
+    let userRow: Selectable<DbUser> | undefined;
     if (verifyUsernameInput(usernameOrEmail)) {
-      user = await db
+      userRow = await db
         .selectFrom("user")
         .where("username", "=", usernameOrEmail)
         .selectAll()
         .executeTakeFirst();
     } else if (verifyEmailInput(usernameOrEmail)) {
-      user = await db
+      userRow = await db
         .selectFrom("user")
         .where("email", "=", usernameOrEmail)
         .selectAll()
@@ -107,14 +105,14 @@ export abstract class UserService {
     } else {
       return Err("Invalid username or email.");
     }
-    if (user == undefined) {
+    if (userRow == undefined) {
       return Err("No user exists with that username/email and password.");
     }
 
     // Critical password verification logic
     const credential = await db
       .selectFrom("credential")
-      .where("userId", "=", user.id)
+      .where("userId", "=", userRow.id)
       .select("passwordHash")
       .executeTakeFirst();
     if (credential == undefined) {
@@ -122,7 +120,7 @@ export abstract class UserService {
     }
     const passwordIsValid = await verifyPasswordHash(credential.passwordHash, password);
     if (passwordIsValid) {
-      return Ok(user);
+      return Ok(toUser(userRow));
     }
 
     return Err("No user exists with that username/email and password.");
