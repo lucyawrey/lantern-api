@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lantern-api", "lantern-api.csproj", "{EE343326-670D-625C-83E3-87A0223F542B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EE343326-670D-625C-83E3-87A0223F542B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE343326-670D-625C-83E3-87A0223F542B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE343326-670D-625C-83E3-87A0223F542B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE343326-670D-625C-83E3-87A0223F542B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1F4CDE5A-5D89-404E-A94F-12E61D91631E}
+	EndGlobalSection
+EndGlobal
