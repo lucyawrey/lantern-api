@@ -1,4 +1,10 @@
+using IdGen;
+using Swashbuckle.AspNetCore.SwaggerUI;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var idGenerator = new IdGenerator(0);
+var db = new LanternContext(idGenerator);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -16,24 +22,22 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+app.MapGet("/", () =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    return "Lantern API";
+});
 
-app.MapGet("/weatherforecast", () =>
+app.MapPost("/test", async () =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    var test = new Test
+    {
+        Name = ""
+    };
+    db.Test.Add(test);
+    await db.SaveChangesAsync();
+    return "Added new Test!";
 })
-.WithName("GetWeatherForecast")
+.WithName("NewTest")
 .WithOpenApi();
 
 app.Run();
