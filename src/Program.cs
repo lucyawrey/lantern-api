@@ -41,26 +41,32 @@ app.MapGet("/", () =>
     return "Lantern API";
 });
 
-app.MapPost("/content", async () =>
+app.MapPost("/content", async (NewContent content) =>
 {
-    var content = new Content
+    var owner = db.User.Find(content.OwnerId);
+    var contentType = db.User.Find(content.OwnerId);
+    if (owner == null)
     {
-        Name = "Fireball",
-        Owner = db.User.Where(u => u.Name == "admin").First(),
-        DataIndexes = [],
-        DataIndexKeys = [],
-        Data = new Dictionary<string, string>(),
-    };
-    db.Content.Add(content);
-    await db.SaveChangesAsync();
-    return "Added new content!";
+        return "Error!";
+    }
+    db.Content.Add(new Content
+    {
+        Name = content.Name,
+        Owner = owner,
+        Visibility = content.Visibility ?? default,
+        IsDynamic = content.IsDynamic ?? default,
+        ContentTypeId = content.ContentTypeId
+    LayoutId { get; set;
+    }
+    Ruleset { get; set; }
+    DataIndexes { get; set; }
+    DataIndexKeys { get; set; }
+    Data { get; set; }
+});
+await db.SaveChangesAsync();
+return "Added new content!";
 })
 .WithName("NewTest")
 .WithOpenApi();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
