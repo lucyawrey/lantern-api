@@ -16,9 +16,7 @@ public class LanternContext : DbContext
 
     public LanternContext(IdGenerator generator)
     {
-        var folder = Environment.SpecialFolder.LocalApplicationData;
-        var path = Environment.GetFolderPath(folder);
-        DbPath = Path.Join(path, "lantern.db");
+        DbPath = Path.Join(Environment.CurrentDirectory, "lantern.db");
         Console.WriteLine("Database path: " + DbPath);
         Generator = generator;
     }
@@ -177,7 +175,6 @@ public class NewContent
     public long? ContentTypeId { get; set; }
     public long? LayoutId { get; set; }
     public long? Ruleset { get; set; }
-    public List<string>? DataIndexes { get; set; }
     public List<string>? DataIndexKeys { get; set; }
     public Dictionary<string, string>? Data { get; set; }
 }

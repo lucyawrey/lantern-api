@@ -44,29 +44,31 @@ app.MapGet("/", () =>
 app.MapPost("/content", async (NewContent content) =>
 {
     var owner = db.User.Find(content.OwnerId);
-    var contentType = db.User.Find(content.OwnerId);
+    var contentType = db.ContentType.Find(content.ContentTypeId);
+    var layout = db.Layout.Find(content.LayoutId);
+    var ruleset = db.Ruleset.Find(content.Ruleset);
     if (owner == null)
     {
         return "Error!";
     }
+    // TODO populate data indexes from DataIndexKeys and Data
+    // TODO convert between any JSON object and a flat Data onject in C sharp and the Database
     db.Content.Add(new Content
     {
         Name = content.Name,
         Owner = owner,
         Visibility = content.Visibility ?? default,
         IsDynamic = content.IsDynamic ?? default,
-        ContentTypeId = content.ContentTypeId
-    LayoutId { get; set;
-    }
-    Ruleset { get; set; }
-    DataIndexes { get; set; }
-    DataIndexKeys { get; set; }
-    Data { get; set; }
-});
-await db.SaveChangesAsync();
-return "Added new content!";
+        ContentType = contentType,
+        Layout = layout,
+        Ruleset = ruleset,
+        DataIndexKeys = new List<string>(),
+        Data = new Dictionary<string, string>(),
+    });
+    await db.SaveChangesAsync();
+    return "Added new content.";
 })
-.WithName("NewTest")
+.WithName("Add Content")
 .WithOpenApi();
 
 app.Run();
