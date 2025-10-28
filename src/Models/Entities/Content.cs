@@ -1,10 +1,11 @@
 namespace OwlFactory.Lantern.Api.Models;
 
-public class Content : IBaseEntity, ILibraryEntity
+public class Content : IBaseEntity, IOwnedEntity
 {
     public long Id { get; set; } = 0;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public required string Name { get; set; }
+    public required string DisplayName { get; set; }
     public required User Owner { get; set; }
     public Visibility Visibility { get; set; } = Visibility.Private;
     public bool IsDynamic { get; set; } = false;

@@ -88,14 +88,15 @@ public interface IBaseEntity
 {
     long Id { get; set; }
     DateTime UpdatedAt { get; set; }
+    string Name { get; set; }
+    string DisplayName { get; set; }
     // TODO more efficient way to get CreatedAt from Id
     DateTime CreatedAt => new IdGenerator(1, new IdGeneratorOptions(new IdStructure(41, 10, 12), new DefaultTimeSource(DateTime.UnixEpoch, TimeSpan.FromSeconds(1)))).FromId(Id).DateTimeOffset.UtcDateTime;
 }
 
 
-public interface ILibraryEntity
+public interface IOwnedEntity
 {
-    string Name { get; set; }
     User Owner { get; set; }
     Visibility Visibility { get; set; }
 }
