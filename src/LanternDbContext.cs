@@ -2,7 +2,9 @@ using IdGen;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-public class LanternContext : DbContext
+namespace OwlFactory.Lantern.Api.Entities;
+
+public class LanternDbContext : DbContext
 {
     public DbSet<Content> Content { get; set; }
     public DbSet<ContentType> ContentType { get; set; }
@@ -14,7 +16,7 @@ public class LanternContext : DbContext
     private string DbPath { get; }
     private IdGenerator Generator { get; }
 
-    public LanternContext(IdGenerator generator)
+    public LanternDbContext(IdGenerator generator)
     {
         DbPath = Path.Join(Environment.CurrentDirectory, "lantern.db");
         Console.WriteLine("Database path: " + DbPath);

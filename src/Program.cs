@@ -1,10 +1,10 @@
 using IdGen;
-using Swashbuckle.AspNetCore.SwaggerUI;
+using OwlFactory.Lantern.Api.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var idGenerator = new IdGenerator(0);
-var db = new LanternContext(idGenerator);
+var db = new LanternDbContext(idGenerator);
 db.Database.EnsureCreated();
 if (!db.User.Any(u => u.Name == "admin"))
 {
@@ -52,7 +52,7 @@ app.MapPost("/content", async (NewContent content) =>
         return "Error!";
     }
     // TODO populate data indexes from DataIndexKeys and Data
-    // TODO convert between any JSON object and a flat Data onject in C sharp and the Database
+    // TODO convert between any JSON object and a flat Data object in C sharp and the Database
     db.Content.Add(new Content
     {
         Name = content.Name,
