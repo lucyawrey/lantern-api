@@ -1,74 +1,44 @@
 using IdGen;
-using OwlFactory.Lantern.Api.Entities;
+using IdGen.DependencyInjection;
+using OwlFactory.Lantern.Api.Models;
+using OwlFactory.Lantern.Api.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var idGenerator = new IdGenerator(0);
-var db = new LanternDbContext(idGenerator);
-db.Database.EnsureCreated();
-if (!db.User.Any(u => u.Name == "admin"))
-{
-    var user = new User
-    {
-        Name = "admin",
-        DisplayName = "Lantern Administrator",
-        Groups = [UserGroup.Admin],
-        PasswordHash = "TODOPASSWORDHASHING",
-    };
-    db.User.Add(user);
-    await db.SaveChangesAsync();
-    Console.WriteLine("Default user: admin");
-}
-
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddControllers();
+builder.Services.AddIdGen(0, () => new IdGeneratorOptions(
+    new IdStructure(41, 10, 12),
+    new DefaultTimeSource(DateTime.UnixEpoch, TimeSpan.FromSeconds(1))
+));
+builder.Services.AddDbContext<LanternDbContext>();
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var db = scope.ServiceProvider.GetRequiredService<LanternDbContext>();
+    Utilities.MigrateDatabase(db);
 }
 
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
+
+// Configure the HTTP request pipeline.
 app.UseHttpsRedirection();
+app.MapControllers();
 
 app.MapGet("/", () =>
 {
-    return "Lantern API";
-});
-
-app.MapPost("/content", async (NewContent content) =>
-{
-    var owner = db.User.Find(content.OwnerId);
-    var contentType = db.ContentType.Find(content.ContentTypeId);
-    var layout = db.Layout.Find(content.LayoutId);
-    var ruleset = db.Ruleset.Find(content.Ruleset);
-    if (owner == null)
+    if (app.Environment.IsDevelopment())
     {
-        return "Error!";
+        var html = """<!doctype html><title>Lantern API Reference</title><meta charset=utf-8><meta content="width=device-width,initial-scale=1"name=viewport><div id=app></div><script src=https://cdn.jsdelivr.net/npm/@scalar/api-reference></script><script>Scalar.createApiReference("#app",{url:"http://localhost:5092/openapi/v1.json"})</script>""";
+        return Results.Content(html, "text/html");
     }
-    // TODO populate data indexes from DataIndexKeys and Data
-    // TODO convert between any JSON object and a flat Data object in C sharp and the Database
-    db.Content.Add(new Content
-    {
-        Name = content.Name,
-        Owner = owner,
-        Visibility = content.Visibility ?? default,
-        IsDynamic = content.IsDynamic ?? default,
-        ContentType = contentType,
-        Layout = layout,
-        Ruleset = ruleset,
-        DataIndexKeys = new List<string>(),
-        Data = new Dictionary<string, string>(),
-    });
-    await db.SaveChangesAsync();
-    return "Added new content.";
-})
-.WithName("Add Content")
-.WithOpenApi();
+    return Results.Content("Lantern API", "text/html");
+}).ExcludeFromDescription();
 
 app.Run();
