@@ -7,5 +7,6 @@ public class Ruleset : IBaseEntity, IOwnedEntity
     public required string Name { get; set; }
     public required string DisplayName { get; set; }
     public required User Owner { get; set; }
-    public Visibility Visibility { get; set; } = Visibility.Private;
+    public AccessType HasReadAccess { get; set; } = AccessType.InviteOnly;
+    public AccessType HasWriteAccess { get; set; } = AccessType.InviteOnly;
 }

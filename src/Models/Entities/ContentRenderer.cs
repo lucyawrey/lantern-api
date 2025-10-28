@@ -7,9 +7,9 @@ public class ContentRenderer : IBaseEntity, IOwnedEntity
     public required string Name { get; set; }
     public required string DisplayName { get; set; }
     public required User Owner { get; set; }
-    public Visibility Visibility { get; set; } = Visibility.Private;
-    public LayoutType Type { get; set; } = LayoutType.Content;
+    public AccessType HasReadAccess { get; set; } = AccessType.InviteOnly;
+    public AccessType HasWriteAccess { get; set; } = AccessType.InviteOnly;
     public required ContentType ContentType { get; set; }
-    public string? Css { get; set; }
-    public string? Html { get; set; }
+    public string CssStyles { get; set; } = string.Empty;
+    public string ChangelingMarkup { get; set; } = string.Empty;
 }

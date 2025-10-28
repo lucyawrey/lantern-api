@@ -8,11 +8,11 @@ public static class Utilities
     {
         // TODO proper migrations
         db.Database.EnsureCreated();
-        if (!db.User.Any(u => u.Username == "admin"))
+        if (!db.User.Any(u => u.Name == "admin"))
         {
             var user = new User
             {
-                Username = "admin",
+                Name = "admin",
                 DisplayName = "Lantern Administrator",
                 Groups = [UserGroup.Admin],
                 PasswordHash = "TODOPASSWORDHASHING",

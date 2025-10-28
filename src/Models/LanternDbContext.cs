@@ -45,7 +45,7 @@ public class LanternDbContext : DbContext
                 p.ToJson();
             });
         modelBuilder.Entity<ContentType>()
-            .OwnsOne(e => e.DataSchema, p =>
+            .OwnsOne(e => e.Schema, p =>
             {
                 p.ToJson();
             });
@@ -98,5 +98,6 @@ public interface IBaseEntity
 public interface IOwnedEntity
 {
     User Owner { get; set; }
-    Visibility Visibility { get; set; }
+    AccessType HasReadAccess { get; set; }
+    AccessType HasWriteAccess { get; set; }
 }

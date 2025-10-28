@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace OwlFactory.Lantern.Api.Models;
 
 public class Content : IBaseEntity, IOwnedEntity
@@ -7,12 +9,11 @@ public class Content : IBaseEntity, IOwnedEntity
     public required string Name { get; set; }
     public required string DisplayName { get; set; }
     public required User Owner { get; set; }
-    public Visibility Visibility { get; set; } = Visibility.Private;
-    public bool IsDynamic { get; set; } = false;
-    public ContentType? ContentType { get; set; }
-    public ContentRenderer? Layout { get; set; }
-    public Ruleset? Ruleset { get; set; }
-    public List<string> DataIndexes { get; set; } = new List<string>();
-    public List<string> DataIndexKeys { get; set; } = new List<string>();
+    public required ContentType ContentType { get; set; }
+    public AccessType HasReadAccess { get; set; } = AccessType.InviteOnly;
+    public AccessType HasWriteAccess { get; set; } = AccessType.InviteOnly;
+    public ContentRenderer? ContentRenderer { get; set; }
+    public List<string> IndexKeys { get; set; } = new List<string>();
+    public List<string> Indexes { get; set; } = new List<string>();
     public Dictionary<string, string> Data { get; set; } = new Dictionary<string, string>();
 }
