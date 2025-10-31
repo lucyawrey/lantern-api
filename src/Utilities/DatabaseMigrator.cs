@@ -1,4 +1,5 @@
 using OwlFactory.Lantern.Api.Models;
+using Tomlyn;
 
 namespace OwlFactory.Lantern.Api.Utilities;
 
@@ -8,18 +9,16 @@ public static class DatabaseMigrator
     {
         // TODO proper migrations
         db.Database.EnsureCreated();
-        if (!db.User.Any(u => u.Name == "admin"))
+        if (!db.User.Any())
         {
-            var user = new User
-            {
-                Name = "admin",
-                DisplayName = "Lantern Administrator",
-                Groups = [UserGroup.Admin],
-                PasswordHash = "TODOPASSWORDHASHING",
-            };
-            db.User.Add(user);
-            db.SaveChanges();
-            Console.WriteLine("Created default user: admin");
+            ImportInitialData(db);
         }
+    }
+
+    private static void ImportInitialData(LanternDbContext db)
+    {
+        using StreamReader reader = new("initial-data.toml");
+        string toml = reader.ReadToEnd();
+        var data = Toml.ToModel<InitialData>(toml);
     }
 }

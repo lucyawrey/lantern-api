@@ -46,16 +46,3 @@ namespace LanternApi.Controllers
         }
     }
 }
-
-public class NewContent
-{
-    public required string Name { get; set; }
-    public required long OwnerId { get; set; }
-    public AccessType? HasReadAccess { get; set; }
-    public bool? IsDynamic { get; set; }
-    public long? ContentTypeId { get; set; }
-    public long? LayoutId { get; set; }
-    public long? Ruleset { get; set; }
-    public List<string>? IndexKeys { get; set; }
-    public Dictionary<string, string>? Data { get; set; }
-}

@@ -12,22 +12,23 @@ public class ContentType : IBaseEntity, INamedEntity, IOwnedEntity
     public AccessType HasReadAccess { get; set; } = AccessType.InviteOnly;
     public AccessType HasWriteAccess { get; set; } = AccessType.InviteOnly;
     public required Ruleset Ruleset { get; set; }
-    public ContentMode ContentMode { get; set; } = ContentMode.Prop;
-    public ContentCategory ContentCategory { get; set; } = ContentCategory.Page;
-    public List<string> IndexKeys { get; set; } = new List<string>();
-    public Schema Schema { get; set; } = new Schema();
+    public ContentMode ContentMode { get; set; } = ContentMode.Static;
+    public ContentCategory ContentCategory { get; set; } = ContentCategory.Other;
+    public List<string> IndexKeys { get; set; } = [];
+    public bool HasDynamicSchema { get; set; } = true;
+    public Schema Schema { get; set; } = new();
     [ForeignKey(nameof(ContentRenderer))]
     public ContentRenderer? DefaultContentRenderer { get; set; }
 }
 
 public enum ContentMode
 {
-    Prop = 0, Actor = 1, ActorTemplate = 2
+    Static = 0, Interactive = 1
 }
 
 public enum ContentCategory
 {
-    Page = 0, Asset = 1, Character = 2
+    Other = 0, Page = 1, Character = 2, Item = 3, NPC = 4, Container = 5
 }
 
 public enum SchemaPropertyType
@@ -37,15 +38,14 @@ public enum SchemaPropertyType
 
 public class Schema
 {
-    public bool IsDynamic { get; set; } = true;
-    public List<SchemaPropertyDefinition> Properties { get; set; } = new List<SchemaPropertyDefinition>();
-    public List<SchemaTypeDefinition> Types { get; set; } = new List<SchemaTypeDefinition>();
+    public List<SchemaPropertyDefinition> Properties { get; set; } = [];
+    public List<SchemaTypeDefinition> Types { get; set; } = [];
 }
 
 public class SchemaTypeDefinition
 {
     public required string Key { get; set; }
-    public List<SchemaPropertyDefinition> Properties { get; set; } = new List<SchemaPropertyDefinition>();
+    public List<SchemaPropertyDefinition> Properties { get; set; } = [];
 }
 
 public class SchemaPropertyDefinition

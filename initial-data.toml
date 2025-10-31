@@ -1,0 +1,42 @@
+[[User]]
+Name = "admin"
+DisplayName = "Lantern Administrator"
+Groups = [1, 2]
+
+[[User]]
+Name = "user"
+DisplayName = "Test User"
+Groups = [0]
+
+[[Ruleset]]
+Name = "playground"
+DisplayName = "Playground"
+OwnerRef = "admin"
+HasReadAccess = 4
+
+[[ContentType]]
+Name = "dyn_page"
+DisplayName = "Dynamic Page"
+OwnerRef = "admin"
+HasReadAccess = 4
+RulesetRef = "playground"
+ContentMode = 0
+ContentCategory = 1
+
+[[ContentType]]
+Name = "dyn_character"
+DisplayName = "Dynamic Character"
+OwnerRef = "admin"
+HasReadAccess = 4
+RulesetRef = "playground"
+ContentMode = 1
+ContentCategory = 2
+
+[[ContentType]]
+Name = "dyn_item"
+DisplayName = "Dynamic Item"
+OwnerRef = "admin"
+HasReadAccess = 4
+RulesetRef = "playground"
+ContentMode = 0
+ContentCategory = 3

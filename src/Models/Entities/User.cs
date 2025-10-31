@@ -7,7 +7,6 @@ public class User : IBaseEntity, INamedEntity
     public required string Name { get; set; }
     public required string DisplayName { get; set; }
     public List<UserGroup> Groups { get; set; } = [UserGroup.User];
-    public bool EmailIsVerified { get; set; } = false;
     /// <summary>
     /// The user's hashed password. This is very sensitive information and should never be sent to the client.
     /// </summary>
