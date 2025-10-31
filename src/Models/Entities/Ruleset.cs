@@ -1,6 +1,6 @@
 namespace OwlFactory.Lantern.Api.Models;
 
-public class Ruleset : IBaseEntity, IOwnedEntity
+public class Ruleset : IBaseEntity, INamedEntity, IOwnedEntity
 {
     public long Id { get; set; } = 0;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

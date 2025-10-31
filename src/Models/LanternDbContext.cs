@@ -9,9 +9,11 @@ public class LanternDbContext : DbContext
     public DbSet<Content> Content { get; set; }
     public DbSet<ContentRenderer> ContentRenderer { get; set; }
     public DbSet<ContentType> ContentType { get; set; }
+    public DbSet<Friendship> Friendship { get; set; }
     public DbSet<Ruleset> Ruleset { get; set; }
     public DbSet<Session> Session { get; set; }
     public DbSet<Table> Table { get; set; }
+    public DbSet<TableMembership> TableMembership { get; set; }
     public DbSet<User> User { get; set; }
 
     private string _dbPath;
@@ -80,10 +82,14 @@ public interface IBaseEntity
 {
     long Id { get; set; }
     DateTime UpdatedAt { get; set; }
-    string Name { get; set; }
-    string DisplayName { get; set; }
     // TODO more efficient way to get CreatedAt from Id
     virtual DateTime CreatedAt => new IdGenerator(1, new IdGeneratorOptions(new IdStructure(41, 10, 12), new DefaultTimeSource(DateTime.UnixEpoch, TimeSpan.FromSeconds(1)))).FromId(Id).DateTimeOffset.UtcDateTime;
+}
+
+public interface INamedEntity
+{
+    string Name { get; set; }
+    string DisplayName { get; set; }
 }
 
 

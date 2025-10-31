@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OwlFactory.Lantern.Api.Models;
 
-public class ContentType : IBaseEntity, IOwnedEntity
+public class ContentType : IBaseEntity, INamedEntity, IOwnedEntity
 {
     public long Id { get; set; } = 0;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

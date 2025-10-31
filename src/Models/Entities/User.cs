@@ -1,6 +1,6 @@
 namespace OwlFactory.Lantern.Api.Models;
 
-public class User : IBaseEntity
+public class User : IBaseEntity, INamedEntity
 {
     public long Id { get; set; } = 0;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

@@ -1,10 +1,6 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-
 namespace OwlFactory.Lantern.Api.Models;
 
-public class Content : IBaseEntity, IOwnedEntity
+public class Content : IBaseEntity, INamedEntity, IOwnedEntity
 {
     public long Id { get; set; } = 0;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
