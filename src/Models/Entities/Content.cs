@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace OwlFactory.Lantern.Api.Models;
 
@@ -12,8 +14,8 @@ public class Content : IBaseEntity, IOwnedEntity
     public required ContentType ContentType { get; set; }
     public AccessType HasReadAccess { get; set; } = AccessType.InviteOnly;
     public AccessType HasWriteAccess { get; set; } = AccessType.InviteOnly;
-    public ContentRenderer? ContentRenderer { get; set; }
     public List<string> IndexKeys { get; set; } = new List<string>();
     public List<string> Indexes { get; set; } = new List<string>();
-    public Dictionary<string, string> Data { get; set; } = new Dictionary<string, string>();
+    public string Data { get; set; } = string.Empty;
+    public ContentRenderer? ContentRenderer { get; set; }
 }

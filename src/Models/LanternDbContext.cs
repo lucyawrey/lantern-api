@@ -39,16 +39,8 @@ public class LanternDbContext : DbContext
                 .HasConversion<DateTimeUnixEpochSecondsConverter>()
                 .ValueGeneratedOnAddOrUpdate();
         }
-        modelBuilder.Entity<Content>()
-            .OwnsOne(e => e.Data, p =>
-            {
-                p.ToJson();
-            });
         modelBuilder.Entity<ContentType>()
-            .OwnsOne(e => e.Schema, p =>
-            {
-                p.ToJson();
-            });
+            .ComplexProperty(c => c.Schema, d => d.ToJson());
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -91,7 +83,7 @@ public interface IBaseEntity
     string Name { get; set; }
     string DisplayName { get; set; }
     // TODO more efficient way to get CreatedAt from Id
-    DateTime CreatedAt => new IdGenerator(1, new IdGeneratorOptions(new IdStructure(41, 10, 12), new DefaultTimeSource(DateTime.UnixEpoch, TimeSpan.FromSeconds(1)))).FromId(Id).DateTimeOffset.UtcDateTime;
+    virtual DateTime CreatedAt => new IdGenerator(1, new IdGeneratorOptions(new IdStructure(41, 10, 12), new DefaultTimeSource(DateTime.UnixEpoch, TimeSpan.FromSeconds(1)))).FromId(Id).DateTimeOffset.UtcDateTime;
 }
 
 

@@ -2,9 +2,9 @@ using OwlFactory.Lantern.Api.Models;
 
 namespace OwlFactory.Lantern.Api.Utilities;
 
-public static class Utilities
+public static class DatabaseMigrator
 {
-    public static void MigrateDatabase(LanternDbContext db)
+    public static void Run(LanternDbContext db)
     {
         // TODO proper migrations
         db.Database.EnsureCreated();

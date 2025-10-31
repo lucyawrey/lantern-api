@@ -19,7 +19,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<LanternDbContext>();
-    Utilities.MigrateDatabase(db);
+    DatabaseMigrator.Run(db);
 }
 
 if (app.Environment.IsDevelopment())
