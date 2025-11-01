@@ -1,10 +1,10 @@
 # Lantern Tabletop API
 
-An experimental standalone API backend for the [Lantern](https://github.com/owl-factory/lantern) VTT built on [ElysiaJs](https://elysiajs.com) and [Bun](https://bun.sh).
+An experimental backend for the [Lantern](https://github.com/owl-factory/lantern) VTT built on [ElysiaJs](https://elysiajs.com) and [Bun](https://bun.sh).
 
 ## Requirements
 
-This only requirement to run this project is a [Bun](https://nodejs.org/en) v1.1.34+ environment.
+This only requirement to run this project is a [Bun](https://nodejs.org/en) v1.3.1+ environment.
 
 ## Getting Started
 
@@ -28,7 +28,6 @@ Testing not yet implemented.
 - Bun
 - ElysiaJS
 - SQLite
-- Kysely
 
 # Author
 
