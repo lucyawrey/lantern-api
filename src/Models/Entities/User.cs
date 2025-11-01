@@ -6,7 +6,7 @@ public class User : IBaseEntity, INamedEntity
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public required string Name { get; set; }
     public required string DisplayName { get; set; }
-    public List<UserGroup> Groups { get; set; } = [UserGroup.User];
+    public List<UserRole> Roles { get; set; } = [UserRole.User];
     /// <summary>
     /// The user's hashed password. This is very sensitive information and should never be sent to the client.
     /// </summary>
@@ -18,7 +18,7 @@ public class User : IBaseEntity, INamedEntity
     public string? IconUrl { get; set; }
 }
 
-public enum UserGroup
+public enum UserRole
 {
     User = 0, Organization = 1, Admin = 2
 }

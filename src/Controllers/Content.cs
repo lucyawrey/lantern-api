@@ -42,7 +42,7 @@ namespace LanternApi.Controllers
             // });
             //await _db.SaveChangesAsync();
             //return "Added new content.";
-            return "Todo create content with required user, ruleset, and content type.";
+            return "TODO implement create content.";
         }
     }
 }

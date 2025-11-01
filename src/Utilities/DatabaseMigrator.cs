@@ -19,6 +19,25 @@ public static class DatabaseMigrator
     {
         using StreamReader reader = new("initial-data.toml");
         string toml = reader.ReadToEnd();
-        var data = Toml.ToModel<InitialData>(toml);
+        var data = Toml.ToModel<InitialData>(toml, null, new TomlModelOptions
+        {
+            ConvertPropertyName = x => x
+        });
+        // Users
+        if (data.User != null)
+        {
+            foreach (var user in data.User)
+            {
+                var newUser = new User
+                {
+                    Name = user.Name,
+                    DisplayName = user.DisplayName,
+                    Roles = user.Roles ?? [UserRole.User],
+                    PasswordHash = "TODO_GENERATE_PASSWORD_HASH",
+                };
+                db.User.Add(newUser);
+            }
+        }
+        db.SaveChanges();
     }
 }
