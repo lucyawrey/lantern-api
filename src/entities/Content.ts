@@ -4,6 +4,7 @@ import {
   Property,
   ManyToOne,
   Embedded,
+  Unique,
 } from "@mikro-orm/core";
 import { User } from "entities/User";
 import { ContentType } from "entities/ContentType";
@@ -14,6 +15,7 @@ import { ContentRenderer } from "entities/ContentRenderer";
 import { Indexes } from "entities/Indexes";
 
 @Entity()
+@Unique({ properties: ["name", "owner"] })
 export class Content {
   @PrimaryKey()
   id: string = generateId();
@@ -24,7 +26,7 @@ export class Content {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @Property({ unique: true })
+  @Property()
   name!: string;
 
   @Property()
@@ -39,7 +41,7 @@ export class Content {
   @Property()
   hasWriteAccess: AccessType = "inviteOnly";
 
-  @ManyToOne()
+  @ManyToOne({ index: true })
   contentType!: ContentType;
 
   @Property({ type: "json" })

@@ -1,19 +1,27 @@
-export type Role = "user" | "organization" | "admin";
+import { type Static, t } from "elysia";
 
-export type AccessType =
-  | "inviteOnly"
-  | "friends"
-  | "tables"
-  | "friendsAndTables"
-  | "public"
-  | "members";
+export const Role = t.UnionEnum(["user", "organization", "admin"]);
+export type Role = Static<typeof Role>;
 
-export type ContentMode = "static" | "interactive";
+export const AccessType = t.UnionEnum([
+  "inviteOnly",
+  "friends",
+  "tables",
+  "friendsAndTables",
+  "public",
+  "members",
+]);
+export type AccessType = Static<typeof AccessType>;
 
-export type ContentCategory =
-  | "other"
-  | "page"
-  | "character"
-  | "item"
-  | "npc"
-  | "container";
+export const ContentMode = t.UnionEnum(["static", "interactive"]);
+export type ContentMode = Static<typeof ContentMode>;
+
+export const ContentCategory = t.UnionEnum([
+  "other",
+  "page",
+  "character",
+  "item",
+  "npc",
+  "container",
+]);
+export type ContentCategory = Static<typeof ContentCategory>;

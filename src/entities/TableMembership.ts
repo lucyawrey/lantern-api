@@ -1,9 +1,16 @@
-import { Entity, PrimaryKey, Property, ManyToOne } from "@mikro-orm/core";
+import {
+  Entity,
+  PrimaryKey,
+  Property,
+  ManyToOne,
+  Unique,
+} from "@mikro-orm/core";
 import { User } from "entities/User";
 import { generateId } from "lib/authentication";
 import { Table } from "entities/Table";
 
 @Entity()
+@Unique({ properties: ["table", "user"] })
 export class TableMembership {
   @PrimaryKey()
   id: string = generateId();

@@ -1,9 +1,16 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
+import {
+  Entity,
+  ManyToOne,
+  PrimaryKey,
+  Property,
+  Unique,
+} from "@mikro-orm/core";
 import { generateId } from "lib/authentication";
 import { User } from "entities/User";
 import type { AccessType } from "types/enums";
 
 @Entity()
+@Unique({ properties: ["name", "owner"] })
 export class Ruleset {
   @PrimaryKey()
   id: string = generateId();
@@ -14,7 +21,7 @@ export class Ruleset {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @Property({ unique: true })
+  @Property()
   name!: string;
 
   @Property()

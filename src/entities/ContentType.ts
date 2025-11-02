@@ -3,6 +3,7 @@ import {
   ManyToOne,
   PrimaryKey,
   Property,
+  Unique,
   type Rel,
 } from "@mikro-orm/core";
 import { generateId } from "lib/authentication";
@@ -13,6 +14,7 @@ import type { Schema } from "types/schema";
 import { ContentRenderer } from "entities/ContentRenderer";
 
 @Entity()
+@Unique({ properties: ["name", "owner"] })
 export class ContentType {
   @PrimaryKey()
   id: string = generateId();
@@ -23,7 +25,7 @@ export class ContentType {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @Property({ unique: true })
+  @Property()
   name!: string;
 
   @Property()
@@ -38,7 +40,7 @@ export class ContentType {
   @Property()
   hasWriteAccess: AccessType = "inviteOnly";
 
-  @ManyToOne()
+  @ManyToOne({ index: true })
   ruleset!: Ruleset;
 
   @Property()
