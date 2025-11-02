@@ -11,7 +11,7 @@ import { generateId } from "lib/authentication";
 import type { AccessType } from "types/enums";
 import type { Data } from "types/data";
 import { ContentRenderer } from "entities/ContentRenderer";
-import { Indexes } from "types/indexes";
+import { Indexes } from "entities/Indexes";
 
 @Entity()
 export class Content {
@@ -24,7 +24,7 @@ export class Content {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @Property()
+  @Property({ unique: true })
   name!: string;
 
   @Property()

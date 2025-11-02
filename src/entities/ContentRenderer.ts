@@ -21,7 +21,7 @@ export class ContentRenderer {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @Property()
+  @Property({ unique: true })
   name!: string;
 
   @Property()
@@ -36,8 +36,8 @@ export class ContentRenderer {
   @Property()
   hasWriteAccess: AccessType = "inviteOnly";
 
-  @ManyToOne(() => ContentType)
-  contentType!: Rel<ContentType>;
+  // @ManyToOne({ entity: () => "ContentType" })
+  // contentType!: Rel<ContentType>;
 
   @Property()
   cssStyles: string = "";

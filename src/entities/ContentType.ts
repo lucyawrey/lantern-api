@@ -23,7 +23,7 @@ export class ContentType {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @Property()
+  @Property({ unique: true })
   name!: string;
 
   @Property()
@@ -59,6 +59,6 @@ export class ContentType {
     types: {},
   };
 
-  @ManyToOne(() => ContentRenderer, { nullable: true })
-  defaultContentRenderer?: Rel<ContentRenderer>;
+  // @ManyToOne({ entity: () => "ContentRenderer", nullable: true })
+  // defaultContentRenderer?: Rel<ContentRenderer>;
 }

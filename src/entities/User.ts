@@ -13,7 +13,7 @@ export class User {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @Property()
+  @Property({ unique: true })
   name!: string;
 
   @Property()

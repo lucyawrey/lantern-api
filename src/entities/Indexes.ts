@@ -1,7 +1,7 @@
-import { Entity, Property } from "@mikro-orm/core";
+import { Embeddable, Property } from "@mikro-orm/core";
 import type { DataValue } from "types/data";
 
-@Entity()
+@Embeddable()
 export class Indexes {
   @Property()
   index0?: DataValue;

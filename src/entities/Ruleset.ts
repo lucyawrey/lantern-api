@@ -14,7 +14,7 @@ export class Ruleset {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @Property()
+  @Property({ unique: true })
   name!: string;
 
   @Property()

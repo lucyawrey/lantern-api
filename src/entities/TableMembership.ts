@@ -4,7 +4,7 @@ import { generateId } from "lib/authentication";
 import { Table } from "entities/Table";
 
 @Entity()
-export class Content {
+export class TableMembership {
   @PrimaryKey()
   id: string = generateId();
 
