@@ -1,4 +1,10 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
+import {
+  Entity,
+  ManyToOne,
+  PrimaryKey,
+  Property,
+  type Rel,
+} from "@mikro-orm/core";
 import { generateId } from "lib/authentication";
 import { User } from "entities/User";
 import type { AccessType } from "types/enums";
@@ -30,8 +36,8 @@ export class ContentRenderer {
   @Property()
   hasWriteAccess: AccessType = "inviteOnly";
 
-  @ManyToOne()
-  contentType!: ContentType;
+  @ManyToOne(() => ContentType)
+  contentType!: Rel<ContentType>;
 
   @Property()
   cssStyles: string = "";

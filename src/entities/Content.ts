@@ -9,8 +9,9 @@ import { User } from "entities/User";
 import { ContentType } from "entities/ContentType";
 import { generateId } from "lib/authentication";
 import type { AccessType } from "types/enums";
-import type { Data, DataValue } from "types/data";
+import type { Data } from "types/data";
 import { ContentRenderer } from "entities/ContentRenderer";
+import { Indexes } from "types/indexes";
 
 @Entity()
 export class Content {
@@ -38,7 +39,7 @@ export class Content {
   @Property()
   hasWriteAccess: AccessType = "inviteOnly";
 
-  @ManyToOne(() => ContentType)
+  @ManyToOne()
   contentType!: ContentType;
 
   @Property({ type: "json" })
@@ -52,28 +53,4 @@ export class Content {
 
   @ManyToOne()
   contentRenderer?: ContentRenderer;
-}
-
-@Entity()
-export class Indexes {
-  @Property()
-  index0?: DataValue;
-  @Property()
-  index1?: DataValue;
-  @Property()
-  index2?: DataValue;
-  @Property()
-  index3?: DataValue;
-  @Property()
-  index4?: DataValue;
-  @Property()
-  index5?: DataValue;
-  @Property()
-  index6?: DataValue;
-  @Property()
-  index7?: DataValue;
-  @Property()
-  index8?: DataValue;
-  @Property()
-  index9?: DataValue;
 }

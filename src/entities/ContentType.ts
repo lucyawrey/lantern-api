@@ -1,4 +1,10 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
+import {
+  Entity,
+  ManyToOne,
+  PrimaryKey,
+  Property,
+  type Rel,
+} from "@mikro-orm/core";
 import { generateId } from "lib/authentication";
 import { User } from "entities/User";
 import type { AccessType, ContentMode, ContentCategory } from "types/enums";
@@ -53,6 +59,6 @@ export class ContentType {
     types: {},
   };
 
-  @ManyToOne()
-  defaultContentRenderer?: ContentRenderer;
+  @ManyToOne(() => ContentRenderer, { nullable: true })
+  defaultContentRenderer?: Rel<ContentRenderer>;
 }
