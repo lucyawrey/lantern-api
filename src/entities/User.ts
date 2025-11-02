@@ -1,6 +1,6 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
 import { generateId } from "lib/authentication";
-import { Role } from "types/enums";
+import type { Role } from "types/enums";
 
 @Entity()
 export class User {

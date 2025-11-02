@@ -1,4 +1,4 @@
-import { Static, t } from "elysia";
+import { type Static, t } from "elysia";
 
 /**
  * Dynamic data value type.

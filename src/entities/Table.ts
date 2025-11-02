@@ -1,7 +1,7 @@
 import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
 import { generateId } from "lib/authentication";
 import { User } from "entities/User";
-import { AccessType } from "types/enums";
+import type { AccessType } from "types/enums";
 
 @Entity()
 export class Table {

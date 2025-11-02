@@ -9,7 +9,7 @@ import { User } from "entities/User";
 import { ContentType } from "entities/ContentType";
 import { generateId } from "lib/authentication";
 import type { AccessType } from "types/enums";
-import { Data, DataValue } from "types/data";
+import type { Data, DataValue } from "types/data";
 import { ContentRenderer } from "entities/ContentRenderer";
 
 @Entity()

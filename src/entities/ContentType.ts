@@ -1,9 +1,9 @@
 import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
 import { generateId } from "lib/authentication";
 import { User } from "entities/User";
-import { AccessType, ContentMode, ContentCategory } from "types/enums";
+import type { AccessType, ContentMode, ContentCategory } from "types/enums";
 import { Ruleset } from "entities/Ruleset";
-import { Schema } from "types/schema";
+import type { Schema } from "types/schema";
 import { ContentRenderer } from "entities/ContentRenderer";
 
 @Entity()
