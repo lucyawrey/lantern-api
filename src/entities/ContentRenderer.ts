@@ -1,13 +1,11 @@
 import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
 import { generateId } from "lib/authentication";
 import { User } from "entities/User";
-import { AccessType, ContentMode, ContentCategory } from "types/enums";
-import { Ruleset } from "entities/Ruleset";
-import { Schema } from "types/schema";
-import { ContentRenderer } from "entities/ContentRenderer";
+import { AccessType } from "types/enums";
+import { ContentType } from "entities/ContentType";
 
 @Entity()
-export class ContentType {
+export class ContentRenderer {
   @PrimaryKey()
   id: string = generateId();
 
@@ -33,26 +31,11 @@ export class ContentType {
   hasWriteAccess: AccessType = "inviteOnly";
 
   @ManyToOne()
-  ruleset!: Ruleset;
+  contentType!: ContentType;
 
   @Property()
-  contentMode: ContentMode = "static";
+  cssStyles: string = "";
 
   @Property()
-  contentCategory: ContentCategory = "other";
-
-  @Property()
-  hasDynamicSchema: boolean = true;
-
-  @Property({ type: "json" })
-  indexKeys: string[] = [];
-
-  @Property({ type: "json" })
-  schema: Schema = {
-    properties: {},
-    types: {},
-  };
-
-  @ManyToOne()
-  defaultContentRenderer?: ContentRenderer;
+  changelingMarkup: string = "";
 }

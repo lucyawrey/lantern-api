@@ -21,7 +21,7 @@ export function generateSessionToken(): string {
   return token;
 }
 
-/* One Time Password */
+/* Ids */
 export function generateId(): string {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
@@ -88,10 +88,6 @@ export async function verifyPasswordStrength(
 }
 
 /* Input Verification */
-export function verifyUsernameInput(username: string): boolean {
-  return (
-    username.length > 2 &&
-    username.length < 32 &&
-    /^[a-zA-Z0-9_]+$/.test(username)
-  );
+export function verifyNameInput(name: string): boolean {
+  return name.length > 2 && name.length < 32 && /^[a-zA-Z0-9_]+$/.test(name);
 }
