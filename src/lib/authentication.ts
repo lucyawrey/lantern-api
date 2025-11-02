@@ -1,8 +1,8 @@
 import {
   encodeBase32LowerCaseNoPadding,
-  encodeBase32UpperCaseNoPadding,
   encodeHexLowerCase,
   decodeBase64,
+  encodeBase64urlNoPadding,
 } from "@oslojs/encoding";
 import { sha1 } from "@oslojs/crypto/sha1";
 import { Err, Ok } from "lib/result";
@@ -19,6 +19,14 @@ export function generateSessionToken(): string {
   crypto.getRandomValues(bytes);
   const token = encodeBase32LowerCaseNoPadding(bytes);
   return token;
+}
+
+/* One Time Password */
+export function generateId(): string {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  const id = encodeBase64urlNoPadding(bytes);
+  return id;
 }
 
 /* Session Cookie */
@@ -77,14 +85,6 @@ export async function verifyPasswordStrength(
     }
   }
   return Ok();
-}
-
-/* One Time Password */
-export function generateRandomOTP(): string {
-  const bytes = new Uint8Array(5);
-  crypto.getRandomValues(bytes);
-  const code = encodeBase32UpperCaseNoPadding(bytes);
-  return code;
 }
 
 /* Input Verification */

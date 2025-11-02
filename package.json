@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@elysiajs/openapi": "^1.4.11",
+    "@mikro-orm/core": "^6.5.9",
+    "@mikro-orm/reflection": "^6.5.9",
+    "@mikro-orm/sqlite": "^6.5.9",
     "@node-rs/argon2": "^2.0.2",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
@@ -19,6 +22,8 @@
     "preact-render-to-string": "^6.6.3"
   },
   "devDependencies": {
+    "@mikro-orm/cli": "^6.5.9",
+    "@mikro-orm/migrations": "^6.5.9",
     "bun-types": "latest",
     "prettier": "^3.6.2",
     "typescript": "^5.9.3"
