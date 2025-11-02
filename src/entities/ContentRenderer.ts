@@ -36,8 +36,8 @@ export class ContentRenderer {
   @Property()
   hasWriteAccess: AccessType = "inviteOnly";
 
-  // @ManyToOne({ entity: () => "ContentType" })
-  // contentType!: Rel<ContentType>;
+  @ManyToOne(() => ContentType)
+  contentType!: Rel<ContentType>;
 
   @Property()
   cssStyles: string = "";

@@ -25,10 +25,10 @@ export class User {
   @Property()
   passwordHash!: string;
 
-  @Property()
+  @Property({ nullable: true })
   recoveryCode?: string;
 
-  @Property()
+  @Property({ nullable: true })
   iconUrl?: string;
 
   constructor(

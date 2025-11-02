@@ -59,6 +59,6 @@ export class ContentType {
     types: {},
   };
 
-  // @ManyToOne({ entity: () => "ContentRenderer", nullable: true })
-  // defaultContentRenderer?: Rel<ContentRenderer>;
+  @ManyToOne(() => ContentRenderer, { nullable: true })
+  defaultContentRenderer?: Rel<ContentRenderer>;
 }

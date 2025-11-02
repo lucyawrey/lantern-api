@@ -51,6 +51,6 @@ export class Content {
   @Property({ type: "json" })
   data: Data = {};
 
-  @ManyToOne()
+  @ManyToOne({ nullable: true })
   contentRenderer?: ContentRenderer;
 }

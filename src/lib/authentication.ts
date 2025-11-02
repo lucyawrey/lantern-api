@@ -1,17 +1,12 @@
 import {
   encodeBase32LowerCaseNoPadding,
   encodeHexLowerCase,
-  decodeBase64,
   encodeBase64urlNoPadding,
 } from "@oslojs/encoding";
 import { sha1 } from "@oslojs/crypto/sha1";
 import { Err, Ok } from "lib/result";
 import { hash, verify } from "@node-rs/argon2";
 import { Cookie } from "elysia";
-import { encryptionKey } from "lib/env";
-
-/* Encryption */
-const key = decodeBase64(encryptionKey);
 
 /* Sessions */
 export function generateSessionToken(): string {
