@@ -1,17 +1,26 @@
 import { Elysia, t } from "elysia";
+import { User } from "entities/User";
+import { Role } from "types/enums";
 
 export const userController = new Elysia({ prefix: "/api/user" })
   .post(
     "/signup",
     async ({ body }) => {
+      const user = new User({
+        name: body.name,
+        displayName: body.displayName || body.name,
+        roles: ["user"], // TODO role handling
+        passwordHash: body.password,
+        iconUrl: body.iconUrl,
+      });
       return "TODO!";
     },
     {
       body: t.Object({
-        username: t.String(),
-        email: t.String(),
-        password: t.String(),
+        name: t.String(),
         displayName: t.Optional(t.String()),
+        roles: t.Optional(t.Array(Role)),
+        password: t.String(),
         iconUrl: t.Optional(t.String()),
         setCookie: t.Optional(t.Boolean({ default: true })),
       }),
@@ -25,7 +34,7 @@ export const userController = new Elysia({ prefix: "/api/user" })
     },
     {
       body: t.Object({
-        usernameOrEmail: t.String(),
+        username: t.String(),
         password: t.String(),
         setCookie: t.Optional(t.Boolean({ default: true })),
       }),
