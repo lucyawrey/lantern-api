@@ -8,7 +8,7 @@ import {
 import { User } from "entities/User";
 import { ContentType } from "entities/ContentType";
 import { generateId } from "lib/authentication";
-import { AccessType } from "types/enums";
+import type { AccessType } from "types/enums";
 import { Data, DataValue } from "types/data";
 import { ContentRenderer } from "entities/ContentRenderer";
 

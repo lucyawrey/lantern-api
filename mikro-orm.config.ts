@@ -1,16 +1,13 @@
 import { TsMorphMetadataProvider } from "@mikro-orm/reflection";
 import { Options, SqliteDriver } from "@mikro-orm/sqlite";
+import { databaseUrl } from "lib/env";
 
 const config: Options = {
-  dbName: "lantern.db",
+  dbName: databaseUrl,
   entities: ["./dist/entities"],
   entitiesTs: ["./src/entities"],
   driver: SqliteDriver,
   metadataProvider: TsMorphMetadataProvider,
-  migrations: {
-    path: "./dist/migrations",
-    pathTs: "./src/migrations",
-  },
   debug: process.env.NODE_ENV === "production" ? false : true,
 };
 

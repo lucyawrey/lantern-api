@@ -30,4 +30,10 @@ export class User {
 
   @Property()
   iconUrl?: string;
+
+  constructor(
+    init: PartialSome<User, "id" | "createdAt" | "updatedAt" | "roles">
+  ) {
+    Object.assign(this, init);
+  }
 }
