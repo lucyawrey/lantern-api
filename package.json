@@ -1,15 +1,27 @@
 {
   "name": "lantern-api",
-  "version": "1.0.50",
+  "version": "0.0.2",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.tsx",
+    "build": "bun run type && bun build src/index.tsx --compile --outfile build/lantern",
+    "start": "build/lantern",
+    "fmt": "prettier --write .",
+    "type": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "elysia": "latest"
+    "@elysiajs/openapi": "^1.4.11",
+    "@node-rs/argon2": "^2.0.2",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
+    "elysia": "latest",
+    "preact": "^10.27.2",
+    "preact-render-to-string": "^6.6.3"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3"
   },
   "module": "src/index.js"
 }
