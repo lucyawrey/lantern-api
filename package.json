@@ -2,8 +2,8 @@
   "name": "lantern-api",
   "version": "0.0.2",
   "scripts": {
-    "dev": "bun run --watch src/index.tsx",
-    "build": "bun run type && bun build src/index.tsx --compile --outfile build/lantern",
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun run type && bun build src/index.ts --compile --outfile build/lantern",
     "start": "build/lantern",
     "fmt": "prettier --write .",
     "type": "tsc --noEmit",

@@ -1,4 +1,5 @@
 import openapi from "@elysiajs/openapi";
+import { homeController } from "controllers/home";
 import { userController } from "controllers/user";
 import { Elysia } from "elysia";
 import { databaseUrl, encryptionKey } from "lib/env";
@@ -10,8 +11,8 @@ if (databaseUrl == undefined || encryptionKey == undefined) {
 }
 
 const app = new Elysia()
-  .use(jsxMiddleware)
-  .use(openapi({ path: "/api" }))
+  .use(openapi({ path: "/docs" }))
+  .use(homeController)
   .use(userController)
   .listen(3000);
 
