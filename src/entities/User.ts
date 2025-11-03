@@ -1,6 +1,6 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
 import { generateId } from "lib/auth";
-import type { Role } from "types/enums";
+import type { AccessType, Role } from "types/enums";
 
 @Entity()
 export class User {
@@ -23,6 +23,9 @@ export class User {
   roles: Role[] = ["user"];
 
   @Property()
+  hasReadAccess: AccessType = "inviteOnly";
+
+  @Property()
   passwordHash!: string;
 
   @Property({ nullable: true })
@@ -32,7 +35,10 @@ export class User {
   iconUrl?: string;
 
   constructor(
-    init: PartialSome<User, "id" | "createdAt" | "updatedAt" | "roles">
+    init: PartialSome<
+      User,
+      "id" | "createdAt" | "updatedAt" | "roles" | "hasReadAccess"
+    >
   ) {
     Object.assign(this, init);
   }

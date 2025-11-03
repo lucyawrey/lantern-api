@@ -163,4 +163,38 @@ export const userController = new Elysia({ prefix: "/api/user" })
       ),
       response: t.Object({ loggedOut: t.Literal(true) }),
     }
+  )
+  .post(
+    "/get",
+    async ({ body, auth }) => {
+      const em = db.em.fork();
+      const user = body?.userRef
+        ? ((await em.findOne(User, body.userRef)) ??
+          (await em.findOne(User, { name: body.userRef })))
+        : auth.session?.user;
+      if (!user) {
+        throw "User not found.";
+      }
+      return {
+        user: {
+          ...user,
+        },
+      };
+    },
+    {
+      auth: {},
+      body: t.Optional(
+        t.Object({
+          userRef: t.Optional(t.String()),
+        })
+      ),
+      response: t.Object({
+        user: t.Object({
+          id: t.String(),
+          name: t.String(),
+          displayName: t.String(),
+          iconUrl: t.Optional(t.String()),
+        }),
+      }),
+    }
   );
