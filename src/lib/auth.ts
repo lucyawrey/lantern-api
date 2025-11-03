@@ -74,9 +74,7 @@ export async function verifyPasswordHash(
   return await verify(hash, password);
 }
 
-export async function verifyPasswordStrength(
-  password: string
-): Promise<boolean> {
+export function verifyPasswordStrength(password: string): boolean {
   if (
     password.length < 8 ||
     password.length > 255 ||

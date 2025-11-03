@@ -44,7 +44,7 @@ export const userController = new Elysia({ prefix: "/api/user" })
       const [sessionToken, sessionTokenHash] = await generateSessionToken();
       const session = new Session({ id: sessionTokenHash, user });
 
-      em.persistAndFlush(session);
+      em.persist(session).flush();
 
       if (body.setCookie) {
         setSessionCookie(sessionTokenCookie, sessionToken, session.expiresAt);
@@ -88,7 +88,7 @@ export const userController = new Elysia({ prefix: "/api/user" })
       const [sessionToken, sessionTokenHash] = await generateSessionToken();
       const session = new Session({ id: sessionTokenHash, user });
 
-      em.persistAndFlush(session);
+      em.persist(session).flush();
 
       if (body.setCookie) {
         setSessionCookie(sessionTokenCookie, sessionToken, session.expiresAt);
@@ -109,17 +109,30 @@ export const userController = new Elysia({ prefix: "/api/user" })
   )
   .post(
     "/logout",
-    async ({ body, auth }) => {
-      return JSON.stringify(auth);
+    async ({ body, auth, cookie: { sessionTokenCookie } }) => {
+      if (!auth.isAuthenticated) {
+        throw "Unauthorized.";
+      }
+      const em = db.em.fork();
+      if (body?.deleteCookie) {
+        sessionTokenCookie.remove();
+      }
+      if (body?.logoutAllSessions) {
+        let sessions = await em.find(Session, { user: auth.session.user });
+        em.remove(sessions).flush();
+      } else {
+        em.remove(auth.session).flush();
+      }
+      return { loggedOut: true };
     },
     {
-      authenticate: { requireLogin: true },
+      auth: { requireLogin: true },
       body: t.Optional(
         t.Object({
           deleteCookie: t.Optional(t.Boolean({ default: true })),
           logoutAllSessions: t.Optional(t.Boolean({ default: false })),
         })
       ),
-      response: t.String(),
+      response: t.Object({ loggedOut: t.Literal(true) }),
     }
   );

@@ -1,4 +1,4 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { Auth } from "types/auth";
 import { Role } from "types/enums";
 import { db } from "..";
@@ -18,47 +18,58 @@ export const authMiddleware = new Elysia({
       return {
         auth: {
           isAuthenticated: false,
-          user: undefined,
+          session: undefined,
           sessionToken: sessionTokenCookie.value as string | undefined,
         },
       };
     }
   )
-  .macro(({ onBeforeHandle }) => ({
-    // This is declaring a service method
-    authenticate({
-      requireLogin = false,
+  .macro(
+    "auth",
+    ({
+      requireLogin,
       requireRole,
     }: {
       requireLogin?: boolean;
       requireRole?: Role[];
-    }) {
-      onBeforeHandle(async ({ auth }: { auth: Auth }) => {
-        requireLogin ||= Boolean(requireRole && requireRole.length > 0);
-        if (!auth || !auth.sessionToken) {
-          throw "Unauthorized.";
-        }
-
-        const em = db.em.fork();
-
-        const sessionTokenHash = await hashToken(auth.sessionToken);
-        const session = await em.findOne(Session, { id: sessionTokenHash });
-        if (!session || !session.user || session.expiresAt < new Date()) {
-          throw "Unauthorized.";
-        }
-        auth.isAuthenticated = true;
-        auth.user = session.user;
-
-        if (requireRole) {
-          const userIsInGroup = requireRole.some((role) =>
-            session.user.roles.includes(role)
-          );
-          if (!userIsInGroup) {
-            throw "Unauthorized.";
+    }) => {
+      return {
+        async beforeHandle({ auth }) {
+          requireLogin =
+            requireLogin || (requireRole && requireRole.length > 0);
+          if (!auth || !auth.sessionToken) {
+            if (requireLogin) {
+              throw "Unauthorized.";
+            }
+            return;
           }
-        }
 
-        return;
-      });
-    },
-  }));
+          const em = db.em.fork();
+          const sessionTokenHash = await hashToken(auth.sessionToken);
+          const session = await em.findOne(Session, sessionTokenHash, {
+            populate: ["user"],
+          });
+
+          if (session && session.user && session.expiresAt > new Date()) {
+            auth.isAuthenticated = true;
+            auth.session = session;
+          } else {
+            if (requireLogin) {
+              throw "Unauthorized.";
+            }
+            return;
+          }
+
+          if (requireRole) {
+            const userIsInGroup = requireRole.some((role) =>
+              session.user.roles.includes(role)
+            );
+            if (!userIsInGroup) {
+              throw "Unauthorized.";
+            }
+          }
+          return;
+        },
+      };
+    }
+  );

@@ -1,13 +1,13 @@
-import { User } from "entities/User";
+import { Session } from "entities/Session";
 
 export type Auth =
   | {
       isAuthenticated: false;
-      user: undefined;
+      session: undefined;
       sessionToken: string | undefined;
     }
   | {
       isAuthenticated: true;
-      user: User;
+      session: Session;
       sessionToken: string;
     };
