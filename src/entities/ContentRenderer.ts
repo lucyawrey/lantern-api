@@ -23,7 +23,7 @@ export class ContentRenderer {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @Property()
+  @Property({ columnType: "text COLLATE NOCASE" })
   name!: string;
 
   @Property()

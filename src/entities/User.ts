@@ -13,7 +13,7 @@ export class User {
   @Property({ onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 
-  @Property({ unique: true })
+  @Property({ unique: true, columnType: "text COLLATE NOCASE" })
   name!: string;
 
   @Property()
