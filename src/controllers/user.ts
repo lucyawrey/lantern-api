@@ -19,6 +19,9 @@ export const userController = new Elysia({ prefix: "/api/user" })
     "/signup",
     async ({ body, cookie: { sessionTokenCookie } }) => {
       const em = db.em.fork();
+      if (await em.findOne(User, { name: body.name })) {
+        throw "User already exists with that username.";
+      }
       if (!verifyNameInput(body.name)) {
         throw "Invalid username. Username must be between 3 and 32 characters and can only contain letters, numbers, underscores, and hyphens.";
       }
@@ -50,7 +53,16 @@ export const userController = new Elysia({ prefix: "/api/user" })
         setSessionCookie(sessionTokenCookie, sessionToken, session.expiresAt);
       }
 
-      return { userId: user.id, sessionToken, recoveryToken };
+      return {
+        user: {
+          id: session.user.id,
+          name: session.user.name,
+          displayName: session.user.displayName,
+          iconUrl: session.user.iconUrl,
+        },
+        sessionToken,
+        recoveryToken,
+      };
     },
     {
       body: t.Object({
@@ -62,7 +74,12 @@ export const userController = new Elysia({ prefix: "/api/user" })
         getRecoveryCode: t.Optional(t.Boolean({ default: true })),
       }),
       response: t.Object({
-        userId: t.String(),
+        user: t.Object({
+          id: t.String(),
+          name: t.String(),
+          displayName: t.String(),
+          iconUrl: t.Optional(t.String()),
+        }),
         sessionToken: t.String(),
         recoveryToken: t.Optional(t.String()),
       }),
@@ -94,7 +111,12 @@ export const userController = new Elysia({ prefix: "/api/user" })
         setSessionCookie(sessionTokenCookie, sessionToken, session.expiresAt);
       }
 
-      return { sessionToken };
+      return {
+        user: {
+          ...user,
+        },
+        sessionToken,
+      };
     },
     {
       body: t.Object({
@@ -103,6 +125,12 @@ export const userController = new Elysia({ prefix: "/api/user" })
         setCookie: t.Optional(t.Boolean({ default: true })),
       }),
       response: t.Object({
+        user: t.Object({
+          id: t.String(),
+          name: t.String(),
+          displayName: t.String(),
+          iconUrl: t.Optional(t.String()),
+        }),
         sessionToken: t.String(),
       }),
     }

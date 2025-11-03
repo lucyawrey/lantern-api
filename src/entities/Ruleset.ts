@@ -35,4 +35,13 @@ export class Ruleset {
 
   @Property()
   hasWriteAccess: AccessType = "inviteOnly";
+
+  constructor(
+    init: PartialSome<
+      Ruleset,
+      "id" | "createdAt" | "updatedAt" | "hasReadAccess" | "hasWriteAccess"
+    >
+  ) {
+    Object.assign(this, init);
+  }
 }
