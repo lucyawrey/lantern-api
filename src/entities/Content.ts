@@ -8,7 +8,7 @@ import {
 } from "@mikro-orm/core";
 import { User } from "entities/User";
 import { ContentType } from "entities/ContentType";
-import { generateId } from "lib/authentication";
+import { generateId } from "lib/auth";
 import type { AccessType } from "types/enums";
 import type { Data } from "types/data";
 import { ContentRenderer } from "entities/ContentRenderer";

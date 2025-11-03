@@ -6,7 +6,7 @@ import {
   Unique,
 } from "@mikro-orm/core";
 import { User } from "entities/User";
-import { generateId } from "lib/authentication";
+import { generateId } from "lib/auth";
 
 @Entity()
 @Unique({ properties: ["userA", "userB"] })

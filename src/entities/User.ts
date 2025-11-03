@@ -1,5 +1,5 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
-import { generateId } from "lib/authentication";
+import { generateId } from "lib/auth";
 import type { Role } from "types/enums";
 
 @Entity()

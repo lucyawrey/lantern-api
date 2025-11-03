@@ -1,6 +1,5 @@
 import { Entity, PrimaryKey, Property, ManyToOne } from "@mikro-orm/core";
 import { User } from "entities/User";
-import { generateSessionToken } from "lib/authentication";
 
 @Entity()
 export class Session {

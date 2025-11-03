@@ -2,11 +2,11 @@ import { Elysia } from "elysia";
 import { Auth } from "types/auth";
 import { Role } from "types/enums";
 import { db } from "..";
-import { hashToken } from "lib/authentication";
+import { hashToken } from "lib/auth";
 import { Session } from "entities/Session";
 
-export const authenticationMiddleware = new Elysia({
-  name: "authenticationMiddleware",
+export const authMiddleware = new Elysia({
+  name: "authMiddleware",
 })
   .derive(
     { as: "scoped" },

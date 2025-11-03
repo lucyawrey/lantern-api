@@ -8,13 +8,13 @@ import {
   verifyNameInput,
   verifyPasswordHash,
   verifyPasswordStrength,
-} from "lib/authentication";
+} from "lib/auth";
 import { db } from "..";
 import { Session } from "entities/Session";
-import { authenticationMiddleware } from "middleware/authentication";
+import { authMiddleware } from "middleware/auth";
 
 export const userController = new Elysia({ prefix: "/api/user" })
-  .use(authenticationMiddleware)
+  .use(authMiddleware)
   .post(
     "/signup",
     async ({ body, cookie: { sessionTokenCookie } }) => {

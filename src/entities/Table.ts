@@ -5,7 +5,7 @@ import {
   Property,
   Unique,
 } from "@mikro-orm/core";
-import { generateId } from "lib/authentication";
+import { generateId } from "lib/auth";
 import { User } from "entities/User";
 import type { AccessType } from "types/enums";
 
