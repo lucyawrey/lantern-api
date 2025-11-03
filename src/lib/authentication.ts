@@ -4,7 +4,6 @@ import {
   encodeBase64urlNoPadding,
   encodeBase32UpperCaseNoPadding,
 } from "@oslojs/encoding";
-import { sha1 } from "@oslojs/crypto/sha1";
 import { hash, verify } from "@node-rs/argon2";
 import { Cookie } from "elysia";
 import { sha256 } from "@oslojs/crypto/sha2";

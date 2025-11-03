@@ -11,8 +11,10 @@ import {
 } from "lib/authentication";
 import { db } from "..";
 import { Session } from "entities/Session";
+import { authenticationMiddleware } from "middleware/authentication";
 
 export const userController = new Elysia({ prefix: "/api/user" })
+  .use(authenticationMiddleware)
   .post(
     "/signup",
     async ({ body, cookie: { sessionTokenCookie } }) => {
@@ -107,10 +109,11 @@ export const userController = new Elysia({ prefix: "/api/user" })
   )
   .post(
     "/logout",
-    async ({ body }) => {
-      return "TODO";
+    async ({ body, auth }) => {
+      return JSON.stringify(auth);
     },
     {
+      authenticate: { requireLogin: true },
       body: t.Optional(
         t.Object({
           deleteCookie: t.Optional(t.Boolean({ default: true })),
