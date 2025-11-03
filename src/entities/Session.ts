@@ -5,11 +5,15 @@ import { generateSessionToken } from "lib/authentication";
 @Entity()
 export class Session {
   @PrimaryKey()
-  id: string = generateSessionToken();
+  id!: string;
 
   @Property()
   expiresAt: Date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   @ManyToOne()
   user!: User;
+
+  constructor(init: PartialSome<Session, "expiresAt">) {
+    Object.assign(this, init);
+  }
 }

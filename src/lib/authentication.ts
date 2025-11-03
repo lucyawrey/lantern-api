@@ -2,19 +2,12 @@ import {
   encodeBase32LowerCaseNoPadding,
   encodeHexLowerCase,
   encodeBase64urlNoPadding,
+  encodeBase32UpperCaseNoPadding,
 } from "@oslojs/encoding";
 import { sha1 } from "@oslojs/crypto/sha1";
-import { Err, Ok } from "lib/result";
 import { hash, verify } from "@node-rs/argon2";
 import { Cookie } from "elysia";
-
-/* Sessions */
-export function generateSessionToken(): string {
-  const bytes = new Uint8Array(20);
-  crypto.getRandomValues(bytes);
-  const token = encodeBase32LowerCaseNoPadding(bytes);
-  return token;
-}
+import { sha256 } from "@oslojs/crypto/sha2";
 
 /* Ids */
 export function generateId(): string {
@@ -24,9 +17,35 @@ export function generateId(): string {
   return id;
 }
 
-/* Session Cookie */
+/* Recovery Codes */
+export async function generateRecoveryToken(): Promise<
+  [token: string, hash: string]
+> {
+  const bytes = new Uint8Array(20);
+  crypto.getRandomValues(bytes);
+  const token = encodeBase32UpperCaseNoPadding(bytes);
+  let hash = await hashToken(token);
+  return [token, hash];
+}
+
+/* Sessions */
+export function hashToken(token: string): string {
+  const hash = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+  return hash;
+}
+
+export async function generateSessionToken(): Promise<
+  [token: string, hash: string]
+> {
+  const bytes = new Uint8Array(20);
+  crypto.getRandomValues(bytes);
+  const token = encodeBase32LowerCaseNoPadding(bytes);
+  let hash = await hashToken(token);
+  return [token, hash];
+}
+
 export function setSessionCookie(
-  sessionTokenCookie: Cookie<string | undefined>,
+  sessionTokenCookie: Cookie<unknown>,
   token: string,
   expires: Date
 ) {
@@ -58,28 +77,16 @@ export async function verifyPasswordHash(
 
 export async function verifyPasswordStrength(
   password: string
-): Promise<Result> {
-  if (password.length < 8 || password.length > 255) {
-    return Err(
-      "Invalid password. Password is not between 8 and 256 characters."
-    );
+): Promise<boolean> {
+  if (
+    password.length < 8 ||
+    password.length > 255 ||
+    password.includes("1234") ||
+    password.includes("password")
+  ) {
+    return false;
   }
-  const hash = encodeHexLowerCase(sha1(new TextEncoder().encode(password)));
-  const hashPrefix = hash.slice(0, 5);
-  const response = await fetch(
-    `https://api.pwnedpasswords.com/range/${hashPrefix}`
-  );
-  const data = await response.text();
-  const items = data.split("\n");
-  for (const item of items) {
-    const hashSuffix = item.slice(0, 35).toLowerCase();
-    if (hash === hashPrefix + hashSuffix) {
-      return Err(
-        "Invalid password. Password has potentially been exposed in a security breech."
-      );
-    }
-  }
-  return Ok();
+  return true;
 }
 
 /* Input Verification */

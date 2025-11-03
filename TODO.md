@@ -1,3 +1,4 @@
 # Lantern Backend Todo List
 
-- [ ] Create auth logic.
+- [ ] Proper error handling and query failures in endpoints.
+- [ ] Response handler.

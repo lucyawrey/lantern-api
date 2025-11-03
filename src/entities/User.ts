@@ -19,14 +19,14 @@ export class User {
   @Property()
   displayName!: string;
 
-  @Property()
-  roles: [Role] = ["user"];
+  @Property({ type: "json" })
+  roles: Role[] = ["user"];
 
   @Property()
   passwordHash!: string;
 
   @Property({ nullable: true })
-  recoveryCode?: string;
+  recoveryTokenHash?: string;
 
   @Property({ nullable: true })
   iconUrl?: string;
