@@ -26,4 +26,10 @@ export class TableMembership {
 
   @ManyToOne()
   user!: User;
+
+  constructor(
+    init: PartialSome<TableMembership, "id" | "createdAt" | "updatedAt">
+  ) {
+    Object.assign(this, init);
+  }
 }

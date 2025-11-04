@@ -35,4 +35,13 @@ export class Table {
 
   @Property()
   hasWriteAccess: AccessType = "inviteOnly";
+
+  constructor(
+    init: PartialSome<
+      Table,
+      "id" | "createdAt" | "updatedAt" | "hasReadAccess" | "hasWriteAccess"
+    >
+  ) {
+    Object.assign(this, init);
+  }
 }

@@ -25,4 +25,8 @@ export class Friendship {
 
   @ManyToOne()
   userB!: User;
+
+  constructor(init: PartialSome<Friendship, "id" | "createdAt" | "updatedAt">) {
+    Object.assign(this, init);
+  }
 }

@@ -46,4 +46,19 @@ export class ContentRenderer {
 
   @Property()
   changelingMarkup: string = "";
+
+  constructor(
+    init: PartialSome<
+      ContentRenderer,
+      | "id"
+      | "createdAt"
+      | "updatedAt"
+      | "hasReadAccess"
+      | "hasWriteAccess"
+      | "changelingMarkup"
+      | "cssStyles"
+    >
+  ) {
+    Object.assign(this, init);
+  }
 }

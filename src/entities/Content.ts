@@ -55,4 +55,21 @@ export class Content {
 
   @ManyToOne({ nullable: true })
   contentRenderer?: ContentRenderer;
+
+  constructor(
+    init: PartialSome<
+      Content,
+      | "id"
+      | "createdAt"
+      | "updatedAt"
+      | "hasReadAccess"
+      | "hasWriteAccess"
+      | "contentRenderer"
+      | "data"
+      | "indexKeys"
+      | "indexes"
+    >
+  ) {
+    Object.assign(this, init);
+  }
 }

@@ -63,4 +63,23 @@ export class ContentType {
 
   @ManyToOne(() => ContentRenderer, { nullable: true })
   defaultContentRenderer?: Rel<ContentRenderer>;
+
+  constructor(
+    init: PartialSome<
+      ContentType,
+      | "id"
+      | "createdAt"
+      | "updatedAt"
+      | "contentCategory"
+      | "contentMode"
+      | "defaultContentRenderer"
+      | "schema"
+      | "hasDynamicSchema"
+      | "hasReadAccess"
+      | "hasWriteAccess"
+      | "indexKeys"
+    >
+  ) {
+    Object.assign(this, init);
+  }
 }
