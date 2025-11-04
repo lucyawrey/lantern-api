@@ -3,14 +3,14 @@ import { type Static, t } from "elysia";
 export const SchemaPropertyDefinition = t.Recursive((self) =>
   t.Union([
     t.Object({
-      type: t.UnionEnum(["any", "string", "number", "boolean", "contentRef"]),
+      type: t.UnionEnum(["string", "number", "boolean", "contentRef", "any"]),
     }),
     t.Object({
       type: t.Literal("array"),
       itemType: self,
     }),
     t.Object({
-      type: t.UnionEnum(["localObject", "contentTypeObject"]),
+      type: t.UnionEnum(["localTypeObject", "contentTypeObject"]),
       ref: t.String(),
     }),
   ])
