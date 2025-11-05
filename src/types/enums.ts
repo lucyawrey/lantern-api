@@ -1,6 +1,6 @@
 import { type Static, t } from "elysia";
 
-export const Role = t.UnionEnum(["user", "organization", "admin"]);
+export const Role = t.UnionEnum(["user", "organization", "official", "admin"]);
 export type Role = Static<typeof Role>;
 
 export const AccessType = t.UnionEnum([

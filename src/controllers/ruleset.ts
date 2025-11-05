@@ -2,8 +2,7 @@ import { Elysia, t } from "elysia";
 import { verifyNameInput } from "lib/auth";
 import { db } from "..";
 import { authMiddleware } from "middleware/auth";
-import { AccessType } from "types/enums";
-import { Ruleset } from "entities/Ruleset";
+import { CreateRuleset, GetRuleset, Ruleset } from "entities/Ruleset";
 
 export const rulesetController = new Elysia({ prefix: "/api/ruleset" })
   .use(authMiddleware)
@@ -30,25 +29,41 @@ export const rulesetController = new Elysia({ prefix: "/api/ruleset" })
       em.persist(ruleset).flush();
       return {
         ruleset: {
+          ownerId: ruleset.owner.id,
           ...ruleset,
         },
       };
     },
     {
       auth: { requireLogin: true },
+      body: CreateRuleset,
+      response: t.Object({
+        ruleset: GetRuleset,
+      }),
+    }
+  )
+  .post(
+    "/get",
+    async ({ body }) => {
+      const em = db.em.fork();
+      const ruleset = await em.findOne(Ruleset, body.rulesetRef);
+      // TODO get by ref
+      if (!ruleset) {
+        throw "Ruleset not found.";
+      }
+      return {
+        ruleset: {
+          ownerId: ruleset.owner.id,
+          ...ruleset,
+        },
+      };
+    },
+    {
       body: t.Object({
-        name: t.String(),
-        displayName: t.Optional(t.String()),
-        ownerRef: t.String(),
-        hasReadAccess: t.Optional(AccessType),
-        hasWriteAccess: t.Optional(AccessType),
+        rulesetRef: t.String(),
       }),
       response: t.Object({
-        ruleset: t.Object({
-          id: t.String(),
-          name: t.String(),
-          displayName: t.Optional(t.String()),
-        }),
+        ruleset: GetRuleset,
       }),
     }
   );

@@ -29,7 +29,7 @@ export class ContentType {
   name!: string;
 
   @Property()
-  displayName!: string;
+  displayName: string = this.name;
 
   @ManyToOne()
   owner!: User;
@@ -70,6 +70,7 @@ export class ContentType {
       | "id"
       | "createdAt"
       | "updatedAt"
+      | "displayName"
       | "contentCategory"
       | "contentMode"
       | "defaultContentRenderer"

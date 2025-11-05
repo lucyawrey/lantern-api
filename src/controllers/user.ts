@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { User } from "entities/User";
+import { CreateUser, GetUser, User } from "entities/User";
 import {
   generateRecoveryToken,
   generateSessionToken,
@@ -31,14 +31,14 @@ export const userController = new Elysia({ prefix: "/api/user" })
 
       let recoveryToken: string | undefined;
       let recoveryTokenHash: string | undefined;
-      if (body.getRecoveryCode) {
+      if (body.generateRecoveryToken) {
         [recoveryToken, recoveryTokenHash] = await generateRecoveryToken();
       }
 
       const passwordHash = await hashPassword(body.password);
       const user = new User({
         name: body.name,
-        displayName: body.displayName ?? body.name,
+        displayName: body.displayName,
         passwordHash,
         iconUrl: body.iconUrl,
         recoveryTokenHash,
@@ -55,31 +55,21 @@ export const userController = new Elysia({ prefix: "/api/user" })
 
       return {
         user: {
-          id: session.user.id,
-          name: session.user.name,
-          displayName: session.user.displayName,
-          iconUrl: session.user.iconUrl,
+          ...user,
         },
         sessionToken,
         recoveryToken,
       };
     },
     {
-      body: t.Object({
-        name: t.String(),
-        password: t.String(),
-        displayName: t.Optional(t.String()),
-        iconUrl: t.Optional(t.String()),
-        setCookie: t.Optional(t.Boolean({ default: true })),
-        getRecoveryCode: t.Optional(t.Boolean({ default: true })),
-      }),
-      response: t.Object({
-        user: t.Object({
-          id: t.String(),
-          name: t.String(),
-          displayName: t.String(),
-          iconUrl: t.Optional(t.String()),
+      body: t.Intersect([
+        CreateUser,
+        t.Object({
+          setCookie: t.Optional(t.Boolean({ default: true })),
         }),
+      ]),
+      response: t.Object({
+        user: GetUser,
         sessionToken: t.String(),
         recoveryToken: t.Optional(t.String()),
       }),
@@ -125,12 +115,7 @@ export const userController = new Elysia({ prefix: "/api/user" })
         setCookie: t.Optional(t.Boolean({ default: true })),
       }),
       response: t.Object({
-        user: t.Object({
-          id: t.String(),
-          name: t.String(),
-          displayName: t.String(),
-          iconUrl: t.Optional(t.String()),
-        }),
+        user: GetUser,
         sessionToken: t.String(),
       }),
     }
@@ -189,12 +174,7 @@ export const userController = new Elysia({ prefix: "/api/user" })
         })
       ),
       response: t.Object({
-        user: t.Object({
-          id: t.String(),
-          name: t.String(),
-          displayName: t.String(),
-          iconUrl: t.Optional(t.String()),
-        }),
+        user: GetUser,
       }),
     }
   );

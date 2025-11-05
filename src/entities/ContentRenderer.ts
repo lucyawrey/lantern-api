@@ -27,7 +27,7 @@ export class ContentRenderer {
   name!: string;
 
   @Property()
-  displayName!: string;
+  displayName: string = this.name;
 
   @ManyToOne()
   owner!: User;
@@ -53,6 +53,7 @@ export class ContentRenderer {
       | "id"
       | "createdAt"
       | "updatedAt"
+      | "displayName"
       | "hasReadAccess"
       | "hasWriteAccess"
       | "changelingMarkup"

@@ -25,7 +25,7 @@ export class Table {
   name!: string;
 
   @Property()
-  displayName!: string;
+  displayName: string = this.name;
 
   @ManyToOne()
   owner!: User;
@@ -39,7 +39,12 @@ export class Table {
   constructor(
     init: PartialSome<
       Table,
-      "id" | "createdAt" | "updatedAt" | "hasReadAccess" | "hasWriteAccess"
+      | "id"
+      | "createdAt"
+      | "updatedAt"
+      | "displayName"
+      | "hasReadAccess"
+      | "hasWriteAccess"
     >
   ) {
     Object.assign(this, init);
