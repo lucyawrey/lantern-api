@@ -1,4 +1,5 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { t } from "elysia";
 import { generateId } from "lib/auth";
 
 @Entity({ abstract: true })
@@ -18,3 +19,9 @@ export abstract class Base {
 }
 
 export interface BaseInit {}
+
+export const GetBase = t.Object({
+  id: t.String(),
+  createdAt: t.Date(),
+  updatedAt: t.Date(),
+});

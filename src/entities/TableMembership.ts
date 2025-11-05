@@ -1,7 +1,8 @@
 import { Entity, ManyToOne, Unique } from "@mikro-orm/core";
 import { User } from "entities/User";
 import { Table } from "entities/Table";
-import { Base, BaseInit } from "./Base";
+import { Base, BaseInit } from "entities/Base";
+import { t } from "elysia";
 
 @Entity()
 @Unique({ properties: ["table", "user"] })
@@ -16,3 +17,17 @@ export class TableMembership extends Base {
     super(init);
   }
 }
+
+export const ChangeTableMembership = t.Intersect([
+  t.Object({
+    tableRef: t.String(),
+    userRef: t.String(),
+  }),
+]);
+
+export const GetTableMembership = t.Intersect([
+  t.Object({
+    tableId: t.String(),
+    userId: t.String(),
+  }),
+]);

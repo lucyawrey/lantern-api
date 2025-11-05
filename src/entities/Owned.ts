@@ -1,7 +1,8 @@
 import { Entity, ManyToOne, Property, Unique } from "@mikro-orm/core";
 import { User } from "entities/User";
 import { AccessType } from "types/enums";
-import { Base, type BaseInit } from "entities/Base";
+import { Base, GetBase, type BaseInit } from "entities/Base";
+import { t } from "elysia";
 
 @Entity({ abstract: true })
 @Unique({ properties: ["name", "owner"] })
@@ -33,3 +34,22 @@ export interface OwnedInit extends BaseInit {
   hasReadAccess?: AccessType;
   hasWriteAccess?: AccessType;
 }
+
+export const CreateOwned = t.Object({
+  name: t.String(),
+  displayName: t.Optional(t.String()),
+  ownerRef: t.String(),
+  hasReadAccess: t.Optional(AccessType),
+  hasWriteAccess: t.Optional(AccessType),
+});
+
+export const GetOwned = t.Intersect([
+  GetBase,
+  t.Object({
+    name: t.String(),
+    displayName: t.String(),
+    ownerId: t.String(),
+    hasReadAccess: t.Enum(AccessType),
+    hasWriteAccess: t.Enum(AccessType),
+  }),
+]);

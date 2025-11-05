@@ -51,6 +51,9 @@ export const authMiddleware = new Elysia({
           });
 
           if (session && session.user && session.expiresAt > new Date()) {
+            session.id = ""; // hide session id
+            session.user.passwordHash = ""; // hide password hash
+            session.user.recoveryTokenHash = ""; // hide recovery token hash
             auth.isAuthenticated = true;
             auth.session = session;
           } else {

@@ -1,9 +1,10 @@
 import { Entity, ManyToOne, Property, type Rel } from "@mikro-orm/core";
-import type { ContentMode, ContentCategory } from "types/enums";
+import { ContentMode, ContentCategory } from "types/enums";
 import { Ruleset } from "entities/Ruleset";
-import type { Schema } from "types/schema";
+import { Schema } from "types/schema";
 import { ContentRenderer } from "entities/ContentRenderer";
-import { Owned, OwnedInit } from "./Owned";
+import { CreateOwned, GetOwned, Owned, type OwnedInit } from "entities/Owned";
+import { t } from "elysia";
 
 @Entity()
 export class ContentType extends Owned {
@@ -45,3 +46,31 @@ export class ContentType extends Owned {
     super(init);
   }
 }
+
+export const CreateContentType = t.Intersect([
+  CreateOwned,
+  t.Object({
+    rulesetRef: t.String(),
+    contentMode: t.Optional(ContentMode),
+    contentCategory: t.Optional(ContentCategory),
+    hasDynamicSchema: t.Optional(t.Boolean()),
+    indexKeys: t.Optional(t.Array(t.String())),
+    schema: t.Optional(Schema),
+    defaultContentRendererRef: t.Optional(t.String()),
+  }),
+]);
+
+export const UpdateContentType = t.Partial(CreateContentType);
+
+export const GetContentType = t.Intersect([
+  GetOwned,
+  t.Object({
+    rulesetId: t.String(),
+    contentMode: ContentMode,
+    contentCategory: ContentCategory,
+    hasDynamicSchema: t.Boolean(),
+    indexKeys: t.Array(t.String()),
+    schema: Schema,
+    defaultContentRendererId: t.Optional(t.String()),
+  }),
+]);

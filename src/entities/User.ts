@@ -1,7 +1,7 @@
 import { Entity, Property } from "@mikro-orm/core";
-import { Static, t } from "elysia";
+import { t } from "elysia";
 import { AccessType, Role } from "types/enums";
-import { Base, BaseInit } from "./Base";
+import { Base, BaseInit, GetBase } from "entities/Base";
 
 @Entity()
 export class User extends Base {
@@ -49,19 +49,16 @@ export const CreateUser = t.Object({
   password: t.String(),
   generateRecoveryToken: t.Optional(t.Boolean({ default: false })),
 });
-export type CreateUser = Static<typeof CreateUser>;
 
 export const UpdateUser = t.Partial(CreateUser);
-export type UpdateUser = Static<typeof UpdateUser>;
 
-export const GetUser = t.Object({
-  id: t.String(),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
-  name: t.String(),
-  displayName: t.String(),
-  roles: t.Array(Role),
-  hasReadAccess: AccessType,
-  iconUrl: t.Optional(t.String()),
-});
-export type GetUser = Static<typeof GetUser>;
+export const GetUser = t.Intersect([
+  GetBase,
+  t.Object({
+    name: t.String(),
+    displayName: t.String(),
+    roles: t.Array(Role),
+    hasReadAccess: AccessType,
+    iconUrl: t.Optional(t.String()),
+  }),
+]);
