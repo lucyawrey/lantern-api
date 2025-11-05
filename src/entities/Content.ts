@@ -1,46 +1,12 @@
-import {
-  Entity,
-  PrimaryKey,
-  Property,
-  ManyToOne,
-  Embedded,
-  Unique,
-} from "@mikro-orm/core";
-import { User } from "entities/User";
+import { Entity, Property, ManyToOne, Embedded } from "@mikro-orm/core";
 import { ContentType } from "entities/ContentType";
-import { generateId } from "lib/auth";
-import type { AccessType } from "types/enums";
 import type { Data } from "types/data";
 import { ContentRenderer } from "entities/ContentRenderer";
 import { Indexes } from "entities/Indexes";
+import { Owned, type OwnedInit } from "entities/Owned";
 
 @Entity()
-@Unique({ properties: ["name", "owner"] })
-export class Content {
-  @PrimaryKey()
-  id: string = generateId();
-
-  @Property()
-  createdAt: Date = new Date();
-
-  @Property({ onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
-
-  @Property({ columnType: "text COLLATE NOCASE" })
-  name!: string;
-
-  @Property()
-  displayName: string = this.name;
-
-  @ManyToOne()
-  owner!: User;
-
-  @Property()
-  hasReadAccess: AccessType = "inviteOnly";
-
-  @Property()
-  hasWriteAccess: AccessType = "inviteOnly";
-
+export class Content extends Owned {
   @ManyToOne({ index: true })
   contentType!: ContentType;
 
@@ -57,20 +23,14 @@ export class Content {
   contentRenderer?: ContentRenderer;
 
   constructor(
-    init: PartialSome<
-      Content,
-      | "id"
-      | "createdAt"
-      | "updatedAt"
-      | "displayName"
-      | "hasReadAccess"
-      | "hasWriteAccess"
-      | "contentRenderer"
-      | "data"
-      | "indexKeys"
-      | "indexes"
-    >
+    init: {
+      contentType: ContentType;
+      indexKeys?: string[];
+      indexes?: Indexes;
+      data?: Data;
+      contentRenderer?: ContentRenderer;
+    } & OwnedInit
   ) {
-    Object.assign(this, init);
+    super(init);
   }
 }

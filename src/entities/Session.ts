@@ -12,7 +12,7 @@ export class Session {
   @ManyToOne()
   user!: User;
 
-  constructor(init: PartialSome<Session, "expiresAt">) {
+  constructor(init: { id: string; user: User }) {
     Object.assign(this, init);
   }
 }

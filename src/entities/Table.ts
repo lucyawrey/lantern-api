@@ -1,52 +1,5 @@
-import {
-  Entity,
-  ManyToOne,
-  PrimaryKey,
-  Property,
-  Unique,
-} from "@mikro-orm/core";
-import { generateId } from "lib/auth";
-import { User } from "entities/User";
-import type { AccessType } from "types/enums";
+import { Entity } from "@mikro-orm/core";
+import { Owned } from "./Owned";
 
 @Entity()
-@Unique({ properties: ["name", "owner"] })
-export class Table {
-  @PrimaryKey()
-  id: string = generateId();
-
-  @Property()
-  createdAt: Date = new Date();
-
-  @Property({ onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
-
-  @Property({ columnType: "text COLLATE NOCASE" })
-  name!: string;
-
-  @Property()
-  displayName: string = this.name;
-
-  @ManyToOne()
-  owner!: User;
-
-  @Property()
-  hasReadAccess: AccessType = "inviteOnly";
-
-  @Property()
-  hasWriteAccess: AccessType = "inviteOnly";
-
-  constructor(
-    init: PartialSome<
-      Table,
-      | "id"
-      | "createdAt"
-      | "updatedAt"
-      | "displayName"
-      | "hasReadAccess"
-      | "hasWriteAccess"
-    >
-  ) {
-    Object.assign(this, init);
-  }
-}
+export class Table extends Owned {}

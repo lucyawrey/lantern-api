@@ -1,45 +1,12 @@
-import {
-  Entity,
-  ManyToOne,
-  PrimaryKey,
-  Property,
-  Unique,
-  type Rel,
-} from "@mikro-orm/core";
-import { generateId } from "lib/auth";
-import { User } from "entities/User";
-import type { AccessType, ContentMode, ContentCategory } from "types/enums";
+import { Entity, ManyToOne, Property, type Rel } from "@mikro-orm/core";
+import type { ContentMode, ContentCategory } from "types/enums";
 import { Ruleset } from "entities/Ruleset";
 import type { Schema } from "types/schema";
 import { ContentRenderer } from "entities/ContentRenderer";
+import { Owned, OwnedInit } from "./Owned";
 
 @Entity()
-@Unique({ properties: ["name", "owner"] })
-export class ContentType {
-  @PrimaryKey()
-  id: string = generateId();
-
-  @Property()
-  createdAt: Date = new Date();
-
-  @Property({ onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
-
-  @Property({ columnType: "text COLLATE NOCASE" })
-  name!: string;
-
-  @Property()
-  displayName: string = this.name;
-
-  @ManyToOne()
-  owner!: User;
-
-  @Property()
-  hasReadAccess: AccessType = "inviteOnly";
-
-  @Property()
-  hasWriteAccess: AccessType = "inviteOnly";
-
+export class ContentType extends Owned {
   @ManyToOne({ index: true })
   ruleset!: Ruleset;
 
@@ -65,22 +32,16 @@ export class ContentType {
   defaultContentRenderer?: Rel<ContentRenderer>;
 
   constructor(
-    init: PartialSome<
-      ContentType,
-      | "id"
-      | "createdAt"
-      | "updatedAt"
-      | "displayName"
-      | "contentCategory"
-      | "contentMode"
-      | "defaultContentRenderer"
-      | "schema"
-      | "hasDynamicSchema"
-      | "hasReadAccess"
-      | "hasWriteAccess"
-      | "indexKeys"
-    >
+    init: {
+      ruleset: Ruleset;
+      contentMode?: ContentMode;
+      contentCategory?: ContentCategory;
+      hasDynamicSchema?: boolean;
+      indexKeys?: string[];
+      schema?: Schema;
+      defaultContentRenderer?: ContentRenderer;
+    } & OwnedInit
   ) {
-    Object.assign(this, init);
+    super(init);
   }
 }

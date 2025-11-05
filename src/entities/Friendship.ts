@@ -1,32 +1,17 @@
-import {
-  Entity,
-  PrimaryKey,
-  Property,
-  ManyToOne,
-  Unique,
-} from "@mikro-orm/core";
+import { Entity, ManyToOne, Unique } from "@mikro-orm/core";
 import { User } from "entities/User";
-import { generateId } from "lib/auth";
+import { Base, type BaseInit } from "./Base";
 
 @Entity()
 @Unique({ properties: ["userA", "userB"] })
-export class Friendship {
-  @PrimaryKey()
-  id: string = generateId();
-
-  @Property()
-  createdAt: Date = new Date();
-
-  @Property({ onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
-
+export class Friendship extends Base {
   @ManyToOne()
   userA!: User;
 
   @ManyToOne()
   userB!: User;
 
-  constructor(init: PartialSome<Friendship, "id" | "createdAt" | "updatedAt">) {
-    Object.assign(this, init);
+  constructor(init: { userA: User; userB: User } & BaseInit) {
+    super(init);
   }
 }

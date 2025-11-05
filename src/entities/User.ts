@@ -1,19 +1,10 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { Entity, Property } from "@mikro-orm/core";
 import { Static, t } from "elysia";
-import { generateId } from "lib/auth";
 import { AccessType, Role } from "types/enums";
+import { Base, BaseInit } from "./Base";
 
 @Entity()
-export class User {
-  @PrimaryKey()
-  id: string = generateId();
-
-  @Property()
-  createdAt: Date = new Date();
-
-  @Property({ onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
-
+export class User extends Base {
   @Property({ unique: true, columnType: "text COLLATE NOCASE" })
   name!: string;
 
@@ -36,17 +27,17 @@ export class User {
   iconUrl?: string;
 
   constructor(
-    init: PartialSome<
-      User,
-      | "id"
-      | "createdAt"
-      | "updatedAt"
-      | "displayName"
-      | "roles"
-      | "hasReadAccess"
-    >
+    init: {
+      name: string;
+      displayName?: string;
+      roles?: Role[];
+      hasReadAccess?: AccessType;
+      passwordHash: string;
+      recoveryTokenHash?: string;
+      iconUrl?: string;
+    } & BaseInit
   ) {
-    Object.assign(this, init);
+    super(init);
   }
 }
 
