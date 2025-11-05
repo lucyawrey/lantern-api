@@ -28,7 +28,7 @@ export class User {
   @Property()
   passwordHash!: string;
 
-  @Property({ nullable: true })
+  @Property({ nullable: true, index: true })
   recoveryTokenHash?: string;
 
   @Property({ nullable: true })

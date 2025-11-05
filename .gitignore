@@ -10,6 +10,7 @@ v1
 /coverage
 
 # production
+/gen
 /build
 /temp
 *.sqlite
