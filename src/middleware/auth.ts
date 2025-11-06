@@ -11,15 +11,21 @@ export const authMiddleware = new Elysia({
   .derive(
     { as: "scoped" },
     ({
+      headers,
       cookie: { sessionTokenCookie },
     }): {
       auth: Auth;
     } => {
+      const cookieValue = sessionTokenCookie.value as string | undefined;
+      let { authorization } = headers;
+      if (authorization && authorization.startsWith("Bearer ")) {
+        authorization = authorization.slice(7);
+      }
       return {
         auth: {
           isAuthenticated: false,
           session: undefined,
-          sessionToken: sessionTokenCookie.value as string | undefined,
+          sessionToken: authorization ?? cookieValue,
         },
       };
     }
