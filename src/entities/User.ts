@@ -2,7 +2,6 @@ import { Entity, Property } from "@mikro-orm/core";
 import { Static, t } from "elysia";
 import { AccessType, Role } from "types/enums";
 import { Base, BaseInit, GetBase } from "entities/Base";
-import { Push } from "types/push";
 
 @Entity()
 export class User extends Base {
@@ -43,6 +42,7 @@ export class User extends Base {
 }
 
 export const SignupUser = t.Object({
+  ref: t.Optional(t.String()),
   name: t.String(),
   displayName: t.Optional(t.String()),
   hasReadAccess: t.Optional(AccessType),
@@ -52,15 +52,15 @@ export const SignupUser = t.Object({
 });
 export type SignupUser = Static<typeof SignupUser>;
 
-export const NewUser = t.Intersect([
-  SignupUser,
-  t.Object({
-    roles: t.Optional(t.Array(Role)),
-  }),
-]);
-export type NewUser = Static<typeof NewUser>;
-
-export const PushUser = Push(NewUser);
+export const PushUser = t.Object({
+  ref: t.Optional(t.String()),
+  name: t.Optional(t.String()),
+  displayName: t.Optional(t.String()),
+  hasReadAccess: t.Optional(AccessType),
+  iconUrl: t.Optional(t.String()),
+  password: t.Optional(t.String()),
+  generateRecoveryToken: t.Optional(t.Boolean({ default: false })),
+});
 export type PushUser = Static<typeof PushUser>;
 
 export const GetUser = t.Intersect([

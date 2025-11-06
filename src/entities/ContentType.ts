@@ -3,9 +3,8 @@ import { ContentMode, ContentCategory } from "types/enums";
 import { Ruleset } from "entities/Ruleset";
 import { Schema } from "types/schema";
 import { ContentRenderer } from "entities/ContentRenderer";
-import { NewOwned, GetOwned, Owned, type OwnedInit } from "entities/Owned";
+import { PushOwned, GetOwned, Owned, type OwnedInit } from "entities/Owned";
 import { Static, t } from "elysia";
-import { Push } from "types/push";
 
 @Entity()
 export class ContentType extends Owned {
@@ -45,10 +44,10 @@ export class ContentType extends Owned {
   }
 }
 
-export const NewContentType = t.Intersect([
-  NewOwned,
+export const PushContentType = t.Intersect([
+  PushOwned,
   t.Object({
-    rulesetRef: t.String(),
+    rulesetRef: t.Optional(t.String()),
     contentMode: t.Optional(ContentMode),
     contentCategory: t.Optional(ContentCategory),
     hasDynamicSchema: t.Optional(t.Boolean()),
@@ -57,9 +56,6 @@ export const NewContentType = t.Intersect([
     defaultContentRendererRef: t.Optional(t.String()),
   }),
 ]);
-export type NewContentType = Static<typeof NewContentType>;
-
-export const PushContentType = Push(NewContentType);
 export type PushContentType = Static<typeof PushContentType>;
 
 export const GetContentType = t.Intersect([

@@ -3,9 +3,8 @@ import { ContentType } from "entities/ContentType";
 import { Data } from "types/data";
 import { ContentRenderer } from "entities/ContentRenderer";
 import { Indexes } from "entities/Indexes";
-import { GetOwned, NewOwned, Owned, type OwnedInit } from "entities/Owned";
+import { GetOwned, PushOwned, Owned, type OwnedInit } from "entities/Owned";
 import { Static, t } from "elysia";
-import { Push } from "types/push";
 
 @Entity()
 export class Content extends Owned {
@@ -34,17 +33,14 @@ export class Content extends Owned {
   }
 }
 
-export const NewContent = t.Intersect([
-  NewOwned,
+export const PushContent = t.Intersect([
+  PushOwned,
   t.Object({
-    contentTypeRef: t.String(),
+    contentTypeRef: t.Optional(t.String()),
     data: t.Optional(Data),
     contentRendererRef: t.Optional(t.String()),
   }),
 ]);
-export type NewContent = Static<typeof NewContent>;
-
-export const PushContent = Push(NewContent);
 export type PushContent = Static<typeof PushContent>;
 
 export const GetContent = t.Intersect([

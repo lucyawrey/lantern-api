@@ -3,7 +3,6 @@ import { User } from "entities/User";
 import { AccessType } from "types/enums";
 import { Base, GetBase, type BaseInit } from "entities/Base";
 import { Static, t } from "elysia";
-import { Push } from "types/push";
 
 @Entity({ abstract: true })
 @Unique({ properties: ["name", "ownerUser"] })
@@ -36,16 +35,14 @@ export interface OwnedInit extends BaseInit {
   hasWriteAccess?: AccessType;
 }
 
-export const NewOwned = t.Object({
-  name: t.String(),
+export const PushOwned = t.Object({
+  ref: t.Optional(t.String()),
+  name: t.Optional(t.String()),
   displayName: t.Optional(t.String()),
-  ownerUserRef: t.String(),
+  ownerUserRef: t.Optional(t.String()),
   hasReadAccess: t.Optional(AccessType),
   hasWriteAccess: t.Optional(AccessType),
 });
-export type NewOwned = Static<typeof NewOwned>;
-
-export const PushOwned = Push(NewOwned);
 export type PushOwned = Static<typeof PushOwned>;
 
 export const GetOwned = t.Intersect([

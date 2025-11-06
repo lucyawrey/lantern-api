@@ -23,7 +23,7 @@ export const rulesetController = new Elysia({
       if (await em.findOne(Ruleset, { name: body.name })) {
         throw "Ruleset already exists with that name.";
       }
-      if (!verifyNameInput(body.name)) {
+      if (!body.name || !verifyNameInput(body.name)) {
         throw "Invalid name. Name must be between 3 and 32 characters and can only contain letters, numbers, underscores, and hyphens.";
       }
       const ruleset = new Ruleset({
