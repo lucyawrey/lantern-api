@@ -3,8 +3,9 @@ import { ContentType } from "entities/ContentType";
 import { Data } from "types/data";
 import { ContentRenderer } from "entities/ContentRenderer";
 import { Indexes } from "entities/Indexes";
-import { CreateOwned, GetOwned, Owned, type OwnedInit } from "entities/Owned";
+import { GetOwned, NewOwned, Owned, type OwnedInit } from "entities/Owned";
 import { t } from "elysia";
+import { Ref } from "types/ref";
 
 @Entity()
 export class Content extends Owned {
@@ -33,8 +34,8 @@ export class Content extends Owned {
   }
 }
 
-export const CreateContent = t.Intersect([
-  CreateOwned,
+export const NewContent = t.Intersect([
+  NewOwned,
   t.Object({
     contentTypeRef: t.String(),
     data: t.Optional(Data),
@@ -42,7 +43,10 @@ export const CreateContent = t.Intersect([
   }),
 ]);
 
-export const UpdateContent = t.Partial(CreateContent);
+export const PushContent = t.Union([
+  NewContent,
+  t.Intersect([Ref, t.Partial(NewContent)]),
+]);
 
 export const GetContent = t.Intersect([
   GetOwned,

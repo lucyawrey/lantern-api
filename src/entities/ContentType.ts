@@ -3,7 +3,7 @@ import { ContentMode, ContentCategory } from "types/enums";
 import { Ruleset } from "entities/Ruleset";
 import { Schema } from "types/schema";
 import { ContentRenderer } from "entities/ContentRenderer";
-import { CreateOwned, GetOwned, Owned, type OwnedInit } from "entities/Owned";
+import { NewOwned, GetOwned, Owned, type OwnedInit } from "entities/Owned";
 import { t } from "elysia";
 
 @Entity()
@@ -47,8 +47,8 @@ export class ContentType extends Owned {
   }
 }
 
-export const CreateContentType = t.Intersect([
-  CreateOwned,
+export const NewContentType = t.Intersect([
+  NewOwned,
   t.Object({
     rulesetRef: t.String(),
     contentMode: t.Optional(ContentMode),
@@ -60,7 +60,7 @@ export const CreateContentType = t.Intersect([
   }),
 ]);
 
-export const UpdateContentType = t.Partial(CreateContentType);
+export const UpdateContentType = t.Partial(NewContentType);
 
 export const GetContentType = t.Intersect([
   GetOwned,

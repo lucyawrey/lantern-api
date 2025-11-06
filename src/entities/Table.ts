@@ -1,12 +1,12 @@
 import { Entity } from "@mikro-orm/core";
 import { t } from "elysia";
-import { CreateOwned, GetOwned, Owned } from "entities/Owned";
+import { NewOwned, GetOwned, Owned } from "entities/Owned";
 
 @Entity()
 export class Table extends Owned {}
 
-export const CreateTable = CreateOwned;
+export const NewTable = NewOwned;
 
-export const UpdateTable = t.Partial(CreateTable);
+export const UpdateTable = t.Partial(NewTable);
 
 export const GetTable = GetOwned;

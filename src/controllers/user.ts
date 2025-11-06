@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { CreateUser, GetUser, User } from "entities/User";
+import { NewUser, GetUser, User } from "entities/User";
 import {
   generateRecoveryToken,
   generateSessionToken,
@@ -63,7 +63,7 @@ export const userController = new Elysia({ prefix: "/api/user" })
     },
     {
       body: t.Intersect([
-        CreateUser,
+        NewUser,
         t.Object({
           setCookie: t.Optional(t.Boolean({ default: true })),
         }),

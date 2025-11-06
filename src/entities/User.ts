@@ -41,7 +41,7 @@ export class User extends Base {
   }
 }
 
-export const CreateUser = t.Object({
+export const NewUser = t.Object({
   name: t.String(),
   displayName: t.Optional(t.String()),
   hasReadAccess: t.Optional(AccessType),
@@ -50,7 +50,7 @@ export const CreateUser = t.Object({
   generateRecoveryToken: t.Optional(t.Boolean({ default: false })),
 });
 
-export const UpdateUser = t.Partial(CreateUser);
+export const UpdateUser = t.Partial(NewUser);
 
 export const GetUser = t.Intersect([
   GetBase,

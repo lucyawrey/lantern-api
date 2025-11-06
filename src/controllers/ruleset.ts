@@ -2,8 +2,7 @@ import { Elysia, t } from "elysia";
 import { verifyNameInput } from "lib/auth";
 import { db } from "..";
 import { authMiddleware } from "middleware/auth";
-import { CreateRuleset, GetRuleset, Ruleset } from "entities/Ruleset";
-import { CreateOwned, GetOwned } from "entities/Owned";
+import { NewRuleset, GetRuleset, Ruleset } from "entities/Ruleset";
 
 export const rulesetController = new Elysia({ prefix: "/api/ruleset" })
   .use(authMiddleware)
@@ -38,7 +37,7 @@ export const rulesetController = new Elysia({ prefix: "/api/ruleset" })
     },
     {
       auth: { requireLogin: true },
-      body: CreateOwned,
+      body: NewRuleset,
       response: t.Object({
         ruleset: GetRuleset,
       }),
