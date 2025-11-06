@@ -1,14 +1,17 @@
 import { Elysia, t } from "elysia";
 import { verifyNameInput } from "lib/auth";
-import { db } from "..";
+import { db } from "lib/db";
 import { authMiddleware } from "middleware/auth";
-import { NewRuleset, GetRuleset, Ruleset } from "entities/Ruleset";
+import { GetRuleset, Ruleset, PushRuleset, NewRuleset } from "entities/Ruleset";
 import { Ref } from "types/ref";
 
-export const rulesetController = new Elysia({ prefix: "/api/ruleset" })
+export const rulesetController = new Elysia({
+  prefix: "/api/ruleset",
+  tags: ["Ruleset"],
+})
   .use(authMiddleware)
   .post(
-    "/create",
+    "/push",
     async ({ body, auth }) => {
       const em = db.em.fork();
       if (!auth.isAuthenticated) {
@@ -45,7 +48,7 @@ export const rulesetController = new Elysia({ prefix: "/api/ruleset" })
     }
   )
   .post(
-    "/get",
+    "/find",
     async ({ body }) => {
       const em = db.em.fork();
       const ruleset = await em.findOne(Ruleset, body.ref);
@@ -65,5 +68,17 @@ export const rulesetController = new Elysia({ prefix: "/api/ruleset" })
       response: t.Object({
         ruleset: GetRuleset,
       }),
+    }
+  )
+  .post(
+    "/delete",
+    async ({ body, auth }) => {
+      const em = db.em.fork();
+      return { deleted: true };
+    },
+    {
+      body: Ref,
+      response: t.Object({ deleted: t.Literal(true) }),
+      auth: { requireLogin: true },
     }
   );

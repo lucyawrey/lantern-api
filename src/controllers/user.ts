@@ -9,12 +9,15 @@ import {
   verifyPasswordHash,
   verifyPasswordStrength,
 } from "lib/auth";
-import { db } from "..";
+import { db } from "lib/db";
 import { Session } from "entities/Session";
 import { authMiddleware } from "middleware/auth";
 import { Ref, RefOptional } from "types/ref";
 
-export const userController = new Elysia({ prefix: "/api/user" })
+export const userController = new Elysia({
+  prefix: "/api/user",
+  tags: ["User"],
+})
   .use(authMiddleware)
   .post(
     "/signup",

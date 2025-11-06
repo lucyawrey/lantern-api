@@ -1,14 +1,11 @@
-import openapi from "@elysiajs/openapi";
-import { MikroORM } from "@mikro-orm/sqlite";
 import { homeController } from "controllers/home";
 import { rulesetController } from "controllers/ruleset";
 import { userController } from "controllers/user";
 import { Elysia } from "elysia";
-
-export const db = await MikroORM.init();
+import { docsPlugin } from "lib/docs";
 
 const app = new Elysia()
-  .use(openapi({ path: "/docs" }))
+  .use(docsPlugin)
   .use(homeController)
   .use(userController)
   .use(rulesetController)

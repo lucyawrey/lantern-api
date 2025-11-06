@@ -1,7 +1,7 @@
 import { Elysia, t } from "elysia";
 import { Auth } from "types/auth";
 import { Role } from "types/enums";
-import { db } from "..";
+import { db } from "lib/db";
 import { hashToken } from "lib/auth";
 import { Session } from "entities/Session";
 
