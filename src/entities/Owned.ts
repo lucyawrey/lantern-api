@@ -49,7 +49,7 @@ export const GetOwned = t.Intersect([
     name: t.String(),
     displayName: t.String(),
     ownerId: t.String(),
-    hasReadAccess: t.Enum(AccessType),
-    hasWriteAccess: t.Enum(AccessType),
+    hasReadAccess: AccessType,
+    hasWriteAccess: AccessType,
   }),
 ]);
