@@ -6,7 +6,7 @@ import { Static, t } from "elysia";
 import { Ref } from "types/ref";
 
 @Entity({ abstract: true })
-@Unique({ properties: ["name", "owner"] })
+@Unique({ properties: ["name", "ownerUser"] })
 export abstract class Owned extends Base {
   @Property({ columnType: "text COLLATE NOCASE" })
   name!: string;
@@ -15,7 +15,7 @@ export abstract class Owned extends Base {
   displayName: string = this.name;
 
   @ManyToOne()
-  owner!: User;
+  ownerUser!: User;
 
   @Property()
   hasReadAccess: AccessType = "inviteOnly";
@@ -31,7 +31,7 @@ export abstract class Owned extends Base {
 export interface OwnedInit extends BaseInit {
   name: string;
   displayName?: string;
-  owner: User;
+  ownerUser: User;
   hasReadAccess?: AccessType;
   hasWriteAccess?: AccessType;
 }
@@ -39,7 +39,7 @@ export interface OwnedInit extends BaseInit {
 export const NewOwned = t.Object({
   name: t.String(),
   displayName: t.Optional(t.String()),
-  ownerRef: t.String(),
+  ownerUserRef: t.String(),
   hasReadAccess: t.Optional(AccessType),
   hasWriteAccess: t.Optional(AccessType),
 });
@@ -56,7 +56,7 @@ export const GetOwned = t.Intersect([
   t.Object({
     name: t.String(),
     displayName: t.String(),
-    ownerId: t.String(),
+    ownerUserId: t.String(),
     hasReadAccess: AccessType,
     hasWriteAccess: AccessType,
   }),

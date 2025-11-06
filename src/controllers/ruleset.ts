@@ -26,7 +26,7 @@ export const rulesetController = new Elysia({
       const ruleset = new Ruleset({
         name: body.name,
         displayName: body.displayName ?? body.name,
-        owner: auth.session.user,
+        ownerUser: auth.session.user,
         hasReadAccess: body.hasReadAccess,
         hasWriteAccess: body.hasWriteAccess,
       });
@@ -34,7 +34,7 @@ export const rulesetController = new Elysia({
 
       return {
         ruleset: {
-          ownerId: ruleset.owner.id,
+          ownerUserId: ruleset.ownerUser.id,
           ...ruleset,
         },
       };
@@ -58,7 +58,7 @@ export const rulesetController = new Elysia({
       }
       return {
         ruleset: {
-          ownerId: ruleset.owner.id,
+          ownerUserId: ruleset.ownerUser.id,
           ...ruleset,
         },
       };
