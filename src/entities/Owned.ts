@@ -3,7 +3,7 @@ import { User } from "entities/User";
 import { AccessType } from "types/enums";
 import { Base, GetBase, type BaseInit } from "entities/Base";
 import { Static, t } from "elysia";
-import { Ref } from "types/ref";
+import { Push } from "types/push";
 
 @Entity({ abstract: true })
 @Unique({ properties: ["name", "ownerUser"] })
@@ -45,10 +45,7 @@ export const NewOwned = t.Object({
 });
 export type NewOwned = Static<typeof NewOwned>;
 
-export const PushOwned = t.Union([
-  NewOwned,
-  t.Intersect([Ref, t.Partial(NewOwned)]),
-]);
+export const PushOwned = Push(NewOwned);
 export type PushOwned = Static<typeof PushOwned>;
 
 export const GetOwned = t.Intersect([

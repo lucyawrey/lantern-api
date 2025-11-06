@@ -2,7 +2,7 @@ import { Entity, Property } from "@mikro-orm/core";
 import { Static, t } from "elysia";
 import { AccessType, Role } from "types/enums";
 import { Base, BaseInit, GetBase } from "entities/Base";
-import { Ref } from "types/ref";
+import { Push } from "types/push";
 
 @Entity()
 export class User extends Base {
@@ -60,10 +60,7 @@ export const NewUser = t.Intersect([
 ]);
 export type NewUser = Static<typeof NewUser>;
 
-export const PushUser = t.Union([
-  NewUser,
-  t.Intersect([Ref, t.Partial(NewUser)]),
-]);
+export const PushUser = Push(NewUser);
 export type PushUser = Static<typeof PushUser>;
 
 export const GetUser = t.Intersect([

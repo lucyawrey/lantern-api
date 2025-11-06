@@ -2,7 +2,7 @@ import { Elysia, t } from "elysia";
 import { verifyNameInput } from "lib/auth";
 import { db } from "lib/db";
 import { authMiddleware } from "middleware/auth";
-import { GetRuleset, Ruleset, PushRuleset, NewRuleset } from "entities/Ruleset";
+import { GetRuleset, Ruleset, PushRuleset } from "entities/Ruleset";
 import { Ref } from "types/ref";
 
 export const rulesetController = new Elysia({
@@ -14,6 +14,9 @@ export const rulesetController = new Elysia({
     "/push",
     async ({ body, auth }) => {
       const em = db.em.fork();
+      if (body.ref !== undefined) {
+        throw "Unimplemented.";
+      }
       if (!auth.isAuthenticated) {
         throw "Unauthorized.";
       }
@@ -40,7 +43,7 @@ export const rulesetController = new Elysia({
       };
     },
     {
-      body: NewRuleset,
+      body: PushRuleset,
       response: t.Object({
         ruleset: GetRuleset,
       }),

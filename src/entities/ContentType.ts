@@ -5,7 +5,7 @@ import { Schema } from "types/schema";
 import { ContentRenderer } from "entities/ContentRenderer";
 import { NewOwned, GetOwned, Owned, type OwnedInit } from "entities/Owned";
 import { Static, t } from "elysia";
-import { Ref } from "types/ref";
+import { Push } from "types/push";
 
 @Entity()
 export class ContentType extends Owned {
@@ -25,10 +25,7 @@ export class ContentType extends Owned {
   indexKeys: string[] = [];
 
   @Property({ type: "json" })
-  schema: Schema = {
-    properties: {},
-    types: {},
-  };
+  schema: Schema = {};
 
   @ManyToOne(() => ContentRenderer, { nullable: true })
   defaultContentRenderer?: Rel<ContentRenderer>;
@@ -62,10 +59,7 @@ export const NewContentType = t.Intersect([
 ]);
 export type NewContentType = Static<typeof NewContentType>;
 
-export const PushContentType = t.Union([
-  NewContentType,
-  t.Intersect([Ref, t.Partial(NewContentType)]),
-]);
+export const PushContentType = Push(NewContentType);
 export type PushContentType = Static<typeof PushContentType>;
 
 export const GetContentType = t.Intersect([

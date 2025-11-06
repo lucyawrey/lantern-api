@@ -1,35 +1,34 @@
 import { Embeddable, Property } from "@mikro-orm/core";
-import type { DataValue } from "types/data";
 
 @Embeddable()
 export class Indexes {
   @Property({ index: true })
-  index0?: DataValue;
+  index0?: unknown;
 
   @Property({ index: true })
-  index1?: DataValue;
+  index1?: unknown;
 
   @Property({ index: true })
-  index2?: DataValue;
+  index2?: unknown;
 
   @Property({ index: true })
-  index3?: DataValue;
+  index3?: unknown;
 
   @Property({ index: true })
-  index4?: DataValue;
+  index4?: unknown;
 
   @Property({ index: true })
-  index5?: DataValue;
+  index5?: unknown;
 
   @Property({ index: true })
-  index6?: DataValue;
+  index6?: unknown;
 
   @Property({ index: true })
-  index7?: DataValue;
+  index7?: unknown;
 
   @Property({ index: true })
-  index8?: DataValue;
+  index8?: unknown;
 
   @Property({ index: true })
-  index9?: DataValue;
+  index9?: unknown;
 }
