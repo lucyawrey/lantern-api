@@ -3,6 +3,7 @@ import { verifyNameInput } from "lib/auth";
 import { db } from "..";
 import { authMiddleware } from "middleware/auth";
 import { NewRuleset, GetRuleset, Ruleset } from "entities/Ruleset";
+import { Ref } from "types/ref";
 
 export const rulesetController = new Elysia({ prefix: "/api/ruleset" })
   .use(authMiddleware)
@@ -36,11 +37,11 @@ export const rulesetController = new Elysia({ prefix: "/api/ruleset" })
       };
     },
     {
-      auth: { requireLogin: true },
       body: NewRuleset,
       response: t.Object({
         ruleset: GetRuleset,
       }),
+      auth: { requireLogin: true },
     }
   )
   .post(
@@ -60,9 +61,7 @@ export const rulesetController = new Elysia({ prefix: "/api/ruleset" })
       };
     },
     {
-      body: t.Object({
-        ref: t.String(),
-      }),
+      body: Ref,
       response: t.Object({
         ruleset: GetRuleset,
       }),

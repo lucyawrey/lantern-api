@@ -42,7 +42,7 @@ export class User extends Base {
   }
 }
 
-export const NewUser = t.Object({
+export const SignupUser = t.Object({
   name: t.String(),
   displayName: t.Optional(t.String()),
   hasReadAccess: t.Optional(AccessType),
@@ -50,6 +50,13 @@ export const NewUser = t.Object({
   password: t.String(),
   generateRecoveryToken: t.Optional(t.Boolean({ default: false })),
 });
+
+export const NewUser = t.Intersect([
+  SignupUser,
+  t.Object({
+    roles: t.Optional(t.Array(Role)),
+  }),
+]);
 
 export const PushUser = t.Union([
   NewUser,

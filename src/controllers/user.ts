@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { NewUser, GetUser, User } from "entities/User";
+import { GetUser, User, SignupUser, PushUser } from "entities/User";
 import {
   generateRecoveryToken,
   generateSessionToken,
@@ -12,6 +12,7 @@ import {
 import { db } from "..";
 import { Session } from "entities/Session";
 import { authMiddleware } from "middleware/auth";
+import { Ref, RefOptional } from "types/ref";
 
 export const userController = new Elysia({ prefix: "/api/user" })
   .use(authMiddleware)
@@ -63,7 +64,7 @@ export const userController = new Elysia({ prefix: "/api/user" })
     },
     {
       body: t.Intersect([
-        NewUser,
+        SignupUser,
         t.Object({
           setCookie: t.Optional(t.Boolean({ default: true })),
         }),
@@ -139,7 +140,6 @@ export const userController = new Elysia({ prefix: "/api/user" })
       return { loggedOut: true };
     },
     {
-      auth: { requireLogin: true },
       body: t.Optional(
         t.Object({
           deleteCookie: t.Optional(t.Boolean({ default: true })),
@@ -147,10 +147,27 @@ export const userController = new Elysia({ prefix: "/api/user" })
         })
       ),
       response: t.Object({ loggedOut: t.Literal(true) }),
+      auth: { requireLogin: true },
     }
   )
   .post(
-    "/get",
+    "/push",
+    async ({ body, auth }) => {
+      const em = db.em.fork();
+      return {
+        user: {},
+      } as any;
+    },
+    {
+      body: PushUser,
+      response: t.Object({
+        user: GetUser,
+      }),
+      auth: { requireLogin: true },
+    }
+  )
+  .post(
+    "/find",
     async ({ body, auth }) => {
       const em = db.em.fork();
       const user = body?.ref
@@ -167,14 +184,22 @@ export const userController = new Elysia({ prefix: "/api/user" })
       };
     },
     {
-      auth: {},
-      body: t.Optional(
-        t.Object({
-          ref: t.Optional(t.String()),
-        })
-      ),
+      body: RefOptional,
       response: t.Object({
         user: GetUser,
       }),
+      auth: {},
+    }
+  )
+  .post(
+    "/delete",
+    async ({ body, auth }) => {
+      const em = db.em.fork();
+      return { deleted: true };
+    },
+    {
+      body: Ref,
+      response: t.Object({ deleted: t.Literal(true) }),
+      auth: { requireLogin: true },
     }
   );
