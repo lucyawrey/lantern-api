@@ -1,5 +1,5 @@
 import { Entity, Property } from "@mikro-orm/core";
-import { t } from "elysia";
+import { Static, t } from "elysia";
 import { AccessType, Role } from "types/enums";
 import { Base, BaseInit, GetBase } from "entities/Base";
 import { Ref } from "types/ref";
@@ -50,6 +50,7 @@ export const SignupUser = t.Object({
   password: t.String(),
   generateRecoveryToken: t.Optional(t.Boolean({ default: false })),
 });
+export type SignupUser = Static<typeof SignupUser>;
 
 export const NewUser = t.Intersect([
   SignupUser,
@@ -57,11 +58,13 @@ export const NewUser = t.Intersect([
     roles: t.Optional(t.Array(Role)),
   }),
 ]);
+export type NewUser = Static<typeof NewUser>;
 
 export const PushUser = t.Union([
   NewUser,
   t.Intersect([Ref, t.Partial(NewUser)]),
 ]);
+export type PushUser = Static<typeof PushUser>;
 
 export const GetUser = t.Intersect([
   GetBase,
@@ -73,3 +76,4 @@ export const GetUser = t.Intersect([
     iconUrl: t.Optional(t.String()),
   }),
 ]);
+export type GetUser = Static<typeof GetUser>;

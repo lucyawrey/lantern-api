@@ -2,7 +2,7 @@ import { Entity, ManyToOne, Unique } from "@mikro-orm/core";
 import { User } from "entities/User";
 import { Table } from "entities/Table";
 import { Base, BaseInit } from "entities/Base";
-import { t } from "elysia";
+import { Static, t } from "elysia";
 
 @Entity()
 @Unique({ properties: ["table", "user"] })
@@ -24,6 +24,7 @@ export const ChangeTableMembership = t.Intersect([
     userRef: t.String(),
   }),
 ]);
+export type ChangeTableMembership = Static<typeof ChangeTableMembership>;
 
 export const GetTableMembership = t.Intersect([
   t.Object({
@@ -31,3 +32,4 @@ export const GetTableMembership = t.Intersect([
     userId: t.String(),
   }),
 ]);
+export type GetTableMembership = Static<typeof GetTableMembership>;

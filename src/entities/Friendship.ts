@@ -1,7 +1,7 @@
 import { Entity, ManyToOne, Unique } from "@mikro-orm/core";
 import { User } from "entities/User";
 import { Base, GetBase, type BaseInit } from "entities/Base";
-import { t } from "elysia";
+import { Static, t } from "elysia";
 
 @Entity()
 @Unique({ properties: ["userA", "userB"] })
@@ -23,6 +23,7 @@ export const ChangeFriendship = t.Intersect([
     userBRef: t.String(),
   }),
 ]);
+export type ChangeFriendship = Static<typeof ChangeFriendship>;
 
 export const GetFriendship = t.Intersect([
   GetBase,
@@ -31,3 +32,4 @@ export const GetFriendship = t.Intersect([
     userBId: t.String(),
   }),
 ]);
+export type GetFriendship = Static<typeof GetFriendship>;

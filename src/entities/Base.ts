@@ -1,5 +1,5 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
-import { t } from "elysia";
+import { Static, t } from "elysia";
 import { generateId } from "lib/auth";
 
 @Entity({ abstract: true })
@@ -25,3 +25,4 @@ export const GetBase = t.Object({
   createdAt: t.Date(),
   updatedAt: t.Date(),
 });
+export type GetBase = Static<typeof GetBase>;

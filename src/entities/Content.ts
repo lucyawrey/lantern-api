@@ -4,7 +4,7 @@ import { Data } from "types/data";
 import { ContentRenderer } from "entities/ContentRenderer";
 import { Indexes } from "entities/Indexes";
 import { GetOwned, NewOwned, Owned, type OwnedInit } from "entities/Owned";
-import { t } from "elysia";
+import { Static, t } from "elysia";
 import { Ref } from "types/ref";
 
 @Entity()
@@ -42,11 +42,13 @@ export const NewContent = t.Intersect([
     contentRendererRef: t.Optional(t.String()),
   }),
 ]);
+export type NewContent = Static<typeof NewContent>;
 
 export const PushContent = t.Union([
   NewContent,
   t.Intersect([Ref, t.Partial(NewContent)]),
 ]);
+export type PushContent = Static<typeof PushContent>;
 
 export const GetContent = t.Intersect([
   GetOwned,
@@ -56,3 +58,4 @@ export const GetContent = t.Intersect([
     contentRendererId: t.Optional(t.String()),
   }),
 ]);
+export type GetContent = Static<typeof GetContent>;

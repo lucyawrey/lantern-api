@@ -4,7 +4,7 @@ import { Ruleset } from "entities/Ruleset";
 import { Schema } from "types/schema";
 import { ContentRenderer } from "entities/ContentRenderer";
 import { NewOwned, GetOwned, Owned, type OwnedInit } from "entities/Owned";
-import { t } from "elysia";
+import { Static, t } from "elysia";
 import { Ref } from "types/ref";
 
 @Entity()
@@ -60,11 +60,13 @@ export const NewContentType = t.Intersect([
     defaultContentRendererRef: t.Optional(t.String()),
   }),
 ]);
+export type NewContentType = Static<typeof NewContentType>;
 
 export const PushContentType = t.Union([
   NewContentType,
   t.Intersect([Ref, t.Partial(NewContentType)]),
 ]);
+export type PushContentType = Static<typeof PushContentType>;
 
 export const GetContentType = t.Intersect([
   GetOwned,
@@ -78,3 +80,4 @@ export const GetContentType = t.Intersect([
     defaultContentRendererId: t.Optional(t.String()),
   }),
 ]);
+export type GetContentType = Static<typeof GetContentType>;

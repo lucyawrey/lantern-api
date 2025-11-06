@@ -2,7 +2,7 @@ import { Entity, ManyToOne, Property, Unique } from "@mikro-orm/core";
 import { User } from "entities/User";
 import { AccessType } from "types/enums";
 import { Base, GetBase, type BaseInit } from "entities/Base";
-import { t } from "elysia";
+import { Static, t } from "elysia";
 import { Ref } from "types/ref";
 
 @Entity({ abstract: true })
@@ -43,11 +43,13 @@ export const NewOwned = t.Object({
   hasReadAccess: t.Optional(AccessType),
   hasWriteAccess: t.Optional(AccessType),
 });
+export type NewOwned = Static<typeof NewOwned>;
 
 export const PushOwned = t.Union([
   NewOwned,
   t.Intersect([Ref, t.Partial(NewOwned)]),
 ]);
+export type PushOwned = Static<typeof PushOwned>;
 
 export const GetOwned = t.Intersect([
   GetBase,
@@ -59,3 +61,4 @@ export const GetOwned = t.Intersect([
     hasWriteAccess: AccessType,
   }),
 ]);
+export type GetOwned = Static<typeof GetOwned>;
