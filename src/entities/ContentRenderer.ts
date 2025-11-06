@@ -2,6 +2,7 @@ import { Entity, ManyToOne, Property, type Rel } from "@mikro-orm/core";
 import { ContentType } from "entities/ContentType";
 import { NewOwned, GetOwned, Owned, type OwnedInit } from "entities/Owned";
 import { t } from "elysia";
+import { Ref } from "types/ref";
 
 @Entity()
 export class ContentRenderer extends Owned {
@@ -34,7 +35,10 @@ export const NewContentRenderer = t.Intersect([
   }),
 ]);
 
-export const UpdateContentRenderer = t.Partial(NewContentRenderer);
+export const PushContent = t.Union([
+  NewContentRenderer,
+  t.Intersect([Ref, t.Partial(NewContentRenderer)]),
+]);
 
 export const GetContentRenderer = t.Intersect([
   GetOwned,

@@ -5,6 +5,7 @@ import { Schema } from "types/schema";
 import { ContentRenderer } from "entities/ContentRenderer";
 import { NewOwned, GetOwned, Owned, type OwnedInit } from "entities/Owned";
 import { t } from "elysia";
+import { Ref } from "types/ref";
 
 @Entity()
 export class ContentType extends Owned {
@@ -60,7 +61,10 @@ export const NewContentType = t.Intersect([
   }),
 ]);
 
-export const UpdateContentType = t.Partial(NewContentType);
+export const PushContentType = t.Union([
+  NewContentType,
+  t.Intersect([Ref, t.Partial(NewContentType)]),
+]);
 
 export const GetContentType = t.Intersect([
   GetOwned,

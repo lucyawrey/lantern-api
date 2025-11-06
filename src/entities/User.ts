@@ -2,6 +2,7 @@ import { Entity, Property } from "@mikro-orm/core";
 import { t } from "elysia";
 import { AccessType, Role } from "types/enums";
 import { Base, BaseInit, GetBase } from "entities/Base";
+import { Ref } from "types/ref";
 
 @Entity()
 export class User extends Base {
@@ -50,7 +51,10 @@ export const NewUser = t.Object({
   generateRecoveryToken: t.Optional(t.Boolean({ default: false })),
 });
 
-export const UpdateUser = t.Partial(NewUser);
+export const PushUser = t.Union([
+  NewUser,
+  t.Intersect([Ref, t.Partial(NewUser)]),
+]);
 
 export const GetUser = t.Intersect([
   GetBase,
