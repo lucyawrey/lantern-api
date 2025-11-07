@@ -3,7 +3,7 @@ import { verifyNameInput } from "lib/auth";
 import { db } from "lib/db";
 import { authMiddleware } from "middleware/auth";
 import { GetRuleset, Ruleset, PushRuleset } from "entities/Ruleset";
-import { Ref } from "types/ref";
+import { Id, Ref } from "types/ref";
 
 export const rulesetController = new Elysia({
   prefix: "/api/ruleset",
@@ -14,7 +14,7 @@ export const rulesetController = new Elysia({
     "/push",
     async ({ body, auth }) => {
       const em = db.em.fork();
-      if (body.ref !== undefined) {
+      if (body.id !== undefined) {
         throw "Unimplemented.";
       }
       if (!auth.isAuthenticated) {
@@ -80,7 +80,7 @@ export const rulesetController = new Elysia({
       return { deleted: true };
     },
     {
-      body: Ref,
+      body: Id,
       response: t.Object({ deleted: t.Literal(true) }),
       auth: { requireLogin: true },
     }

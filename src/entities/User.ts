@@ -42,7 +42,6 @@ export class User extends Base {
 }
 
 export const SignupUser = t.Object({
-  ref: t.Optional(t.String()),
   name: t.String(),
   displayName: t.Optional(t.String()),
   hasReadAccess: t.Optional(AccessType),
@@ -55,6 +54,7 @@ export type SignupUser = Static<typeof SignupUser>;
 export const PushUser = t.Composite([
   t.Partial(SignupUser),
   t.Object({
+    id: t.Optional(t.String()),
     roles: t.Optional(t.Array(Role)),
   }),
 ]);

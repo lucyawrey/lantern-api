@@ -7,3 +7,6 @@ export const RefOptional = t.Optional(
   t.Object({ ref: t.Optional(t.String()) })
 );
 export type RefOptional = Static<typeof RefOptional>;
+
+export const Id = t.Object({ id: t.String() });
+export type Id = Static<typeof Id>;

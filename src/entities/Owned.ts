@@ -36,7 +36,7 @@ export interface OwnedInit extends BaseInit {
 }
 
 export const PushOwned = t.Object({
-  ref: t.Optional(t.String()),
+  id: t.Optional(t.String()),
   name: t.Optional(t.String()),
   displayName: t.Optional(t.String()),
   ownerUserRef: t.Optional(t.String()),
