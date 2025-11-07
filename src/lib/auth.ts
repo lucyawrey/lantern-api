@@ -7,6 +7,8 @@ import {
 import { hash, verify } from "@node-rs/argon2";
 import { Cookie } from "elysia";
 import { sha256 } from "@oslojs/crypto/sha2";
+import { AccessType, Role } from "types/enums";
+import { User } from "entities/User";
 
 /* Ids */
 export function generateId(): string {
@@ -89,4 +91,30 @@ export function verifyPasswordStrength(password: string): boolean {
 /* Input Verification */
 export function verifyNameInput(name: string): boolean {
   return name.length > 2 && name.length < 32 && /^[a-zA-Z0-9_]+$/.test(name);
+}
+
+export function hasRole(user?: User, ...roles: Role[]): boolean {
+  if (!user) return false;
+  return roles.some((role) => user.roles.includes(role));
+}
+
+export function hasAccess(
+  _mode: "read" | "write",
+  owningUser: User,
+  hasAccess: AccessType,
+  accessingUser?: User
+): boolean {
+  // TODO implement access checks for other AccessTypes (friends, tables, members)
+  // TODO implement individual shares properly
+  // TODO implement read/write modes properly
+  if (hasAccess === "public") {
+    return true;
+  }
+  if (owningUser.id === accessingUser?.id) {
+    return true;
+  }
+  if (hasRole(accessingUser, "admin")) {
+    return true;
+  }
+  return false;
 }

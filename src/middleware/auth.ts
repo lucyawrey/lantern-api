@@ -2,7 +2,7 @@ import { Elysia, t } from "elysia";
 import { Auth } from "types/auth";
 import { Role } from "types/enums";
 import { db } from "lib/db";
-import { hashToken } from "lib/auth";
+import { hashToken, hasRole } from "lib/auth";
 import { Session } from "entities/Session";
 
 export const authMiddleware = new Elysia({
@@ -70,10 +70,7 @@ export const authMiddleware = new Elysia({
           }
 
           if (requireRole) {
-            const userIsInGroup = requireRole.some((role) =>
-              session.user.roles.includes(role)
-            );
-            if (!userIsInGroup) {
+            if (!hasRole(session.user, ...requireRole)) {
               throw "Unauthorized.";
             }
           }

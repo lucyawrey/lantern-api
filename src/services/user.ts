@@ -1,10 +1,11 @@
-import { p } from "@mikro-orm/core";
 import { Session } from "entities/Session";
 import { PushUser, User } from "entities/User";
 import {
   generateRecoveryToken,
   generateSessionToken,
+  hasAccess,
   hashPassword,
+  hasRole,
   verifyNameInput,
   verifyPasswordHash,
   verifyPasswordStrength,
@@ -21,10 +22,8 @@ export async function pushUser(
     sessionToken: undefined,
   }
 ): Promise<{ user: User; recoveryToken?: string }> {
-  const isAuthenticated = auth.isAuthenticated;
-  const isAdmin = isAuthenticated && auth.session.user.roles.includes("admin");
   // Only admins can set user roles
-  if (!isAdmin) {
+  if (!hasRole(auth.session?.user, "admin")) {
     pushUser.roles = undefined;
   }
 
@@ -63,15 +62,15 @@ export async function pushUser(
       recoveryTokenHash,
     });
   } else {
-    if (
-      !isAuthenticated ||
-      (pushUser.id !== auth.session.user.id && !isAdmin)
-    ) {
-      throw "Unauthorized.";
-    }
     user = await em.findOne(User, pushUser.id);
     if (!user) {
       throw "User with given ID not found.";
+    }
+    if (
+      !auth.isAuthenticated ||
+      !hasAccess("write", user, "inviteOnly", auth.session.user)
+    ) {
+      throw "Unauthorized.";
     }
     user.name = pushUser.name ?? user.name;
     user.displayName = pushUser.displayName ?? user.displayName;

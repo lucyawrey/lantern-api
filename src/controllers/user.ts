@@ -1,9 +1,9 @@
 import { Elysia, t } from "elysia";
 import { GetUser, User, SignupUser, PushUser } from "entities/User";
-import { setSessionCookie } from "lib/auth";
+import { hasRole, setSessionCookie } from "lib/auth";
 import { db } from "lib/db";
 import { authMiddleware } from "middleware/auth";
-import { Ref, RefOptional } from "types/ref";
+import { Id, RefOptional } from "types/ref";
 import {
   createSessionForUser,
   loginUser,
@@ -117,7 +117,7 @@ export const userController = new Elysia({
     async ({ body, auth }) => {
       const em = db.em.fork();
 
-      if (!body.id && !auth.session?.user.roles.includes("admin")) {
+      if (!body.id && !hasRole(auth.session?.user, "admin")) {
         throw "Unauthorized.";
       }
 
@@ -173,7 +173,7 @@ export const userController = new Elysia({
       return { deleted: true };
     },
     {
-      body: Ref,
+      body: Id,
       response: t.Object({ deleted: t.Literal(true) }),
       auth: { requireLogin: true },
     }
