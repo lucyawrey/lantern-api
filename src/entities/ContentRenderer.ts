@@ -25,7 +25,7 @@ export class ContentRenderer extends Owned {
   }
 }
 
-export const PushContentRenderer = t.Intersect([
+export const PushContentRenderer = t.Composite([
   PushOwned,
   t.Object({
     contentTypeRef: t.Optional(t.String()),
@@ -35,7 +35,7 @@ export const PushContentRenderer = t.Intersect([
 ]);
 export type PushContentRenderer = Static<typeof PushContentRenderer>;
 
-export const GetContentRenderer = t.Intersect([
+export const GetContentRenderer = t.Composite([
   GetOwned,
   t.Object({
     contentTypeId: t.String(),

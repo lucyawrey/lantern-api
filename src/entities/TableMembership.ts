@@ -18,7 +18,7 @@ export class TableMembership extends Base {
   }
 }
 
-export const ChangeTableMembership = t.Intersect([
+export const ChangeTableMembership = t.Composite([
   t.Object({
     tableRef: t.String(),
     userRef: t.String(),
@@ -26,7 +26,7 @@ export const ChangeTableMembership = t.Intersect([
 ]);
 export type ChangeTableMembership = Static<typeof ChangeTableMembership>;
 
-export const GetTableMembership = t.Intersect([
+export const GetTableMembership = t.Composite([
   t.Object({
     tableId: t.String(),
     userId: t.String(),

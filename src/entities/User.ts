@@ -52,18 +52,15 @@ export const SignupUser = t.Object({
 });
 export type SignupUser = Static<typeof SignupUser>;
 
-export const PushUser = t.Object({
-  ref: t.Optional(t.String()),
-  name: t.Optional(t.String()),
-  displayName: t.Optional(t.String()),
-  hasReadAccess: t.Optional(AccessType),
-  iconUrl: t.Optional(t.String()),
-  password: t.Optional(t.String()),
-  generateRecoveryToken: t.Optional(t.Boolean({ default: false })),
-});
+export const PushUser = t.Composite([
+  t.Partial(SignupUser),
+  t.Object({
+    roles: t.Optional(t.Array(Role)),
+  }),
+]);
 export type PushUser = Static<typeof PushUser>;
 
-export const GetUser = t.Intersect([
+export const GetUser = t.Composite([
   GetBase,
   t.Object({
     name: t.String(),

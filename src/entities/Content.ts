@@ -33,7 +33,7 @@ export class Content extends Owned {
   }
 }
 
-export const PushContent = t.Intersect([
+export const PushContent = t.Composite([
   PushOwned,
   t.Object({
     contentTypeRef: t.Optional(t.String()),
@@ -43,7 +43,7 @@ export const PushContent = t.Intersect([
 ]);
 export type PushContent = Static<typeof PushContent>;
 
-export const GetContent = t.Intersect([
+export const GetContent = t.Composite([
   GetOwned,
   t.Object({
     contentTypeId: t.String(),

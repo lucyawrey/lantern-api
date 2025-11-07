@@ -66,7 +66,7 @@ export const userController = new Elysia({
       };
     },
     {
-      body: t.Intersect([
+      body: t.Composite([
         SignupUser,
         t.Object({
           setCookie: t.Optional(t.Boolean({ default: true })),

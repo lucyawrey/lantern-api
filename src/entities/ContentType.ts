@@ -44,7 +44,7 @@ export class ContentType extends Owned {
   }
 }
 
-export const PushContentType = t.Intersect([
+export const PushContentType = t.Composite([
   PushOwned,
   t.Object({
     rulesetRef: t.Optional(t.String()),
@@ -58,7 +58,7 @@ export const PushContentType = t.Intersect([
 ]);
 export type PushContentType = Static<typeof PushContentType>;
 
-export const GetContentType = t.Intersect([
+export const GetContentType = t.Composite([
   GetOwned,
   t.Object({
     rulesetId: t.String(),

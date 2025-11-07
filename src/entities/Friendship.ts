@@ -17,7 +17,7 @@ export class Friendship extends Base {
   }
 }
 
-export const ChangeFriendship = t.Intersect([
+export const ChangeFriendship = t.Composite([
   t.Object({
     userARef: t.String(),
     userBRef: t.String(),
@@ -25,7 +25,7 @@ export const ChangeFriendship = t.Intersect([
 ]);
 export type ChangeFriendship = Static<typeof ChangeFriendship>;
 
-export const GetFriendship = t.Intersect([
+export const GetFriendship = t.Composite([
   GetBase,
   t.Object({
     userAId: t.String(),

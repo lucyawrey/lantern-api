@@ -45,7 +45,7 @@ export const PushOwned = t.Object({
 });
 export type PushOwned = Static<typeof PushOwned>;
 
-export const GetOwned = t.Intersect([
+export const GetOwned = t.Composite([
   GetBase,
   t.Object({
     name: t.String(),
