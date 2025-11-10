@@ -11,16 +11,12 @@ import {
   verifyPasswordStrength,
 } from "lib/auth";
 import type { Em } from "lib/db";
-import { Auth } from "types/auth";
+import { Auth, authDefault } from "types/auth";
 
 export async function pushUser(
   em: Em,
   pushUser: PushUser,
-  auth: Auth = {
-    isAuthenticated: false,
-    session: undefined,
-    sessionToken: undefined,
-  }
+  auth: Auth = authDefault
 ): Promise<{ user: User; recoveryToken?: string }> {
   // Only admins can set user roles
   if (!hasRole(auth.session?.user, "admin")) {
@@ -66,10 +62,7 @@ export async function pushUser(
     if (!user) {
       throw "User with given ID not found.";
     }
-    if (
-      !auth.isAuthenticated ||
-      !hasAccess("write", user, "inviteOnly", auth.session.user)
-    ) {
+    if (!hasAccess("write", user, user, auth.session?.user)) {
       throw "Unauthorized.";
     }
     user.name = pushUser.name ?? user.name;
@@ -87,17 +80,6 @@ export async function pushUser(
 
   em.persist(user);
   return { user, recoveryToken };
-}
-
-export async function createSessionForUser(
-  em: Em,
-  user: User
-): Promise<{ session: Session; sessionToken: string }> {
-  const [sessionToken, sessionTokenHash] = await generateSessionToken();
-  const session = new Session({ id: sessionTokenHash, user });
-
-  em.persist(session);
-  return { session, sessionToken };
 }
 
 export async function loginUser(
@@ -134,4 +116,41 @@ export async function logoutUser(
   } else {
     em.remove(session).flush();
   }
+}
+
+export async function deleteUserById(
+  em: Em,
+  id: string,
+  auth: Auth = authDefault
+): Promise<void> {
+  const user = await em.findOne(User, id);
+  if (!user) {
+    throw "User not found.";
+  }
+  if (!hasAccess("write", user, user, auth.session?.user)) {
+    throw "Unauthorized.";
+  }
+  em.remove(user);
+}
+
+export async function createSessionForUser(
+  em: Em,
+  user: User
+): Promise<{ session: Session; sessionToken: string }> {
+  const [sessionToken, sessionTokenHash] = await generateSessionToken();
+  const session = new Session({ id: sessionTokenHash, user });
+
+  em.persist(session);
+  return { session, sessionToken };
+}
+
+export async function findUserByRef(em: Em, ref?: string): Promise<User> {
+  if (!ref) {
+    throw "User not found.";
+  }
+  const user = await em.findOne(User, { $or: [{ id: ref }, { name: ref }] });
+  if (!user) {
+    throw "User not found.";
+  }
+  return user;
 }

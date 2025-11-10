@@ -11,3 +11,9 @@ export type Auth =
       session: Session;
       sessionToken: string;
     };
+
+export const authDefault: Auth = {
+  isAuthenticated: false,
+  session: undefined,
+  sessionToken: undefined,
+};

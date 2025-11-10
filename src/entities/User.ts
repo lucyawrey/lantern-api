@@ -26,6 +26,9 @@ export class User extends Base {
   @Property({ nullable: true })
   iconUrl?: string;
 
+  @Property({ persist: false })
+  hasWriteAccess: AccessType = "inviteOnly";
+
   constructor(
     init: {
       name: string;

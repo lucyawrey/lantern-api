@@ -9,6 +9,7 @@ import { Cookie } from "elysia";
 import { sha256 } from "@oslojs/crypto/sha2";
 import { AccessType, Role } from "types/enums";
 import { User } from "entities/User";
+import { Owned } from "entities/Owned";
 
 /* Ids */
 export function generateId(): string {
@@ -93,28 +94,39 @@ export function verifyNameInput(name: string): boolean {
   return name.length > 2 && name.length < 32 && /^[a-zA-Z0-9_]+$/.test(name);
 }
 
-export function hasRole(user?: User, ...roles: Role[]): boolean {
+export function hasRole(
+  user?: PartialExcept<User, "roles">,
+  ...roles: Role[]
+): boolean {
   if (!user) return false;
   return roles.some((role) => user.roles.includes(role));
 }
 
 export function hasAccess(
-  _mode: "read" | "write",
-  owningUser: User,
-  hasAccess: AccessType,
-  accessingUser?: User
+  mode: "read" | "write",
+  owningUser: PartialExcept<User, "id">,
+  entity:
+    | PartialExcept<Owned, "hasReadAccess" | "hasWriteAccess">
+    | PartialExcept<User, "hasReadAccess" | "hasWriteAccess">,
+  accessingUser?: PartialExcept<User, "roles">
 ): boolean {
   // TODO implement access checks for other AccessTypes (friends, tables, members)
   // TODO implement individual shares properly
-  // TODO implement read/write modes properly
-  if (hasAccess === "public") {
-    return true;
-  }
-  if (owningUser.id === accessingUser?.id) {
-    return true;
-  }
   if (hasRole(accessingUser, "admin")) {
     return true;
+  }
+  if (accessingUser && owningUser.id === accessingUser.id) {
+    return true;
+  }
+  if (mode === "write") {
+    if (entity.hasWriteAccess === "public") {
+      return true;
+    }
+  }
+  if (mode === "read") {
+    if (entity.hasReadAccess === "public") {
+      return true;
+    }
   }
   return false;
 }

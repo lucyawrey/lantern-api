@@ -1,6 +1,6 @@
 # Lantern Backend Todo List
 
-- [ ] Get entity by ref helper.
+- [ ] OneToMany collections
 - [ ] Complete find user and delete user endpoints with proper access control.
 - [ ] Proper Query failures in endpoints.
 - [ ] Better error handling including multiple codes.

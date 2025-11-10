@@ -1,11 +1,13 @@
 import { Elysia, t } from "elysia";
 import { GetUser, User, SignupUser, PushUser } from "entities/User";
-import { hasRole, setSessionCookie } from "lib/auth";
+import { hasAccess, hasRole, setSessionCookie } from "lib/auth";
 import { db } from "lib/db";
 import { authMiddleware } from "middleware/auth";
 import { Id, RefOptional } from "types/ref";
 import {
   createSessionForUser,
+  deleteUserById,
+  findUserByRef,
   loginUser,
   logoutUser,
   pushUser,
@@ -145,13 +147,12 @@ export const userController = new Elysia({
     "/find",
     async ({ body, auth }) => {
       const em = db.em.fork();
-      const user = body?.ref
-        ? ((await em.findOne(User, body.ref)) ??
-          (await em.findOne(User, { name: body.ref })))
-        : auth.session?.user;
-      if (!user) {
-        throw "User not found.";
+
+      const user = await findUserByRef(em, body?.ref);
+      if (!hasAccess("read", user, user, auth.session?.user)) {
+        throw "Unauthorized.";
       }
+
       return {
         user: {
           ...user,
@@ -170,6 +171,10 @@ export const userController = new Elysia({
     "/delete",
     async ({ body, auth }) => {
       const em = db.em.fork();
+
+      deleteUserById(em, body.id, auth);
+      em.flush();
+
       return { deleted: true };
     },
     {

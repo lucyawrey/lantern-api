@@ -20,3 +20,5 @@ type ErrResult<E = string> = {
  * are optional (can be undefined).
  */
 type PartialSome<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
+type PartialExcept<T, K extends keyof T> = Pick<T, K> & Partial<Omit<T, K>>;
