@@ -45,7 +45,7 @@ export const authMiddleware = new Elysia({
             requireLogin || (requireRole && requireRole.length > 0);
           if (!auth || !auth.sessionToken) {
             if (requireLogin) {
-              throw "Unauthorized.";
+              throw new Error("Unauthorized.");
             }
             return;
           }
@@ -64,14 +64,14 @@ export const authMiddleware = new Elysia({
             auth.session = session;
           } else {
             if (requireLogin) {
-              throw "Unauthorized.";
+              throw new Error("Unauthorized.");
             }
             return;
           }
 
           if (requireRole) {
             if (!hasRole(session.user, ...requireRole)) {
-              throw "Unauthorized.";
+              throw new Error("Unauthorized.");
             }
           }
           return;

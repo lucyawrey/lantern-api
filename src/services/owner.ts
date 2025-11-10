@@ -13,7 +13,7 @@ export async function findOwnedByRef<Entity extends Owned>(
     $or: [{ id: ref }, { $and: [{ name: ref, ownerUser: ownerUser }] }],
   });
   if (!entity) {
-    throw `${entityName} not found.`;
+    throw new Error(`${entityName} not found.`);
   }
   return entity as Entity;
 }

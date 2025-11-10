@@ -91,7 +91,7 @@ export const userController = new Elysia({
     "/logout",
     async ({ body, auth, cookie: { sessionTokenCookie } }) => {
       if (!auth.isAuthenticated) {
-        throw "Unauthorized.";
+        throw new Error("Unauthorized.");
       }
       const em = db.em.fork();
 
@@ -120,7 +120,7 @@ export const userController = new Elysia({
       const em = db.em.fork();
 
       if (!body.id && !hasRole(auth.session?.user, "admin")) {
-        throw "Unauthorized.";
+        throw new Error("Unauthorized.");
       }
 
       const { user, recoveryToken } = await pushUser(em, body, auth);
@@ -150,7 +150,7 @@ export const userController = new Elysia({
 
       const user = await findUserByRef(em, body?.ref);
       if (!hasAccess("read", user, user, auth.session?.user)) {
-        throw "Unauthorized.";
+        throw new Error("Unauthorized.");
       }
 
       return {

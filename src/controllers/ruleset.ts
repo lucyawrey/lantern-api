@@ -15,16 +15,18 @@ export const rulesetController = new Elysia({
     async ({ body, auth }) => {
       const em = db.em.fork();
       if (body.id !== undefined) {
-        throw "Unimplemented.";
+        throw new Error("Unimplemented.");
       }
       if (!auth.isAuthenticated) {
-        throw "Unauthorized.";
+        throw new Error("Unauthorized.");
       }
       if (await em.findOne(Ruleset, { name: body.name })) {
-        throw "Ruleset already exists with that name.";
+        throw new Error("Ruleset already exists with that name.");
       }
       if (!body.name || !verifyNameInput(body.name)) {
-        throw "Invalid name. Name must be between 3 and 32 characters and can only contain letters, numbers, underscores, and hyphens.";
+        throw new Error(
+          "Invalid name. Name must be between 3 and 32 characters and can only contain letters, numbers, underscores, and hyphens."
+        );
       }
       const ruleset = new Ruleset({
         name: body.name,
@@ -57,7 +59,7 @@ export const rulesetController = new Elysia({
       const ruleset = await em.findOne(Ruleset, body.ref);
       // TODO get by ref
       if (!ruleset) {
-        throw "Ruleset not found.";
+        throw new Error("Ruleset not found.");
       }
       return {
         ruleset: {
