@@ -2,10 +2,21 @@ import { homeController } from "controllers/home";
 import { rulesetController } from "controllers/ruleset";
 import { userController } from "controllers/user";
 import { Elysia } from "elysia";
-import { docsPlugin } from "lib/docs";
+import { authMiddleware } from "middleware/auth";
+import { docsMiddleware } from "middleware/docs";
+import { jsxMiddleware } from "middleware/jsx";
 
 const app = new Elysia()
-  .use(docsPlugin)
+  .onError(({ error, status }) => {
+    const msg = error.toString().replace("Error: ", "");
+    if (msg !== "Error") {
+      console.error(`❗ ${msg}`);
+    }
+    return status(500, { error: msg });
+  })
+  .use(authMiddleware)
+  //.use(jsxMiddleware)
+  .use(docsMiddleware)
   .use(homeController)
   .use(userController)
   .use(rulesetController)

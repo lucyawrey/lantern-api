@@ -1,7 +1,6 @@
 import Elysia from "elysia";
-import { jsxMiddleware } from "middleware/jsx";
 
-export const homeController = new Elysia().use(jsxMiddleware).get(
+export const homeController = new Elysia().get(
   "/",
   () => (
     <html lang="en">

@@ -1,7 +1,7 @@
 import openapi from "@elysiajs/openapi";
 import pkg from "../../package.json";
 
-export const docsPlugin = openapi({
+export const docsMiddleware = openapi({
   path: "/docs",
   documentation: {
     info: {
