@@ -4,17 +4,11 @@ import { userController } from "controllers/user";
 import { Elysia } from "elysia";
 import { authMiddleware } from "middleware/auth";
 import { docsMiddleware } from "middleware/docs";
+import { errorMiddleware } from "middleware/error";
 import { jsxMiddleware } from "middleware/jsx";
 
 const app = new Elysia()
-  .onError(({ error, status }) => {
-    const msg = error.toString().replace("Error: ", "");
-    if (msg !== "Error") {
-      console.error(`❗ ${msg}`);
-    }
-    return status(500, { error: msg });
-  })
-  .use(authMiddleware)
+  .use(errorMiddleware)
   //.use(jsxMiddleware)
   .use(docsMiddleware)
   .use(homeController)
