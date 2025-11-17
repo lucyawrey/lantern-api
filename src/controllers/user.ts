@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { GetUser, User, SignupUser, PushUser } from "entities/User";
+import { GetUser, SignupUser, PushUser } from "entities/User";
 import { hasAccess, hasRole, setSessionCookie } from "lib/auth";
 import { db } from "lib/db";
 import { authMiddleware } from "middleware/auth";
@@ -12,6 +12,7 @@ import {
   logoutUser,
   pushUser,
 } from "services/user";
+import { StandardResponse } from "types/response";
 
 export const userController = new Elysia({
   prefix: "/api/user",
@@ -47,7 +48,7 @@ export const userController = new Elysia({
           setCookie: t.Optional(t.Boolean({ default: true })),
         }),
       ]),
-      response: t.Object({
+      response: StandardResponse({
         user: GetUser,
         sessionToken: t.String(),
         recoveryToken: t.Optional(t.String()),
@@ -81,7 +82,7 @@ export const userController = new Elysia({
         password: t.String(),
         setCookie: t.Optional(t.Boolean({ default: true })),
       }),
-      response: t.Object({
+      response: StandardResponse({
         user: GetUser,
         sessionToken: t.String(),
       }),
@@ -110,7 +111,7 @@ export const userController = new Elysia({
           logoutAllSessions: t.Optional(t.Boolean({ default: false })),
         })
       ),
-      response: t.Object({ loggedOut: t.Literal(true) }),
+      response: StandardResponse({ loggedOut: t.Literal(true) }),
       auth: { requireLogin: true },
     }
   )
@@ -136,7 +137,7 @@ export const userController = new Elysia({
     },
     {
       body: PushUser,
-      response: t.Object({
+      response: StandardResponse({
         user: GetUser,
         recoveryToken: t.Optional(t.String()),
       }),
@@ -161,7 +162,7 @@ export const userController = new Elysia({
     },
     {
       body: RefOptional,
-      response: t.Object({
+      response: StandardResponse({
         user: GetUser,
       }),
       auth: {},
@@ -179,7 +180,7 @@ export const userController = new Elysia({
     },
     {
       body: Id,
-      response: t.Object({ deleted: t.Literal(true) }),
+      response: StandardResponse({ deleted: t.Literal(true) }),
       auth: { requireLogin: true },
     }
   );

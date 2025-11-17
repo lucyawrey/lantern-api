@@ -4,6 +4,7 @@ import { db } from "lib/db";
 import { authMiddleware } from "middleware/auth";
 import { GetRuleset, Ruleset, PushRuleset } from "entities/Ruleset";
 import { Id, Ref } from "types/ref";
+import { StandardResponse } from "types/response";
 
 export const rulesetController = new Elysia({
   prefix: "/api/ruleset",
@@ -46,7 +47,7 @@ export const rulesetController = new Elysia({
     },
     {
       body: PushRuleset,
-      response: t.Object({
+      response: StandardResponse({
         ruleset: GetRuleset,
       }),
       auth: { requireLogin: true },
@@ -70,7 +71,7 @@ export const rulesetController = new Elysia({
     },
     {
       body: Ref,
-      response: t.Object({
+      response: StandardResponse({
         ruleset: GetRuleset,
       }),
     }
@@ -83,7 +84,7 @@ export const rulesetController = new Elysia({
     },
     {
       body: Id,
-      response: t.Object({ deleted: t.Literal(true) }),
+      response: StandardResponse({ deleted: t.Literal(true) }),
       auth: { requireLogin: true },
     }
   );
