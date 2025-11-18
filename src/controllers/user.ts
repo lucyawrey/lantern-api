@@ -13,6 +13,7 @@ import {
   pushUser,
 } from "services/user";
 import { StandardResponse } from "types/response";
+import { AuthError } from "middleware/error";
 
 export const userController = new Elysia({
   prefix: "/api/user",
@@ -92,7 +93,7 @@ export const userController = new Elysia({
     "/logout",
     async ({ body, auth, cookie: { sessionTokenCookie } }) => {
       if (!auth.isAuthenticated) {
-        throw new Error("Unauthorized.");
+        throw new AuthError();
       }
       const em = db.em.fork();
 
@@ -121,7 +122,7 @@ export const userController = new Elysia({
       const em = db.em.fork();
 
       if (!body.id && !hasRole(auth.session?.user, "admin")) {
-        throw new Error("Unauthorized.");
+        throw new AuthError("Only admins can create new users.");
       }
 
       const { user, recoveryToken } = await pushUser(em, body, auth);
@@ -151,7 +152,7 @@ export const userController = new Elysia({
 
       const user = await findUserByRef(em, body?.ref);
       if (!hasAccess("read", user, user, auth.session?.user)) {
-        throw new Error("Unauthorized.");
+        throw new AuthError("You do not have access to this user.");
       }
 
       return {

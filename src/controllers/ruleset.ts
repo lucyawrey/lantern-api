@@ -1,10 +1,15 @@
-import { Elysia, t } from "elysia";
+import { Elysia, NotFoundError, t } from "elysia";
 import { verifyNameInput } from "lib/auth";
 import { db } from "lib/db";
 import { authMiddleware } from "middleware/auth";
 import { GetRuleset, Ruleset, PushRuleset } from "entities/Ruleset";
 import { Id, Ref } from "types/ref";
 import { StandardResponse } from "types/response";
+import {
+  AuthError,
+  UnimplementedError,
+  ValidationError,
+} from "middleware/error";
 
 export const rulesetController = new Elysia({
   prefix: "/api/ruleset",
@@ -16,17 +21,17 @@ export const rulesetController = new Elysia({
     async ({ body, auth }) => {
       const em = db.em.fork();
       if (body.id !== undefined) {
-        throw new Error("Unimplemented.");
+        throw new UnimplementedError();
       }
       if (!auth.isAuthenticated) {
-        throw new Error("Unauthorized.");
+        throw new AuthError();
       }
       if (await em.findOne(Ruleset, { name: body.name })) {
-        throw new Error("Ruleset already exists with that name.");
+        throw new ValidationError("A ruleset already exists with that name.");
       }
       if (!body.name || !verifyNameInput(body.name)) {
-        throw new Error(
-          "Invalid name. Name must be between 3 and 32 characters and can only contain letters, numbers, underscores, and hyphens."
+        throw new ValidationError(
+          "Name must be between 3 and 32 characters and can only contain letters, numbers, underscores, and hyphens."
         );
       }
       const ruleset = new Ruleset({
@@ -60,7 +65,7 @@ export const rulesetController = new Elysia({
       const ruleset = await em.findOne(Ruleset, body.ref);
       // TODO get by ref
       if (!ruleset) {
-        throw new Error("Ruleset not found.");
+        throw new NotFoundError();
       }
       return {
         ruleset: {

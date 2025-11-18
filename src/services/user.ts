@@ -12,6 +12,7 @@ import {
 } from "lib/auth";
 import type { Em } from "lib/db";
 import { Auth, authDefault } from "types/auth";
+import { AuthError, NotFoundError, ValidationError } from "middleware/error";
 
 export async function pushUser(
   em: Em,
@@ -24,12 +25,12 @@ export async function pushUser(
   }
 
   if (pushUser.name && !verifyNameInput(pushUser.name)) {
-    throw new Error(
-      "Invalid username. Username must be between 3 and 32 characters and can only contain letters, numbers, underscores, and hyphens."
+    throw new ValidationError(
+      "Name must be between 3 and 32 characters and can only contain letters, numbers, underscores, and hyphens."
     );
   }
   if (pushUser.password && !verifyPasswordStrength(pushUser.password)) {
-    throw new Error(
+    throw new ValidationError(
       "Password is too weak. Password must be at least 8 characters long and not a commonly used password."
     );
   }
@@ -44,13 +45,13 @@ export async function pushUser(
 
   if (!pushUser.id) {
     if (await em.findOne(User, { name: pushUser.name })) {
-      throw new Error("User already exists with that username.");
+      throw new ValidationError("User already exists with that username.");
     }
     if (!pushUser.name) {
-      throw new Error("Missing user name.");
+      throw new ValidationError("Missing user name.");
     }
     if (!passwordHash) {
-      throw new Error("Missing password.");
+      throw new ValidationError("Missing password.");
     }
     user = new User({
       name: pushUser.name,
@@ -64,10 +65,10 @@ export async function pushUser(
   } else {
     user = await em.findOne(User, pushUser.id);
     if (!user) {
-      throw new Error("User with given ID not found.");
+      throw new NotFoundError("User with given ID not found.");
     }
     if (!hasAccess("write", user, user, auth.session?.user)) {
-      throw new Error("Unauthorized.");
+      throw new AuthError();
     }
     user.name = pushUser.name ?? user.name;
     user.displayName = pushUser.displayName ?? user.displayName;
@@ -94,7 +95,7 @@ export async function loginUser(
   const user = await em.findOne(User, { name });
 
   if (!user) {
-    throw new Error("Invalid username or password.");
+    throw new AuthError("Invalid username or password.");
   }
 
   const passwordIsVerified = await verifyPasswordHash(
@@ -106,7 +107,7 @@ export async function loginUser(
     return user;
   }
 
-  throw new Error("Invalid username or password.");
+  throw new AuthError("Invalid username or password.");
 }
 
 export async function logoutUser(
@@ -129,10 +130,10 @@ export async function deleteUserById(
 ): Promise<void> {
   const user = await em.findOne(User, id);
   if (!user) {
-    throw new Error("User not found.");
+    throw new NotFoundError();
   }
   if (!hasAccess("write", user, user, auth.session?.user)) {
-    throw new Error("Unauthorized.");
+    throw new AuthError();
   }
   em.remove(user);
 }
@@ -150,11 +151,11 @@ export async function createSessionForUser(
 
 export async function findUserByRef(em: Em, ref?: string): Promise<User> {
   if (!ref) {
-    throw new Error("User not found.");
+    throw new NotFoundError();
   }
   const user = await em.findOne(User, { $or: [{ id: ref }, { name: ref }] });
   if (!user) {
-    throw new Error("User not found.");
+    throw new NotFoundError();
   }
   return user;
 }

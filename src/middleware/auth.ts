@@ -4,6 +4,7 @@ import { Role } from "types/enums";
 import { db } from "lib/db";
 import { hashToken, hasRole } from "lib/auth";
 import { Session } from "entities/Session";
+import { AuthError } from "middleware/error";
 
 export const authMiddleware = new Elysia({
   name: "authMiddleware",
@@ -45,7 +46,7 @@ export const authMiddleware = new Elysia({
             requireLogin || (requireRole && requireRole.length > 0);
           if (!auth || !auth.sessionToken) {
             if (requireLogin) {
-              throw new Error("Unauthorized.");
+              throw new AuthError();
             }
             return;
           }
@@ -64,14 +65,14 @@ export const authMiddleware = new Elysia({
             auth.session = session;
           } else {
             if (requireLogin) {
-              throw new Error("Unauthorized.");
+              throw new AuthError();
             }
             return;
           }
 
           if (requireRole) {
             if (!hasRole(session.user, ...requireRole)) {
-              throw new Error("Unauthorized.");
+              throw new AuthError();
             }
           }
           return;

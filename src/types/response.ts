@@ -14,5 +14,6 @@ export function StandardResponse<Type extends TProperties>(type: Type) {
     401: ErrorResponse,
     404: ErrorResponse,
     500: ErrorResponse,
+    501: ErrorResponse,
   };
 }

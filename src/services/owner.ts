@@ -1,4 +1,5 @@
 import { EntityName } from "@mikro-orm/core";
+import { NotFoundError } from "elysia";
 import { Owned } from "entities/Owned";
 import { User } from "entities/User";
 import { Em } from "lib/db";
@@ -13,7 +14,7 @@ export async function findOwnedByRef<Entity extends Owned>(
     $or: [{ id: ref }, { $and: [{ name: ref, ownerUser: ownerUser }] }],
   });
   if (!entity) {
-    throw new Error(`${entityName} not found.`);
+    throw new NotFoundError();
   }
   return entity as Entity;
 }
