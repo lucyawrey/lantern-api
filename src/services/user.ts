@@ -13,6 +13,7 @@ import {
 import type { Em } from "lib/db";
 import { Auth, authDefault } from "types/auth";
 import { AuthError, NotFoundError, ValidationError } from "middleware/error";
+import { Err, Ok } from "lib/result";
 
 export async function pushUser(
   em: Em,
@@ -149,13 +150,16 @@ export async function createSessionForUser(
   return { session, sessionToken };
 }
 
-export async function findUserByRef(em: Em, ref?: string): Promise<User> {
+export async function findUserByRef(
+  em: Em,
+  ref?: string
+): Promise<Result<User, NotFoundError>> {
   if (!ref) {
-    throw new NotFoundError();
+    return Err(new NotFoundError());
   }
   const user = await em.findOne(User, { $or: [{ id: ref }, { name: ref }] });
   if (!user) {
-    throw new NotFoundError();
+    return Err(new NotFoundError());
   }
-  return user;
+  return Ok(user);
 }

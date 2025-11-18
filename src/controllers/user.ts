@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia, NotFoundError, t } from "elysia";
 import { GetUser, SignupUser, PushUser } from "entities/User";
 import { hasAccess, hasRole, setSessionCookie } from "lib/auth";
 import { db } from "lib/db";
@@ -150,16 +150,23 @@ export const userController = new Elysia({
     async ({ body, auth }) => {
       const em = db.em.fork();
 
-      const user = await findUserByRef(em, body?.ref);
-      if (!hasAccess("read", user, user, auth.session?.user)) {
+      if (!body?.ref) {
+        if (auth.isAuthenticated) {
+          return { user: auth.session.user };
+        }
+        throw new NotFoundError();
+      }
+
+      const res = await findUserByRef(em, body?.ref);
+      if (!res.ok) {
+        throw res.error;
+      }
+
+      if (!hasAccess("read", res.data, res.data, auth.session?.user)) {
         throw new AuthError("You do not have access to this user.");
       }
 
-      return {
-        user: {
-          ...user,
-        },
-      };
+      return { user: res.data };
     },
     {
       body: RefOptional,
