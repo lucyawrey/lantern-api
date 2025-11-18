@@ -130,10 +130,10 @@ export const userController = new Elysia({
       em.flush();
 
       return {
-        user: {
-          ...user,
-        },
+        user,
         recoveryToken,
+        recoveryTokenUpdated: recoveryToken ? true : false,
+        passwordUpdated: body.password ? true : false,
       };
     },
     {
@@ -141,6 +141,8 @@ export const userController = new Elysia({
       response: StandardResponse({
         user: GetUser,
         recoveryToken: t.Optional(t.String()),
+        recoveryTokenUpdated: t.Boolean(),
+        passwordUpdated: t.Boolean(),
       }),
       auth: { requireLogin: true },
     }
