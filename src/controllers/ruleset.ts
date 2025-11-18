@@ -41,7 +41,7 @@ export const rulesetController = new Elysia({
         hasReadAccess: body.hasReadAccess,
         hasWriteAccess: body.hasWriteAccess,
       });
-      em.persist(ruleset).flush();
+      await em.persist(ruleset).flush();
 
       return {
         ruleset: {

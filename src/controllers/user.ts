@@ -28,7 +28,7 @@ export const userController = new Elysia({
       const { user, recoveryToken } = await pushUser(em, body);
       const { session, sessionToken } = await createSessionForUser(em, user);
 
-      em.flush();
+      await em.flush();
 
       if (body.setCookie) {
         setSessionCookie(sessionTokenCookie, sessionToken, session.expiresAt);
@@ -64,7 +64,7 @@ export const userController = new Elysia({
       const user = await loginUser(em, body.name, body.password);
       const { session, sessionToken } = await createSessionForUser(em, user);
 
-      em.flush();
+      await em.flush();
 
       if (body.setCookie) {
         setSessionCookie(sessionTokenCookie, sessionToken, session.expiresAt);
@@ -98,7 +98,7 @@ export const userController = new Elysia({
       const em = db.em.fork();
 
       await logoutUser(em, auth.session, body?.logoutAllSessions);
-      em.flush();
+      await em.flush();
 
       if (body?.deleteCookie) {
         sessionTokenCookie.remove();
@@ -127,7 +127,7 @@ export const userController = new Elysia({
 
       const { user, recoveryToken } = await pushUser(em, body, auth);
 
-      em.flush();
+      await em.flush();
 
       return {
         user,
@@ -182,9 +182,11 @@ export const userController = new Elysia({
     "/delete",
     async ({ body, auth }) => {
       const em = db.em.fork();
-
-      deleteUserById(em, body.id, auth);
-      em.flush();
+      const res = await deleteUserById(em, body.id, auth);
+      if (!res.ok) {
+        throw res.error;
+      }
+      await em.flush();
 
       return { deleted: true };
     },

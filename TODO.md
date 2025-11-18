@@ -1,4 +1,5 @@
 # Lantern Backend Todo List
 
 - [ ] OneToMany collections
-- [ ] Proper Query failures in endpoints.
+- [ ] Add initial data importer.
+- [ ] Add more database field enforcement (disallow empty strings, for example)

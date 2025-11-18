@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "bun",
+      "internalConsoleOptions": "openOnSessionStart",
+      "request": "launch",
+      "name": "Debug File",
+      "program": "src/index.ts",
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "watchMode": true
+    },
+    {
+      "type": "bun",
+      "internalConsoleOptions": "neverOpen",
+      "request": "attach",
+      "name": "Attach Bun",
+      "url": "ws://localhost:6499/",
+      "stopOnEntry": true
+    }
+  ]
+}

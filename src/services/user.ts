@@ -113,14 +113,17 @@ export async function loginUser(
 
 export async function logoutUser(
   em: Em,
-  session: Session,
+  session: PartialExcept<Session, "user">,
   logoutAllSessions: boolean = false
 ): Promise<void> {
   if (logoutAllSessions) {
     let sessions = await em.find(Session, { user: session.user });
-    em.remove(sessions).flush();
+    await em.remove(sessions).flush();
   } else {
-    em.remove(session).flush();
+    if (!session.id) {
+      return;
+    }
+    await em.remove(session).flush();
   }
 }
 
@@ -128,15 +131,17 @@ export async function deleteUserById(
   em: Em,
   id: string,
   auth: Auth = authDefault
-): Promise<void> {
+): Promise<Result<undefined, Error>> {
   const user = await em.findOne(User, id);
   if (!user) {
-    throw new NotFoundError();
+    return Err(new NotFoundError());
   }
   if (!hasAccess("write", user, user, auth.session?.user)) {
-    throw new AuthError();
+    return Err(new AuthError());
   }
+  await logoutUser(em, { user }, true);
   em.remove(user);
+  return Ok();
 }
 
 export async function createSessionForUser(
