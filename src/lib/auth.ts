@@ -17,6 +17,16 @@ export function generateId(): string {
   return id;
 }
 
+/**
+ * Verifies that the given Id is valid. A valid Id is a 26 character
+ * base32 lowercase unpadded string, equivalent to 16 random bytes.
+ * @param id Id to verify
+ * @returns true if the given Id is valid, false otherwise
+ */
+export function verifyId(id: string): boolean {
+  return /^[a-z2-7]{26}$/.test(id);
+}
+
 /* Tokens */
 export async function generateAuthToken(): Promise<
   [token: string, hash: string]
