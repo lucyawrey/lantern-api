@@ -1,13 +1,11 @@
 import {
   encodeBase32LowerCaseNoPadding,
   encodeHexLowerCase,
-  encodeBase64urlNoPadding,
-  encodeBase32UpperCaseNoPadding,
 } from "@oslojs/encoding";
 import { hash, verify } from "@node-rs/argon2";
 import { Cookie } from "elysia";
 import { sha256 } from "@oslojs/crypto/sha2";
-import { AccessType, Role } from "types/enums";
+import { Role } from "types/enums";
 import { User } from "entities/User";
 import { Owned } from "entities/Owned";
 
@@ -15,28 +13,12 @@ import { Owned } from "entities/Owned";
 export function generateId(): string {
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
-  const id = encodeBase64urlNoPadding(bytes);
+  const id = encodeBase32LowerCaseNoPadding(bytes);
   return id;
 }
 
-/* Recovery Codes */
-export async function generateRecoveryToken(): Promise<
-  [token: string, hash: string]
-> {
-  const bytes = new Uint8Array(20);
-  crypto.getRandomValues(bytes);
-  const token = encodeBase32UpperCaseNoPadding(bytes);
-  let hash = await hashToken(token);
-  return [token, hash];
-}
-
-/* Sessions */
-export function hashToken(token: string): string {
-  const hash = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-  return hash;
-}
-
-export async function generateSessionToken(): Promise<
+/* Tokens */
+export async function generateAuthToken(): Promise<
   [token: string, hash: string]
 > {
   const bytes = new Uint8Array(20);
@@ -46,6 +28,12 @@ export async function generateSessionToken(): Promise<
   return [token, hash];
 }
 
+export function hashToken(token: string): string {
+  const hash = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+  return hash;
+}
+
+/* Sessions */
 export function setSessionCookie(
   sessionTokenCookie: Cookie<unknown>,
   token: string,

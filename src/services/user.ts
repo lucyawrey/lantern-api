@@ -1,8 +1,7 @@
 import { Session } from "entities/Session";
 import { PushUser, User } from "entities/User";
 import {
-  generateRecoveryToken,
-  generateSessionToken,
+  generateAuthToken,
   hasAccess,
   hashPassword,
   hasRole,
@@ -38,7 +37,7 @@ export async function pushUser(
 
   let user: User | null = null;
   const [recoveryToken, recoveryTokenHash] = pushUser.generateRecoveryToken
-    ? await generateRecoveryToken()
+    ? await generateAuthToken()
     : [undefined, undefined];
   const passwordHash = pushUser.password
     ? await hashPassword(pushUser.password)
@@ -148,7 +147,7 @@ export async function createSessionForUser(
   em: Em,
   user: User
 ): Promise<{ session: Session; sessionToken: string }> {
-  const [sessionToken, sessionTokenHash] = await generateSessionToken();
+  const [sessionToken, sessionTokenHash] = await generateAuthToken();
   const session = new Session({ id: sessionTokenHash, user });
 
   em.persist(session);
