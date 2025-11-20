@@ -1,113 +1,198 @@
-import { Elysia, error, t } from "elysia";
-import { UserService } from "services/user";
-import { SessionService } from "services/session";
-import { setSessionCookie } from "lib/authentication";
+import { Elysia, NotFoundError, t } from "elysia";
+import { GetUser, SignupUser, PushUser } from "entities/User";
+import { hasAccess, hasRole, setSessionCookie } from "lib/auth";
+import { db } from "lib/db";
 import { authMiddleware } from "middleware/auth";
-import { toDate, User } from "types/models";
-import { responseSchema } from "lib/util";
+import { Id, RefOptional } from "types/ref";
+import {
+  createSessionForUser,
+  deleteUserById,
+  findUserByRef,
+  loginUser,
+  logoutUser,
+  pushUser,
+} from "services/user";
+import { StandardResponse } from "types/response";
+import { AuthError } from "middleware/error";
 
-export const userController = new Elysia({ prefix: "/user" })
+export const userController = new Elysia({
+  prefix: "/api/user",
+  tags: ["User"],
+})
   .use(authMiddleware)
-  .put(
+  .post(
     "/signup",
-    async ({ error, body, cookie: { sessionToken } }) => {
-      const newUser = await UserService.createUser(
-        body.username,
-        body.email,
-        body.password,
-        false,
-        ["user"],
-        body.displayName,
-        body.iconUrl
-      );
-      if (!newUser.ok) {
-        return error(400, newUser.error);
-      }
-      const user = newUser.data;
+    async ({ body, cookie: { sessionTokenCookie } }) => {
+      const em = db.em.fork();
 
-      const sessionResult = await SessionService.createSession(user.id);
-      if (!sessionResult.ok) {
-        return error(500, sessionResult.error);
-      }
-      const { token, session } = sessionResult.data;
+      const { user, recoveryToken } = await pushUser(em, body);
+      const { session, sessionToken } = await createSessionForUser(em, user);
+
+      await em.flush();
+
       if (body.setCookie) {
-        setSessionCookie(sessionToken, token, toDate(session.expiresAt));
+        setSessionCookie(sessionTokenCookie, sessionToken, session.expiresAt);
       }
 
-      return { token, user };
+      return {
+        user: {
+          ...user,
+        },
+        sessionToken,
+        recoveryToken,
+      };
     },
     {
-      body: t.Object({
-        username: t.String(),
-        email: t.String(),
-        password: t.String(),
-        displayName: t.Optional(t.String()),
-        iconUrl: t.Optional(t.String()),
-        setCookie: t.Optional(t.Boolean({ default: true })),
+      body: t.Composite([
+        SignupUser,
+        t.Object({
+          setCookie: t.Optional(t.Boolean({ default: true })),
+        }),
+      ]),
+      response: StandardResponse({
+        user: GetUser,
+        sessionToken: t.String(),
+        recoveryToken: t.Optional(t.String()),
       }),
-      response: responseSchema({ token: t.String(), user: User }),
     }
   )
   .post(
     "/login",
-    async ({ error, body, cookie: { sessionToken } }) => {
-      const authenticationResult = await UserService.authenticateUser(
-        body.usernameOrEmail,
-        body.password
-      );
-      if (!authenticationResult.ok) {
-        return error(401, authenticationResult.error);
-      }
-      const user = authenticationResult.data;
-      const sessionResult = await SessionService.createSession(user.id);
-      if (!sessionResult.ok) {
-        return error(500, sessionResult.error);
-      }
-      const { token, session } = sessionResult.data;
+    async ({ body, cookie: { sessionTokenCookie } }) => {
+      const em = db.em.fork();
+
+      const user = await loginUser(em, body.name, body.password);
+      const { session, sessionToken } = await createSessionForUser(em, user);
+
+      await em.flush();
+
       if (body.setCookie) {
-        setSessionCookie(sessionToken, token, toDate(session.expiresAt));
+        setSessionCookie(sessionTokenCookie, sessionToken, session.expiresAt);
       }
 
-      return { token, user };
+      return {
+        user: {
+          ...user,
+        },
+        sessionToken,
+      };
     },
     {
       body: t.Object({
-        usernameOrEmail: t.String(),
+        name: t.String(),
         password: t.String(),
         setCookie: t.Optional(t.Boolean({ default: true })),
       }),
-      response: responseSchema({ token: t.String(), user: User }),
+      response: StandardResponse({
+        user: GetUser,
+        sessionToken: t.String(),
+      }),
     }
   )
-  .delete(
+  .post(
     "/logout",
-    async ({ error, auth, body, cookie: { sessionToken } }) => {
+    async ({ body, auth, cookie: { sessionTokenCookie } }) => {
       if (!auth.isAuthenticated) {
-        return error(401, "Not authorized.");
+        throw new AuthError();
       }
-      if (body?.deleteCookie) {
-        sessionToken.remove();
-      }
+      const em = db.em.fork();
 
-      let id: Result<string>;
-      if (body?.logoutAllSessions) {
-        id = await SessionService.invalidateAllUserSession(auth.user.id);
-      } else {
-        id = await SessionService.invalidateSession(auth.session.id);
+      await logoutUser(em, auth.session, body?.logoutAllSessions);
+      await em.flush();
+
+      if (body?.deleteCookie) {
+        sessionTokenCookie.remove();
       }
-      if (id.ok) {
-        return { id: id.data };
-      }
-      return error(500, id.error);
+      return { loggedOut: true };
     },
     {
-      authenticate: { requireLogin: true },
       body: t.Optional(
         t.Object({
           deleteCookie: t.Optional(t.Boolean({ default: true })),
           logoutAllSessions: t.Optional(t.Boolean({ default: false })),
         })
       ),
-      response: responseSchema({ id: t.String() }),
+      response: StandardResponse({ loggedOut: t.Literal(true) }),
+      auth: { requireLogin: true },
+    }
+  )
+  .post(
+    "/push",
+    async ({ body, auth }) => {
+      const em = db.em.fork();
+
+      if (!body.id && !hasRole(auth.session?.user, "admin")) {
+        throw new AuthError("Only admins can create new users.");
+      }
+
+      const { user, recoveryToken } = await pushUser(em, body, auth);
+
+      await em.flush();
+
+      return {
+        user,
+        recoveryToken,
+        recoveryTokenUpdated: recoveryToken ? true : false,
+        passwordUpdated: body.password ? true : false,
+      };
+    },
+    {
+      body: PushUser,
+      response: StandardResponse({
+        user: GetUser,
+        recoveryToken: t.Optional(t.String()),
+        recoveryTokenUpdated: t.Boolean(),
+        passwordUpdated: t.Boolean(),
+      }),
+      auth: { requireLogin: true },
+    }
+  )
+  .post(
+    "/find",
+    async ({ body, auth }) => {
+      const em = db.em.fork();
+
+      if (!body?.ref) {
+        if (auth.isAuthenticated) {
+          return { user: auth.session.user };
+        }
+        throw new NotFoundError();
+      }
+
+      const res = await findUserByRef(em, body?.ref);
+      if (!res.ok) {
+        throw res.error;
+      }
+
+      if (!hasAccess("read", res.data, res.data, auth.session?.user)) {
+        throw new AuthError("You do not have access to this user.");
+      }
+
+      return { user: res.data };
+    },
+    {
+      body: RefOptional,
+      response: StandardResponse({
+        user: GetUser,
+      }),
+      auth: {},
+    }
+  )
+  .post(
+    "/delete",
+    async ({ body, auth }) => {
+      const em = db.em.fork();
+      const res = await deleteUserById(em, body.id, auth);
+      if (!res.ok) {
+        throw res.error;
+      }
+      await em.flush();
+
+      return { deleted: true };
+    },
+    {
+      body: Id,
+      response: StandardResponse({ deleted: t.Literal(true) }),
+      auth: { requireLogin: true },
     }
   );

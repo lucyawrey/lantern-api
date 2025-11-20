@@ -1,4 +1,4 @@
-import type { Data } from "types/models";
+import type { Data } from "types/data";
 import { Err, Ok } from "lib/result";
 
 /**
@@ -8,19 +8,28 @@ import { Err, Ok } from "lib/result";
  * @returns a flattened JavaScript object with keys that may be paths. Example:
  * `{name: "Character", "stats.abilityScores.strength": "12"}`.
  */
-export function flatten(object: string | unknown, first: boolean = true): Result<Data, string> {
+export function flatten(
+  object: string | unknown,
+  first: boolean = true
+): Result<Data, string> {
   if (object === undefined || object === null) {
-    return Err("Failed to convert object to flat data format. Object is null or undefined.");
+    return Err(
+      "Failed to convert object to flat data format. Object is null or undefined."
+    );
   }
   if (first && typeof object === "string") {
     try {
       object = JSON.parse(object);
     } catch (_e) {
-      return Err("Failed to convert object to flat data format. Could not parse string as json.");
+      return Err(
+        "Failed to convert object to flat data format. Could not parse string as json."
+      );
     }
   }
   if (typeof object !== "object") {
-    return Err("Failed to convert object to flat data format. Not a valid javascript object.");
+    return Err(
+      "Failed to convert object to flat data format. Not a valid javascript object."
+    );
   }
 
   const result: Data = {};

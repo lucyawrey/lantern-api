@@ -1,24 +1,7 @@
-# Initial API Project Todo List
+# Lantern Backend Todo List
 
-- [ ] Authentication and Users
-  - [ ] Fix Auth header Bearer token not working
-  - [x] Session validation
-  - [x] User logout
-  - [ ] User delete
-  - [ ] User update
-  - [ ] Password update
-  - [ ] Password reset
-  - [ ] Email verification
-  - [ ] Role based access control
-  - [ ] Cross-Site Request Forgery (CSRF) prevention!!
-- [ ] Data
-  - [ ] DB Indexes for common lookups (name fields, reference id fields)
-  - [x] Fix nested array flattening with data flatten function
-- [ ] Access Control
-  - [ ] Allow users to access content from friends or that is specifically shared (req new relational tables)
-  - [ ] Allow users to access content from a Table (to be implemented)
-  - [ ] Potentially removing most access control checks from queries
-- [ ] Code maintainability
-  - [ ] Set up proper linting,
-  - [ ] Remove reliance on `any` in database queries.
-  - [ ] Remove `better-sqlite3` dev dependency that is only needed to appease `kysely-codegen` which cant recognize the our bun specific driver.
+- [ ] Check for name+ownerUser for non owned entities instead of just name in initial data creator
+- [ ] AccessType arrays
+- [ ] OneToMany collections
+- [ ] Add database column check constraint (disallow certain empty strings, set min and max length of strings, etc.)
+- [ ] TOML data importer with access control and updating existing entities.

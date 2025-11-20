@@ -1,9 +1,27 @@
-import { Static, t } from "elysia";
+import { type Static, t } from "elysia";
 
-export const Group = t.UnionEnum(["user", "admin"]);
-export const Visibility = t.UnionEnum(["public", "private", "limited", "friends"]);
+export const Role = t.UnionEnum(["user", "organization", "official", "admin"]);
+export type Role = Static<typeof Role>;
 
-export type Group = Static<typeof Group>;
-export type Visibility = Static<typeof Visibility>;
+export const AccessType = t.UnionEnum([
+  "inviteOnly",
+  "friends",
+  "tables",
+  "friendsAndTables",
+  "public",
+  "members",
+]);
+export type AccessType = Static<typeof AccessType>;
 
-export * from "gen/enums";
+export const ContentMode = t.UnionEnum(["static", "interactive"]);
+export type ContentMode = Static<typeof ContentMode>;
+
+export const ContentCategory = t.UnionEnum([
+  "other",
+  "page",
+  "character",
+  "item",
+  "npc",
+  "container",
+]);
+export type ContentCategory = Static<typeof ContentCategory>;

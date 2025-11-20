@@ -1,128 +1,169 @@
-import type { Insertable, Selectable } from "kysely";
+import { Session } from "entities/Session";
+import { PushUser, User } from "entities/User";
 import {
+  generateAuthToken,
+  hasAccess,
   hashPassword,
-  verifyEmailInput,
+  hasRole,
+  verifyNameInput,
   verifyPasswordHash,
   verifyPasswordStrength,
-  verifyUsernameInput,
-} from "lib/authentication";
-import { db } from "lib/database";
+} from "lib/auth";
+import type { Em } from "lib/db";
+import { Auth, authDefault } from "types/auth";
+import { AuthError, NotFoundError, ValidationError } from "middleware/error";
 import { Err, Ok } from "lib/result";
-import type { Credential, User as DbUser } from "types/database";
-import { toUser, User } from "types/models";
 
-export abstract class UserService {
-  static async checkEmailAvailability(email: string): Promise<Result> {
-    const row = await db
-      .selectFrom("user")
-      .where("email", "=", email)
-      .select(db.fn.countAll().as("count"))
-      .executeTakeFirst();
-    if (!row) {
-      return Err("Failed to get email count from database.");
-    }
-    if (row.count != 0) {
-      return Err("Email is already taken.");
-    }
-    return Ok();
+export async function pushUser(
+  em: Em,
+  pushUser: PushUser,
+  auth: Auth = authDefault
+): Promise<{ user: User; recoveryToken?: string }> {
+  // Only admins can set user roles
+  if (!hasRole(auth.session?.user, "admin")) {
+    pushUser.roles = undefined;
   }
 
-  static async createUser(
-    username: string,
-    email: string,
-    password: string,
-    isOrganization: boolean = false,
-    groups?: string[],
-    displayName?: string,
-    iconUrl?: string
-  ): Promise<Result<User>> {
-    if (!verifyEmailInput(email)) {
-      return Err("Invalid email.");
-    }
-    if (!verifyUsernameInput(username)) {
-      return Err("Invalid username. Can only contain alphanumeric characters and '_'.");
-    }
-    const strongPassword = await verifyPasswordStrength(password);
-    if (!strongPassword.ok) {
-      return strongPassword;
-    }
-    const emailAvailable = await UserService.checkEmailAvailability(email);
-    if (!emailAvailable.ok) {
-      return emailAvailable;
-    }
+  if (pushUser.name && !verifyNameInput(pushUser.name)) {
+    throw new ValidationError(
+      "Name must be between 3 and 32 characters and can only contain letters, numbers, underscores, and hyphens."
+    );
+  }
+  if (pushUser.password && !verifyPasswordStrength(pushUser.password)) {
+    throw new ValidationError(
+      "Password is too weak. Password must be at least 8 characters long and not a commonly used password."
+    );
+  }
 
-    const passwordHash = await hashPassword(password);
-    const user: Insertable<DbUser> = {
-      id: crypto.randomUUID(),
-      username,
-      email,
-      groups: groups ? JSON.stringify(groups) : undefined,
-      isOrganization: isOrganization ? 1 : 0,
-      displayName: displayName,
-      iconUrl: iconUrl,
-    };
-    const credential: Insertable<Credential> = {
-      id: crypto.randomUUID(),
-      userId: user.id,
+  let user: User | null = null;
+  const [recoveryToken, recoveryTokenHash] = pushUser.generateRecoveryToken
+    ? await generateAuthToken()
+    : [undefined, undefined];
+  const passwordHash = pushUser.password
+    ? await hashPassword(pushUser.password)
+    : undefined;
+
+  if (!pushUser.id) {
+    if (await em.findOne(User, { name: pushUser.name })) {
+      throw new ValidationError("User already exists with that username.");
+    }
+    if (!pushUser.name) {
+      throw new ValidationError("Missing user name.");
+    }
+    if (!passwordHash) {
+      throw new ValidationError("Missing password.");
+    }
+    user = new User({
+      name: pushUser.name,
+      displayName: pushUser.displayName,
+      roles: pushUser.roles,
+      hasReadAccess: pushUser.hasReadAccess,
+      iconUrl: pushUser.iconUrl,
       passwordHash,
-    };
-
-    const userRow = await db.insertInto("user").values(user).returningAll().executeTakeFirst();
-    if (!(userRow && userRow.id)) {
-      return Err("Database error. Could not create user.");
+      recoveryTokenHash,
+    });
+  } else {
+    user = await em.findOne(User, pushUser.id);
+    if (!user) {
+      throw new NotFoundError("User with given ID not found.");
     }
-    const credentialRow = await db
-      .insertInto("credential")
-      .values(credential)
-      .returning("id")
-      .executeTakeFirst();
-    if (!(credentialRow && credentialRow.id)) {
-      await db.deleteFrom("user").where("id", "=", user.id).execute();
-      return Err("Database error. Could not create user credential.");
+    if (!hasAccess("write", user, user, auth.session?.user)) {
+      throw new AuthError();
     }
-
-    return Ok(toUser(userRow));
+    user.name = pushUser.name ?? user.name;
+    user.displayName = pushUser.displayName ?? user.displayName;
+    user.roles = pushUser.roles ?? user.roles;
+    user.hasReadAccess = pushUser.hasReadAccess ?? user.hasReadAccess;
+    user.iconUrl = pushUser.iconUrl ?? user.iconUrl;
+    if (passwordHash) {
+      user.passwordHash = passwordHash;
+    }
+    if (recoveryTokenHash) {
+      user.recoveryTokenHash = recoveryTokenHash;
+    }
   }
 
-  /**
-   * This is critical authentication logic and should only be changed with care.
-   */
-  static async authenticateUser(usernameOrEmail: string, password: string): Promise<Result<User>> {
-    usernameOrEmail = usernameOrEmail.trim();
-    let userRow: Selectable<DbUser> | undefined;
-    if (verifyUsernameInput(usernameOrEmail)) {
-      userRow = await db
-        .selectFrom("user")
-        .where("username", "=", usernameOrEmail)
-        .selectAll()
-        .executeTakeFirst();
-    } else if (verifyEmailInput(usernameOrEmail)) {
-      userRow = await db
-        .selectFrom("user")
-        .where("email", "=", usernameOrEmail)
-        .selectAll()
-        .executeTakeFirst();
-    } else {
-      return Err("Invalid username or email.");
-    }
-    if (userRow == undefined) {
-      return Err("No user exists with that username/email and password.");
-    }
+  em.persist(user);
+  return { user, recoveryToken };
+}
 
-    // Critical password verification logic
-    const credential = await db
-      .selectFrom("credential")
-      .where("userId", "=", userRow.id)
-      .select("passwordHash")
-      .executeTakeFirst();
-    if (credential == undefined) {
-      return Err("Could not find authentication information for user.");
-    }
-    const passwordIsValid = await verifyPasswordHash(credential.passwordHash, password);
-    if (passwordIsValid) {
-      return Ok(toUser(userRow));
-    }
+export async function loginUser(
+  em: Em,
+  name: string,
+  password: string
+): Promise<User> {
+  const user = await em.findOne(User, { name });
 
-    return Err("No user exists with that username/email and password.");
+  if (!user) {
+    throw new AuthError("Invalid username or password.");
   }
+
+  const passwordIsVerified = await verifyPasswordHash(
+    user.passwordHash,
+    password
+  );
+
+  if (passwordIsVerified) {
+    return user;
+  }
+
+  throw new AuthError("Invalid username or password.");
+}
+
+export async function logoutUser(
+  em: Em,
+  session: PartialExcept<Session, "user">,
+  logoutAllSessions: boolean = false
+): Promise<void> {
+  if (logoutAllSessions) {
+    let sessions = await em.find(Session, { user: session.user });
+    await em.remove(sessions).flush();
+  } else {
+    if (!session.id) {
+      return;
+    }
+    await em.remove(session).flush();
+  }
+}
+
+export async function deleteUserById(
+  em: Em,
+  id: string,
+  auth: Auth = authDefault
+): Promise<Result<undefined, Error>> {
+  const user = await em.findOne(User, id);
+  if (!user) {
+    return Err(new NotFoundError());
+  }
+  if (!hasAccess("write", user, user, auth.session?.user)) {
+    return Err(new AuthError());
+  }
+  await logoutUser(em, { user }, true);
+  em.remove(user);
+  return Ok();
+}
+
+export async function createSessionForUser(
+  em: Em,
+  user: User
+): Promise<{ session: Session; sessionToken: string }> {
+  const [sessionToken, sessionTokenHash] = await generateAuthToken();
+  const session = new Session({ id: sessionTokenHash, user });
+
+  em.persist(session);
+  return { session, sessionToken };
+}
+
+export async function findUserByRef(
+  em: Em,
+  ref?: string
+): Promise<Result<User, NotFoundError>> {
+  if (!ref) {
+    return Err(new NotFoundError());
+  }
+  const user = await em.findOne(User, { $or: [{ id: ref }, { name: ref }] });
+  if (!user) {
+    return Err(new NotFoundError());
+  }
+  return Ok(user);
 }

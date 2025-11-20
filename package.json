@@ -1,39 +1,36 @@
 {
   "name": "lantern-api",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "bun run type && bun run migrate:prod && bun run generate:prod && bun build src/index.tsx --target bun --outdir ./build",
-    "start": "NODE_ENV=production bun --env-file .env.prod build/index.js",
-    "dev": "bun run migrate && bun run generate && bun run --env-file .env.dev --watch src/index.tsx",
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun run type && bun build src/index.ts --compile --outfile build/lantern",
+    "start": "build/lantern",
     "fmt": "prettier --write .",
     "type": "tsc --noEmit",
-    "migrate:prod": "bun run --env-file .env.prod src/scripts/runMigrations.ts --latest",
-    "migrate": "bun run --env-file .env.dev src/scripts/runMigrations.ts --latest",
-    "migrate:up": "bun run --env-file .env.dev src/scripts/runMigrations.ts --up",
-    "migrate:down": "bun run --env-file .env.dev src/scripts/runMigrations.ts --down",
-    "migrate:new": "bun run --env-file .env.dev src/scripts/newMigration.ts",
-    "generate:prod": "kysely-codegen --env-file .env.prod --out-file ./gen/database.ts --camel-case && bun run generate:post",
-    "generate": "kysely-codegen --env-file .env.dev --out-file ./gen/database.ts --camel-case && bun run generate:post",
-    "generate:post": "bun run ./src/scripts/generateCode.ts"
+    "migrate": "bunx -b mikro-orm schema:create --run && bun run createInitialData",
+    "createInitialData": "bun run src/scripts/create-initial-data.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@elysiajs/swagger": "^1.1.6",
+    "@elysiajs/openapi": "^1.4.11",
+    "@mikro-orm/core": "^6.5.9",
+    "@mikro-orm/reflection": "^6.5.9",
+    "@mikro-orm/sqlite": "^6.5.9",
     "@node-rs/argon2": "^2.0.2",
     "@oslojs/crypto": "^1.0.1",
     "@oslojs/encoding": "^1.1.0",
     "elysia": "latest",
-    "kysely": "^0.27.4",
-    "kysely-bun-worker": "^0.7.0",
-    "preact": "^10.25.1",
-    "preact-render-to-string": "^6.5.11"
+    "preact": "^10.27.2",
+    "preact-render-to-string": "^6.6.3",
+    "toml": "^3.0.0"
   },
   "devDependencies": {
-    "better-sqlite3": "^11.6.0",
+    "@mikro-orm/cli": "^6.5.9",
+    "@mikro-orm/migrations": "^6.5.9",
     "bun-types": "latest",
-    "kysely-codegen": "^0.17.0",
-    "prettier": "^3.4.2",
-    "typescript": "^5.7.2"
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3"
   },
+  "type": "module",
   "module": "src/index.js"
 }
