@@ -1,0 +1,18 @@
+[[User]]
+name = "admin"
+displayName = "Lantern Administrator"
+roles = ["user", "admin"]
+hasReadAccess = "inviteOnly"
+
+[[User]]
+name = "lo"
+displayName = "Lantern Official"
+roles = ["organization", "official", "admin"]
+hasReadAccess = "public"
+#iconUrl = ""
+
+[[User]]
+name = "lucy"
+displayName = "Lucy Azalea"
+roles = ["user"]
+hasReadAccess = "public"

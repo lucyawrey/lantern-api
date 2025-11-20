@@ -35,7 +35,8 @@
       "middleware/*": ["./src/middleware/*"],
       "types/*": ["./src/types/*"],
       "entities/*": ["./src/entities/*"],
-      "services/*": ["./src/services/*"]
+      "services/*": ["./src/services/*"],
+      "scripts/*": ["./src/scripts/*"]
     },
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
