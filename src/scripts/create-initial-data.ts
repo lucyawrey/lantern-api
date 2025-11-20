@@ -1,10 +1,15 @@
+import { Ruleset } from "entities/Ruleset";
 import { User } from "entities/User";
-import { generateId, hashPassword } from "lib/auth";
-import { db } from "lib/db";
+import { generateId, hashPassword, verifyId } from "lib/auth";
+import { db, Em } from "lib/db";
 import { readdir } from "node:fs/promises";
+import { findUserByRef } from "services/user";
 import { parse } from "toml";
 
-const entityTypeList = [{ Entity: User, dataAdder: addUserData }];
+const entityTypeList = [
+  { Entity: User, modifyData: modifyUserData },
+  { Entity: Ruleset, modifyData: modifyDataWithOwner },
+];
 
 async function createInitialData() {
   const em = db.em.fork();
@@ -18,18 +23,19 @@ async function createInitialData() {
 
   const parsedDataFull = parse(tomlText);
 
-  for (const { Entity, dataAdder } of entityTypeList) {
+  for (const { Entity, modifyData: dataAdder } of entityTypeList) {
     const dataList = parsedDataFull[Entity.name];
     if (dataList && Array.isArray(dataList) && dataList.length > 0) {
       for (let data of dataList) {
         if (
           typeof data !== "object" ||
-          (await em.findOne(User, { name: data.name }))
+          data.name === "template" ||
+          (await em.findOne(Entity, { name: data.name }))
         ) {
           continue;
         }
         if (dataAdder && typeof dataAdder === "function") {
-          data = await dataAdder(data);
+          data = await dataAdder(data, em);
         }
         const newEntity = new Entity({ ...data });
         if (newEntity && newEntity.id) {
@@ -46,16 +52,28 @@ async function createInitialData() {
   await em.flush();
 }
 
-async function addUserData(data: any) {
+async function modifyUserData(data: any, em: Em) {
   const password = generateId();
   const passwordHash = await hashPassword(password);
   data.passwordHash = passwordHash;
 
-  const file = Bun.file(`user-credentials.txt`);
-  let userCredentialsText = (await file.exists()) ? await file.text() : "";
-  userCredentialsText += `username = ${data.name}, password = ${password}\n`;
+  const file = Bun.file(`user-credentials.csv`);
+  let userCredentialsText = (await file.exists())
+    ? await file.text()
+    : "username, password\n";
+  userCredentialsText += `${data.name}, ${password}\n`;
   file.write(userCredentialsText);
 
+  return data;
+}
+
+async function modifyDataWithOwner(data: any, em: Em) {
+  if (data.ownerUserRef) {
+    const res = await findUserByRef(em, data.ownerUserRef);
+    if (res.ok) {
+      data.ownerUser = res.data;
+    }
+  }
   return data;
 }
 

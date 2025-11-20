@@ -1,1 +1,13 @@
 [[Ruleset]]
+name = "template"
+displayName = "Ruleset Template"
+ownerUserRef = "template"
+hasReadAccess = "inviteOnly"
+hasWriteAccess = "inviteOnly"
+
+[[Ruleset]]
+name = "dnd5e"
+displayName = "Dungeons & Dragons 5th Edition"
+ownerUserRef = "lo"
+hasReadAccess = "public"
+hasWriteAccess = "inviteOnly"
